@@ -3,6 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
 import { seedDatabase } from "./seed";
 import FriendList from "./FriendList";
+import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
 
 function App() {
@@ -32,14 +33,12 @@ function App() {
     const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
 
     return (
-        <div className="min-h-screen container mx-auto p-4 md:p-8 flex flex-col">
+        <div className="min-h-screen mx-auto pl-4 md:p-8 flex flex-col">
             <header className="text-center mb-6">
                 <h1 className="text-7xl font-bold text-stone-900">Friendex</h1>
             </header>
 
-            {/* --- Top Section --- */}
-            <section className="flex flex-col md:flex-row gap-4 mb-6">
-                {/* Profile Picture */}
+            <section className="flex flex-row md:flex-row items-center gap-4 mb-6">
                 <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center">
                     {selectedFriend?.profilePicture ? (
                         <img
@@ -59,14 +58,19 @@ function App() {
                 </div>
 
                 {/* Friend List */}
-                <FriendList
+                {/* <FriendList
+                    friends={friends || []}
+                    selectedId={selectedFriendId}
+                    onSelect={setSelectedFriendId}
+                /> */}
+                <RolodexList
                     friends={friends || []}
                     selectedId={selectedFriendId}
                     onSelect={setSelectedFriendId}
                 />
             </section>
 
-            {/* --- Bottom Section --- */}
+            {/* --- Selected Friend Detail View --- */}
             <section className="flex-grow">
                 <FriendDetailView friend={selectedFriend} />
             </section>
