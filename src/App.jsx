@@ -33,13 +33,13 @@ function App() {
     const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
 
     return (
-        <div className="min-h-screen mx-auto pl-4 md:p-8 flex flex-col">
+        <div className="min-h-screen mx-auto md:p-8 flex flex-col">
             <header className="text-center mb-6">
                 <h1 className="text-7xl font-bold text-stone-900">Friendex</h1>
             </header>
 
             <section className="flex flex-row md:flex-row items-center gap-4 mb-6">
-                <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center">
+                <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center ml-4">
                     {selectedFriend?.profilePicture ? (
                         <img
                             src={selectedFriend.profilePicture}
@@ -71,7 +71,7 @@ function App() {
             </section>
 
             {/* --- Selected Friend Detail View --- */}
-            <section className="flex-grow">
+            <section className="flex-grow px-2 pb-2">
                 <FriendDetailView friend={selectedFriend} />
             </section>
         </div>
