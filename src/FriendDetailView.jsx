@@ -1,5 +1,8 @@
 // src/FriendDetailView.jsx
+import { useNavigate } from "react-router-dom";
+
 function FriendDetailView({ friend }) {
+    const navigate = useNavigate();
     if (!friend) {
         return (
             <div className="card-hand-drawn text-center p-8">
@@ -12,7 +15,17 @@ function FriendDetailView({ friend }) {
 
     return (
         <div className="card-hand-drawn space-y-6 p-6">
-            <h2 className="text-5xl font-bold text-amber-600">{friend.name}</h2>
+            <div className="flex items-center justify-between">
+                <h2 className="text-5xl font-bold text-amber-600">
+                    {friend.name}
+                </h2>
+                <button
+                    onClick={() => navigate(`/modify/${friend.id}`)}
+                    className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition-colors font-medium text-sm"
+                >
+                    Modify
+                </button>
+            </div>
 
             {/* About Section */}
             <section>
