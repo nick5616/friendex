@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useNavigate } from "react-router-dom";
 import { db } from "./db";
 import { seedDatabase } from "./seed";
 import FriendList from "./FriendList";
@@ -7,6 +8,7 @@ import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
 
 function App() {
+    const navigate = useNavigate();
     const friends = useLiveQuery(() => db.friends.toArray());
     const [selectedFriendId, setSelectedFriendId] = useState(null);
 
@@ -34,8 +36,18 @@ function App() {
 
     return (
         <div className="min-h-screen mx-auto md:p-8 flex flex-col">
-            <header className="text-center mb-6">
-                <h1 className="text-7xl font-bold text-stone-900">Friendex</h1>
+            <header className="text-center mb-6 relative">
+                <div className="flex items-center justify-center gap-6">
+                    <h1 className="text-7xl font-bold text-stone-900">
+                        Friendex
+                    </h1>
+                    <button
+                        onClick={() => navigate("/add")}
+                        className="bg-stone-900 text-white px-3 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium text-sm"
+                    >
+                        New Friend
+                    </button>
+                </div>
             </header>
 
             <section className="flex flex-row md:flex-row items-center gap-4 mb-6">
