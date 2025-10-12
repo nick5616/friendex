@@ -86,8 +86,8 @@ function ModifyFriend() {
             notes: formData.notes,
         });
 
-        // Navigate back to main page
-        navigate("/");
+        // Navigate back to main page with the modified friend ID
+        navigate("/", { state: { newFriendId: parseInt(id) } });
     };
 
     if (loading) {
