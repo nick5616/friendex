@@ -1,5 +1,5 @@
 // src/RolodexList.jsx (Corrected)
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { RolodexItem } from "./RolodexItem";
 import React from "react";
@@ -10,12 +10,15 @@ const LIST_HEIGHT = VISIBLE_ITEMS * ITEM_HEIGHT;
 
 function RolodexList({ friends, selectedId, onSelect }) {
     const [isDragging, setIsDragging] = useState(false);
+    const [isScrolling, setIsScrolling] = useState(false);
     const scrollY = useMotionValue(0);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const selectedIndex = friends.findIndex((f) => f.id === selectedId);
 
     useEffect(() => {
-        if (selectedIndex !== -1 && !isDragging) {
+        if (selectedIndex !== -1 && !isDragging && !isScrolling) {
             // The target position needs to place the selected item in the center.
             const targetY =
                 -(selectedIndex * ITEM_HEIGHT) +
@@ -27,7 +30,7 @@ function RolodexList({ friends, selectedId, onSelect }) {
                 damping: 40,
             });
         }
-    }, [selectedId, isDragging, selectedIndex]);
+    }, [selectedId, isDragging, isScrolling, selectedIndex]);
 
     const handleDragEnd = (event, info) => {
         setIsDragging(false);
@@ -49,6 +52,72 @@ function RolodexList({ friends, selectedId, onSelect }) {
         onSelect(friends[newIndex].id);
     };
 
+    const getCenterFriendIndex = (currentY) => {
+        const centerOffset = LIST_HEIGHT / 2 - ITEM_HEIGHT / 2;
+        const centerItemIndex = Math.round(
+            -(currentY - centerOffset) / ITEM_HEIGHT
+        );
+        const wrappedIndex =
+            ((centerItemIndex % friends.length) + friends.length) %
+            friends.length;
+        return wrappedIndex;
+    };
+
+    const handleWheel = (e) => {
+        e.preventDefault();
+
+        // Update scroll position
+        const currentY = scrollY.get();
+        const newY = currentY - e.deltaY * 0.5;
+        scrollY.set(newY);
+
+        setIsScrolling(true);
+
+        // Clear existing timeout
+        if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current);
+        }
+
+        // Calculate which friend is in the center
+        const centerIndex = getCenterFriendIndex(newY);
+
+        // Update selected friend immediately as user scrolls
+        if (friends[centerIndex]) {
+            onSelect(friends[centerIndex].id);
+        }
+
+        // Set timeout to snap to position and end scrolling state
+        scrollTimeoutRef.current = setTimeout(() => {
+            const finalCenterIndex = getCenterFriendIndex(scrollY.get());
+            const targetY =
+                -(finalCenterIndex * ITEM_HEIGHT) +
+                LIST_HEIGHT / 2 -
+                ITEM_HEIGHT / 2;
+
+            animate(scrollY, targetY, {
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+            });
+
+            setIsScrolling(false);
+        }, 150);
+    };
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        container.addEventListener("wheel", handleWheel, { passive: false });
+
+        return () => {
+            container.removeEventListener("wheel", handleWheel);
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
+        };
+    }, [friends, scrollY]);
+
     if (!friends.length) {
         return (
             <div className="flex-1 card-hand-drawn flex items-center justify-center text-stone-500">
@@ -59,6 +128,7 @@ function RolodexList({ friends, selectedId, onSelect }) {
 
     return (
         <div
+            ref={containerRef}
             className="flex-1 overflow-hidden relative"
             style={{ height: LIST_HEIGHT }}
         >
