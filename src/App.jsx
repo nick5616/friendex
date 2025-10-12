@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { seedDatabase } from "./seed";
 import FriendList from "./FriendList";
@@ -9,6 +9,7 @@ import FriendDetailView from "./FriendDetailView";
 
 function App() {
     const navigate = useNavigate();
+    const location = useLocation();
     const friends = useLiveQuery(() => db.friends.toArray());
     const [selectedFriendId, setSelectedFriendId] = useState(null);
 
@@ -16,6 +17,15 @@ function App() {
     useEffect(() => {
         seedDatabase();
     }, []);
+
+    // Check if we're returning from adding a new friend
+    useEffect(() => {
+        if (location.state?.newFriendId) {
+            setSelectedFriendId(location.state.newFriendId);
+            // Clear the location state
+            navigate(location.pathname, { replace: true });
+        }
+    }, [location, navigate]);
 
     // Effect to select the first friend when the list loads or changes
     useEffect(() => {

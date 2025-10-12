@@ -85,11 +85,11 @@ function AddFriend() {
             createdAt: new Date(),
         };
 
-        // Add to database
-        await db.friends.add(newFriend);
+        // Add to database and get the new ID
+        const newFriendId = await db.friends.add(newFriend);
 
-        // Navigate back to main page
-        navigate("/");
+        // Navigate back to main page with the new friend ID
+        navigate("/", { state: { newFriendId } });
     };
 
     return (
