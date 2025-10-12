@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { db } from "./db";
 
 function ModifyFriend() {
     const navigate = useNavigate();
     const { id } = useParams();
+    const fileInputRef = useRef(null);
     const [loading, setLoading] = useState(true);
+    const [profilePicture, setProfilePicture] = useState(null);
+    const [originalProfilePicture, setOriginalProfilePicture] = useState(null);
     const [formData, setFormData] = useState({
         name: "",
         pronouns: "",
@@ -23,6 +26,7 @@ function ModifyFriend() {
         const loadFriend = async () => {
             const friend = await db.friends.get(parseInt(id));
             if (friend) {
+                setOriginalProfilePicture(friend.profilePicture);
                 setFormData({
                     name: friend.name || "",
                     pronouns: friend.pronouns || "",
@@ -52,6 +56,22 @@ function ModifyFriend() {
         }));
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            setProfilePicture(event.target.result);
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
+    };
+
+    const handleProfilePictureClick = () => {
+        fileInputRef.current?.click();
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -70,7 +90,7 @@ function ModifyFriend() {
             .filter((l) => l);
 
         // Update the friend in the database
-        await db.friends.update(parseInt(id), {
+        const updateData = {
             name: formData.name,
             pronouns: formData.pronouns,
             tags: tagsArray,
@@ -84,7 +104,14 @@ function ModifyFriend() {
                 howWeMet: formData.howWeMet,
             },
             notes: formData.notes,
-        });
+        };
+
+        // Only update profile picture if a new one was uploaded
+        if (profilePicture) {
+            updateData.profilePicture = profilePicture;
+        }
+
+        await db.friends.update(parseInt(id), updateData);
 
         // Navigate back to main page with the modified friend ID
         navigate("/", { state: { newFriendId: parseInt(id) } });
@@ -113,6 +140,48 @@ function ModifyFriend() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Profile Picture Upload */}
+                <div className="card-hand-drawn p-6 space-y-4">
+                    <h2 className="text-2xl font-bold text-stone-800 mb-4">
+                        Profile Picture
+                    </h2>
+                    <div className="flex flex-col items-center gap-4">
+                        <div
+                            className="w-32 h-32 rounded-full bg-stone-200 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-75 transition-opacity relative group"
+                            onClick={handleProfilePictureClick}
+                        >
+                            {profilePicture || originalProfilePicture ? (
+                                <img
+                                    src={
+                                        profilePicture || originalProfilePicture
+                                    }
+                                    alt="Profile preview"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-stone-400 text-4xl">
+                                    +
+                                </span>
+                            )}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-50">
+                                <span className="text-white text-sm font-medium">
+                                    Change Photo
+                                </span>
+                            </div>
+                        </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="hidden"
+                        />
+                        <p className="text-sm text-stone-600 text-center">
+                            Click to upload a new photo
+                        </p>
+                    </div>
+                </div>
+
                 {/* Basic Info */}
                 <div className="card-hand-drawn p-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">

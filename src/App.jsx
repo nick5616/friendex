@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "./db";
@@ -12,6 +12,7 @@ function App() {
     const location = useLocation();
     const friends = useLiveQuery(() => db.friends.toArray());
     const [selectedFriendId, setSelectedFriendId] = useState(null);
+    const fileInputRef = useRef(null);
 
     // Run the seeder on initial component mount
     useEffect(() => {
@@ -44,6 +45,31 @@ function App() {
 
     const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
 
+    const handleProfilePictureClick = () => {
+        if (selectedFriend && fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !selectedFriend) return;
+
+        // Convert file to base64 data URL
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const dataUrl = event.target.result;
+            // Update the friend's profile picture in the database
+            await db.friends.update(selectedFriend.id, {
+                profilePicture: dataUrl,
+            });
+        };
+        reader.readAsDataURL(file);
+
+        // Reset the input so the same file can be selected again
+        e.target.value = "";
+    };
+
     return (
         <div className="min-h-screen mx-auto md:p-8 flex flex-col">
             <header className="text-center mb-6 relative">
@@ -61,17 +87,32 @@ function App() {
             </header>
 
             <section className="flex flex-row md:flex-row items-center gap-4 mb-6">
-                <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center ml-4">
+                <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center ml-4 relative group">
                     {selectedFriend?.profilePicture ? (
-                        <img
-                            src={selectedFriend.profilePicture}
-                            alt={`Avatar for ${selectedFriend.name}`}
-                            className="w-full h-full object-cover"
-                            style={{
-                                borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
-                            }}
-                        />
+                        <>
+                            <img
+                                src={selectedFriend.profilePicture}
+                                alt={`Avatar for ${selectedFriend.name}`}
+                                className="w-full h-full object-cover cursor-pointer transition-opacity group-hover:opacity-75"
+                                style={{
+                                    borderRadius:
+                                        "255px 15px 225px 15px/15px 225px 15px 255px",
+                                }}
+                                onClick={handleProfilePictureClick}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <span className="bg-stone-900 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                    Change Photo
+                                </span>
+                            </div>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
+                        </>
                     ) : (
                         <div className="text-stone-400 text-center">
                             No Friend Selected
