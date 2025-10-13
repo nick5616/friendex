@@ -1,11 +1,19 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { db } from "./db";
+import { demoDb } from "./demoDb";
 
 function ModifyFriend() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { id } = useParams();
     const fileInputRef = useRef(null);
+
+    // Determine if we're in demo mode based on the URL
+    const isDemoMode = location.pathname.startsWith("/demo");
+    const currentDb = isDemoMode ? demoDb : db;
+    const basePath = isDemoMode ? "/demo" : "";
+
     const [loading, setLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState(null);
     const [originalProfilePicture, setOriginalProfilePicture] = useState(null);
@@ -24,7 +32,7 @@ function ModifyFriend() {
     // Load the friend's current data
     useEffect(() => {
         const loadFriend = async () => {
-            const friend = await db.friends.get(parseInt(id));
+            const friend = await currentDb.friends.get(parseInt(id));
             if (friend) {
                 setOriginalProfilePicture(friend.profilePicture);
                 setFormData({
@@ -46,7 +54,7 @@ function ModifyFriend() {
             setLoading(false);
         };
         loadFriend();
-    }, [id]);
+    }, [id, currentDb]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -111,10 +119,10 @@ function ModifyFriend() {
             updateData.profilePicture = profilePicture;
         }
 
-        await db.friends.update(parseInt(id), updateData);
+        await currentDb.friends.update(parseInt(id), updateData);
 
         // Navigate back to main page with the modified friend ID
-        navigate("/", { state: { newFriendId: parseInt(id) } });
+        navigate(basePath || "/", { state: { newFriendId: parseInt(id) } });
     };
 
     if (loading) {
@@ -129,13 +137,18 @@ function ModifyFriend() {
         <div className="min-h-screen mx-auto p-8 max-w-3xl">
             <div className="mb-8">
                 <button
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate(basePath || "/")}
                     className="text-stone-600 hover:text-stone-900 mb-4 flex items-center"
                 >
-                    ← Back to Friendex
+                    ← Back to Friendex{isDemoMode && " Demo"}
                 </button>
                 <h1 className="text-5xl font-bold text-stone-900">
                     Modify Friend
+                    {isDemoMode && (
+                        <span className="text-2xl text-stone-600 ml-2">
+                            (Demo)
+                        </span>
+                    )}
                 </h1>
             </div>
 
@@ -381,7 +394,7 @@ function ModifyFriend() {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate(basePath || "/")}
                         className="px-6 py-3 rounded-md border border-stone-300 hover:bg-stone-100 transition-colors font-medium"
                     >
                         Cancel

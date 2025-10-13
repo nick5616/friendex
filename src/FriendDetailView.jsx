@@ -1,7 +1,7 @@
 // src/FriendDetailView.jsx
 import { useNavigate } from "react-router-dom";
 
-function FriendDetailView({ friend }) {
+function FriendDetailView({ friend, basePath = "" }) {
     const navigate = useNavigate();
     if (!friend) {
         return (
@@ -20,7 +20,7 @@ function FriendDetailView({ friend }) {
                     {friend.name}
                 </h2>
                 <button
-                    onClick={() => navigate(`/modify/${friend.id}`)}
+                    onClick={() => navigate(`${basePath}/modify/${friend.id}`)}
                     className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition-colors font-medium text-sm"
                 >
                     Modify

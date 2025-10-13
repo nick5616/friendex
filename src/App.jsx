@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "./db";
+import { demoDb } from "./demoDb";
 import { seedDatabase } from "./seed";
+import { seedDemoDatabase } from "./demoSeed";
 import FriendList from "./FriendList";
 import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
@@ -10,15 +12,30 @@ import FriendDetailView from "./FriendDetailView";
 function App() {
     const navigate = useNavigate();
     const location = useLocation();
-    const friends = useLiveQuery(() => db.friends.toArray());
+
+    // Determine if we're in demo mode based on the URL
+    const isDemoMode = location.pathname.startsWith("/demo");
+    const currentDb = isDemoMode ? demoDb : db;
+    const basePath = isDemoMode ? "/demo" : "";
+
+    const friends = useLiveQuery(() => currentDb.friends.toArray());
     const [selectedFriendId, setSelectedFriendId] = useState(null);
     const fileInputRef = useRef(null);
     const importFileInputRef = useRef(null);
+    const [sortBy, setSortBy] = useState("none");
+    const [filterText, setFilterText] = useState("");
+    const [filterField, setFilterField] = useState("name");
 
-    // Run the seeder on initial component mount
+    // Seed the appropriate database on initial mount
     useEffect(() => {
-        seedDatabase();
-    }, []);
+        if (isDemoMode) {
+            seedDemoDatabase();
+        }
+        // Note: seedDatabase is commented out for production, but could be called here if needed
+        // else {
+        //     seedDatabase();
+        // }
+    }, [isDemoMode]);
 
     // Check if we're returning from adding a new friend
     useEffect(() => {
@@ -29,22 +46,84 @@ function App() {
         }
     }, [location, navigate]);
 
+    // Apply filtering and sorting
+    const getFilteredAndSortedFriends = () => {
+        if (!friends) return [];
+
+        let filtered = [...friends];
+
+        // Apply filter
+        if (filterText.trim()) {
+            filtered = filtered.filter((friend) => {
+                const searchText = filterText.toLowerCase();
+
+                switch (filterField) {
+                    case "name":
+                        return friend.name?.toLowerCase().includes(searchText);
+                    case "tags":
+                        return friend.tags?.some((tag) =>
+                            tag.toLowerCase().includes(searchText)
+                        );
+                    case "pronouns":
+                        return friend.pronouns
+                            ?.toLowerCase()
+                            .includes(searchText);
+                    case "notes":
+                        return friend.notes?.toLowerCase().includes(searchText);
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        // Apply sorting
+        switch (sortBy) {
+            case "name":
+                filtered.sort(
+                    (a, b) => a.name?.localeCompare(b.name || "") || 0
+                );
+                break;
+            case "age":
+                filtered.sort((a, b) => {
+                    const dateA = a.keyInfo?.birthday
+                        ? new Date(a.keyInfo.birthday)
+                        : new Date();
+                    const dateB = b.keyInfo?.birthday
+                        ? new Date(b.keyInfo.birthday)
+                        : new Date();
+                    return dateA - dateB; // Oldest first
+                });
+                break;
+            default:
+                // No sorting, keep original order
+                break;
+        }
+
+        return filtered;
+    };
+
+    const filteredAndSortedFriends = getFilteredAndSortedFriends();
+    const selectedFriend = filteredAndSortedFriends?.find(
+        (f) => f.id === selectedFriendId
+    );
+
     // Effect to select the first friend when the list loads or changes
     useEffect(() => {
-        if (friends && friends.length > 0 && !selectedFriendId) {
-            setSelectedFriendId(friends[0].id);
+        const currentList = filteredAndSortedFriends;
+        if (currentList && currentList.length > 0 && !selectedFriendId) {
+            setSelectedFriendId(currentList[0].id);
         }
-        // If the currently selected friend is deleted, select the first one
+        // If the currently selected friend is deleted or filtered out, select the first one
         if (
-            friends &&
+            currentList &&
             selectedFriendId &&
-            !friends.some((f) => f.id === selectedFriendId)
+            !currentList.some((f) => f.id === selectedFriendId)
         ) {
-            setSelectedFriendId(friends.length > 0 ? friends[0].id : null);
+            setSelectedFriendId(
+                currentList.length > 0 ? currentList[0].id : null
+            );
         }
-    }, [friends, selectedFriendId]);
-
-    const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
+    }, [filteredAndSortedFriends, selectedFriendId]);
 
     const handleProfilePictureClick = () => {
         if (selectedFriend && fileInputRef.current) {
@@ -61,7 +140,7 @@ function App() {
         reader.onload = async (event) => {
             const dataUrl = event.target.result;
             // Update the friend's profile picture in the database
-            await db.friends.update(selectedFriend.id, {
+            await currentDb.friends.update(selectedFriend.id, {
                 profilePicture: dataUrl,
             });
         };
@@ -73,7 +152,7 @@ function App() {
 
     const handleExportFriends = async () => {
         // Get all friends from the database
-        const allFriends = await db.friends.toArray();
+        const allFriends = await currentDb.friends.toArray();
 
         // Convert to JSON with pretty formatting
         const jsonString = JSON.stringify(allFriends, null, 2);
@@ -88,7 +167,8 @@ function App() {
 
         // Generate filename with current date
         const date = new Date().toISOString().split("T")[0];
-        link.download = `friendex-export-${date}.json`;
+        const prefix = isDemoMode ? "friendex-demo-export" : "friendex-export";
+        link.download = `${prefix}-${date}.json`;
 
         // Trigger download
         document.body.appendChild(link);
@@ -123,7 +203,7 @@ function App() {
             });
 
             // Add all friends to the database
-            await db.friends.bulkAdd(friendsToImport);
+            await currentDb.friends.bulkAdd(friendsToImport);
 
             alert(`Successfully imported ${friendsToImport.length} friend(s)!`);
 
@@ -137,6 +217,17 @@ function App() {
         }
     };
 
+    const handleResetDemo = async () => {
+        if (
+            confirm(
+                "Are you sure you want to reset the demo database to its original state?"
+            )
+        ) {
+            await seedDemoDatabase();
+            alert("Demo database has been reset!");
+        }
+    };
+
     return (
         <div className="min-h-screen mx-auto md:p-8 flex flex-col">
             <header className="text-center mb-6 relative">
@@ -145,7 +236,7 @@ function App() {
                         Friendex
                     </h1>
                     <button
-                        onClick={() => navigate("/add")}
+                        onClick={() => navigate(`${basePath}/add`)}
                         className="bg-stone-900 text-white px-3 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium text-sm"
                     >
                         New Friend
@@ -186,75 +277,127 @@ function App() {
                         </div>
                     )}
                 </div>
-
-                {/* Friend List */}
-                {/* <FriendList
-                    friends={friends || []}
-                    selectedId={selectedFriendId}
-                    onSelect={setSelectedFriendId}
-                /> */}
                 <RolodexList
-                    friends={friends || []}
+                    friends={filteredAndSortedFriends || []}
                     selectedId={selectedFriendId}
                     onSelect={setSelectedFriendId}
                 />
+            </section>
+
+            {/* Filter and Sort Controls */}
+            <section className="p-4 flex flex-col gap-2 mx-2 mb-4 card-hand-drawn">
+                <div className="flex flex-row justify-between">
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-stone-700">
+                            Sort:
+                        </label>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
+                        >
+                            <option value="none">None</option>
+                            <option value="name">Name (A-Z)</option>
+                            <option value="age">Age (Oldest First)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="flex flex-row gap-2">
+                    <div className="flex items-center gap-2">
+                        <select
+                            value={filterField}
+                            onChange={(e) => setFilterField(e.target.value)}
+                            className="px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
+                        >
+                            <option value="name">Name</option>
+                            <option value="tags">Tags</option>
+                            <option value="pronouns">Pronouns</option>
+                            <option value="notes">Notes</option>
+                        </select>
+                    </div>
+                    <div className="flex-1 min-w-[200px]">
+                        <input
+                            type="text"
+                            value={filterText}
+                            onChange={(e) => setFilterText(e.target.value)}
+                            placeholder={`Search ${filterField}...`}
+                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
+                        />
+                    </div>
+
+                    {filterText && (
+                        <button
+                            onClick={() => setFilterText("")}
+                            className="px-3 py-2 bg-stone-700 text-white rounded-md hover:bg-stone-600 transition-colors text-sm font-medium"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+                <div className="text-sm text-stone-600">
+                    {filteredAndSortedFriends.length} friend
+                    {filteredAndSortedFriends.length !== 1 ? "s" : ""}
+                </div>
             </section>
 
             {/* --- Selected Friend Detail View --- */}
             <section className="flex-grow px-2 pb-2">
-                <FriendDetailView friend={selectedFriend} />
+                <FriendDetailView friend={selectedFriend} basePath={basePath} />
             </section>
 
-            {/* Export/Import Buttons */}
-            <section className="px-2 pb-4 mt-6 flex justify-center gap-4">
-                <button
-                    onClick={handleImportClick}
-                    className="bg-stone-700 text-white px-6 py-3 rounded-md hover:bg-stone-600 transition-colors font-medium flex items-center gap-2"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="w-5 h-5"
+            {/* Export/Import/Reset Buttons */}
+            {!isDemoMode && (
+                <section className="px-2 pb-4 mt-6 flex justify-center gap-4">
+                    <button
+                        onClick={handleImportClick}
+                        className="bg-stone-700 text-white px-6 py-3 rounded-md hover:bg-stone-600 transition-colors font-medium flex items-center gap-2"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-                        />
-                    </svg>
-                    Import Friends
-                </button>
-                <input
-                    ref={importFileInputRef}
-                    type="file"
-                    accept="application/json"
-                    onChange={handleImportFile}
-                    className="hidden"
-                />
-                <button
-                    onClick={handleExportFriends}
-                    className="bg-stone-700 text-white px-6 py-3 rounded-md hover:bg-stone-600 transition-colors font-medium flex items-center gap-2"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="w-5 h-5"
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="w-5 h-5"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                            />
+                        </svg>
+                        Import Friends
+                    </button>
+                    <input
+                        ref={importFileInputRef}
+                        type="file"
+                        accept="application/json"
+                        onChange={handleImportFile}
+                        className="hidden"
+                    />
+                    <button
+                        onClick={handleExportFriends}
+                        className="bg-stone-700 text-white px-6 py-3 rounded-md hover:bg-stone-600 transition-colors font-medium flex items-center gap-2"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                        />
-                    </svg>
-                    Export Friends
-                </button>
-            </section>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="w-5 h-5"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                            />
+                        </svg>
+                        Export Friends
+                    </button>
+                </section>
+            )}
         </div>
     );
 }

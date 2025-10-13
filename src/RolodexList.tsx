@@ -44,10 +44,11 @@ function RolodexList({ friends, selectedId, onSelect }) {
             -(projectedPosition - centerOffset) / ITEM_HEIGHT
         );
 
-        // Use modulo to wrap the index around the list for infinite scrolling.
-        const newIndex =
-            ((closestItemIndex % friends.length) + friends.length) %
-            friends.length;
+        // Clamp the index to valid range (no wrapping)
+        const newIndex = Math.max(
+            0,
+            Math.min(friends.length - 1, closestItemIndex)
+        );
 
         onSelect(friends[newIndex].id);
     };
@@ -57,18 +58,23 @@ function RolodexList({ friends, selectedId, onSelect }) {
         const centerItemIndex = Math.round(
             -(currentY - centerOffset) / ITEM_HEIGHT
         );
-        const wrappedIndex =
-            ((centerItemIndex % friends.length) + friends.length) %
-            friends.length;
-        return wrappedIndex;
+        // Clamp to valid range (no wrapping)
+        const clampedIndex = Math.max(
+            0,
+            Math.min(friends.length - 1, centerItemIndex)
+        );
+        return clampedIndex;
     };
 
     const handleWheel = (e) => {
         e.preventDefault();
 
-        // Update scroll position
+        // Update scroll position with clamping
         const currentY = scrollY.get();
-        const newY = currentY - e.deltaY * 0.5;
+        const centerOffset = LIST_HEIGHT / 2 - ITEM_HEIGHT / 2;
+        const maxY = centerOffset; // First item centered
+        const minY = -(friends.length - 1) * ITEM_HEIGHT + centerOffset; // Last item centered
+        const newY = Math.max(minY, Math.min(maxY, currentY - e.deltaY * 0.5));
         scrollY.set(newY);
 
         setIsScrolling(true);
@@ -139,11 +145,17 @@ function RolodexList({ friends, selectedId, onSelect }) {
                 drag="y"
                 onDragStart={() => setIsDragging(true)}
                 onDragEnd={handleDragEnd}
-                // No drag constraints for infinite scrolling!
-                dragConstraints={{ top: -Infinity, bottom: Infinity }}
+                // Constrain dragging to keep first item at top and last item at bottom
+                dragConstraints={{
+                    top:
+                        -(friends.length - 1) * ITEM_HEIGHT +
+                        LIST_HEIGHT / 2 -
+                        ITEM_HEIGHT / 2,
+                    bottom: LIST_HEIGHT / 2 - ITEM_HEIGHT / 2,
+                }}
                 dragTransition={{ bounceStiffness: 400, bounceDamping: 50 }}
             >
-                {/* We now map over the ENTIRE friends list. Each item gets its true index. */}
+                {/* Map over the entire friends list with distinct top and bottom */}
                 {friends.map((friend, i) => (
                     <RolodexItem
                         key={friend.id}
