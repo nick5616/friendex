@@ -8,6 +8,7 @@ import { seedDemoDatabase } from "./demoSeed";
 import FriendList from "./FriendList";
 import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
+import FilterAndSort from "./FilterAndSort";
 
 function App() {
     const navigate = useNavigate();
@@ -285,61 +286,15 @@ function App() {
             </section>
 
             {/* Filter and Sort Controls */}
-            <section className="p-4 flex flex-col gap-2 mx-2 mb-4 card-hand-drawn">
-                <div className="flex flex-row justify-between">
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-stone-700">
-                            Sort:
-                        </label>
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
-                        >
-                            <option value="none">None</option>
-                            <option value="name">Name (A-Z)</option>
-                            <option value="age">Age (Oldest First)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className="flex flex-row gap-2">
-                    <div className="flex items-center gap-2">
-                        <select
-                            value={filterField}
-                            onChange={(e) => setFilterField(e.target.value)}
-                            className="px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
-                        >
-                            <option value="name">Name</option>
-                            <option value="tags">Tags</option>
-                            <option value="pronouns">Pronouns</option>
-                            <option value="notes">Notes</option>
-                        </select>
-                    </div>
-                    <div className="flex-1 min-w-[200px]">
-                        <input
-                            type="text"
-                            value={filterText}
-                            onChange={(e) => setFilterText(e.target.value)}
-                            placeholder={`Search ${filterField}...`}
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
-                        />
-                    </div>
-
-                    {filterText && (
-                        <button
-                            onClick={() => setFilterText("")}
-                            className="px-3 py-2 bg-stone-700 text-white rounded-md hover:bg-stone-600 transition-colors text-sm font-medium"
-                        >
-                            Clear
-                        </button>
-                    )}
-                </div>
-                <div className="text-sm text-stone-600">
-                    {filteredAndSortedFriends.length} friend
-                    {filteredAndSortedFriends.length !== 1 ? "s" : ""}
-                </div>
-            </section>
+            <FilterAndSort
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                filterText={filterText}
+                setFilterText={setFilterText}
+                filterField={filterField}
+                setFilterField={setFilterField}
+                filteredCount={filteredAndSortedFriends.length}
+            />
 
             {/* --- Selected Friend Detail View --- */}
             <section className="flex-grow px-2 pb-2">
