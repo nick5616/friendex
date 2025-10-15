@@ -244,6 +244,16 @@ function App() {
                     </button>
                 </div>
             </header>
+            {/* Filter and Sort Controls */}
+            <FilterAndSort
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                filterText={filterText}
+                setFilterText={setFilterText}
+                filterField={filterField}
+                setFilterField={setFilterField}
+                filteredCount={filteredAndSortedFriends.length}
+            />
 
             <section className="flex flex-row md:flex-row items-center gap-4 mb-6">
                 <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center ml-4 relative group">
@@ -284,17 +294,6 @@ function App() {
                     onSelect={setSelectedFriendId}
                 />
             </section>
-
-            {/* Filter and Sort Controls */}
-            <FilterAndSort
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                filterText={filterText}
-                setFilterText={setFilterText}
-                filterField={filterField}
-                setFilterField={setFilterField}
-                filteredCount={filteredAndSortedFriends.length}
-            />
 
             {/* --- Selected Friend Detail View --- */}
             <section className="flex-grow px-2 pb-2">

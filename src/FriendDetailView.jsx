@@ -16,7 +16,7 @@ function FriendDetailView({ friend, basePath = "" }) {
     return (
         <div className="card-hand-drawn space-y-6 p-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-5xl font-bold text-amber-600">
+                <h2 className="text-4xl font-bold text-amber-600">
                     {friend.name}
                 </h2>
                 <button

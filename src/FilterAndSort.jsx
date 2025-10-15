@@ -9,7 +9,7 @@ function FilterAndSort({
     setFilterField,
     filteredCount,
 }) {
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <section className="p-4 mx-2 mb-4 bg-amber-100 card-hand-drawn">
