@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
+import PronounSelector from "./PronounSelector";
 
 function AddFriend() {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ function AddFriend() {
     const [profilePicture, setProfilePicture] = useState(null);
     const [formData, setFormData] = useState({
         name: "",
-        pronouns: "",
+        pronouns: [],
         tags: "",
         description: "",
         interests: "",
@@ -59,6 +60,14 @@ function AddFriend() {
         }));
     };
 
+    // Handle pronoun selection change
+    const handlePronounChange = (pronouns) => {
+        setFormData((prev) => ({
+            ...prev,
+            pronouns,
+        }));
+    };
+
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -95,7 +104,7 @@ function AddFriend() {
         // Create the friend object
         const newFriend = {
             name: formData.name,
-            pronouns: formData.pronouns,
+            pronouns: formData.pronouns.join("/"),
             profilePicture: profilePicture || generateAvatar(formData.name),
             tags: tagsArray,
             about: {
@@ -212,20 +221,12 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="pronouns"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
+                        <label className="block text-sm font-medium text-stone-700 mb-1">
                             Pronouns
                         </label>
-                        <input
-                            type="text"
-                            id="pronouns"
-                            name="pronouns"
+                        <PronounSelector
                             value={formData.pronouns}
-                            onChange={handleChange}
-                            placeholder="e.g., she/her, he/him, they/them"
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                            onChange={handlePronounChange}
                         />
                     </div>
 

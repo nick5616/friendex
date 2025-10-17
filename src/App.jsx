@@ -23,7 +23,7 @@ function App() {
     const [selectedFriendId, setSelectedFriendId] = useState(null);
     const fileInputRef = useRef(null);
     const importFileInputRef = useRef(null);
-    const [sortBy, setSortBy] = useState("none");
+    const [sortBy, setSortBy] = useState("name");
     const [filterText, setFilterText] = useState("");
     const [filterField, setFilterField] = useState("name");
 
