@@ -118,7 +118,6 @@ function InterestSelector({ value = [], onChange }) {
                     style={{
                         borderRadius:
                             "255px 15px 225px 15px/15px 225px 15px 255px",
-                        boxShadow: "2px 2px 0px #000",
                     }}
                 />
             </div>
