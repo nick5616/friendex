@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
 import PronounSelector from "./PronounSelector";
+import TagSelector from "./TagSelector";
+import InterestSelector from "./InterestSelector";
+import Tooltip from "./Tooltip";
 
 function AddFriend() {
     const navigate = useNavigate();
@@ -18,9 +21,9 @@ function AddFriend() {
     const [formData, setFormData] = useState({
         name: "",
         pronouns: [],
-        tags: "",
+        tags: [],
         description: "",
-        interests: "",
+        interests: [],
         loveLanguages: "",
         birthday: "",
         howWeMet: "",
@@ -68,6 +71,22 @@ function AddFriend() {
         }));
     };
 
+    // Handle tag selection change
+    const handleTagChange = (tags) => {
+        setFormData((prev) => ({
+            ...prev,
+            tags,
+        }));
+    };
+
+    // Handle interest selection change
+    const handleInterestChange = (interests) => {
+        setFormData((prev) => ({
+            ...prev,
+            interests,
+        }));
+    };
+
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -88,14 +107,6 @@ function AddFriend() {
         e.preventDefault();
 
         // Parse comma-separated values into arrays
-        const tagsArray = formData.tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter((t) => t);
-        const interestsArray = formData.interests
-            .split(",")
-            .map((i) => i.trim())
-            .filter((i) => i);
         const loveLanguagesArray = formData.loveLanguages
             .split(",")
             .map((l) => l.trim())
@@ -106,10 +117,10 @@ function AddFriend() {
             name: formData.name,
             pronouns: formData.pronouns.join("/"),
             profilePicture: profilePicture || generateAvatar(formData.name),
-            tags: tagsArray,
+            tags: formData.tags,
             about: {
                 description: formData.description,
-                interests: interestsArray,
+                interests: formData.interests,
                 loveLanguages: loveLanguagesArray,
             },
             keyInfo: {
@@ -122,6 +133,42 @@ function AddFriend() {
 
         // Add to database and get the new ID
         const newFriendId = await currentDb.friends.add(newFriend);
+
+        // Increment usage count for all selected tags
+        if (formData.tags.length > 0) {
+            try {
+                for (const tag of formData.tags) {
+                    await db.tags
+                        .where("name")
+                        .equals(tag)
+                        .modify((tagRecord) => {
+                            tagRecord.usageCount =
+                                (tagRecord.usageCount || 0) + 1;
+                            tagRecord.lastUsed = new Date();
+                        });
+                }
+            } catch (error) {
+                console.warn("Failed to update tag usage counts:", error);
+            }
+        }
+
+        // Increment usage count for all selected interests
+        if (formData.interests.length > 0) {
+            try {
+                for (const interest of formData.interests) {
+                    await db.interests
+                        .where("name")
+                        .equals(interest)
+                        .modify((interestRecord) => {
+                            interestRecord.usageCount =
+                                (interestRecord.usageCount || 0) + 1;
+                            interestRecord.lastUsed = new Date();
+                        });
+                }
+            } catch (error) {
+                console.warn("Failed to update interest usage counts:", error);
+            }
+        }
 
         // Navigate back to main page with the new friend ID
         navigate(basePath || "/", { state: { newFriendId } });
@@ -231,20 +278,22 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="tags"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Tags
-                        </label>
-                        <input
-                            type="text"
-                            id="tags"
-                            name="tags"
+                        <div className="flex items-center gap-2 mb-1">
+                            <label className="block text-sm font-medium text-stone-700">
+                                Tags
+                            </label>
+                            <Tooltip
+                                content="What do you associate with this friend?"
+                                placement="right"
+                            >
+                                <span className="text-white text-xs font-bold">
+                                    i
+                                </span>
+                            </Tooltip>
+                        </div>
+                        <TagSelector
                             value={formData.tags}
-                            onChange={handleChange}
-                            placeholder="e.g., Work, College Friend, Gaming (comma-separated)"
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                            onChange={handleTagChange}
                         />
                     </div>
                 </div>
@@ -274,20 +323,22 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="interests"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Interests
-                        </label>
-                        <input
-                            type="text"
-                            id="interests"
-                            name="interests"
+                        <div className="flex items-center gap-2 mb-1">
+                            <label className="block text-sm font-medium text-stone-700">
+                                Interests
+                            </label>
+                            <Tooltip
+                                content="What does this friend enjoy doing?"
+                                placement="right"
+                            >
+                                <span className="text-white text-xs font-bold">
+                                    i
+                                </span>
+                            </Tooltip>
+                        </div>
+                        <InterestSelector
                             value={formData.interests}
-                            onChange={handleChange}
-                            placeholder="e.g., Gaming, Cooking, Hiking (comma-separated)"
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                            onChange={handleInterestChange}
                         />
                     </div>
 
