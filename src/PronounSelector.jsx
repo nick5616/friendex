@@ -51,10 +51,10 @@ function PronounSelector({ value = [], onChange }) {
                             key={pronoun}
                             type="button"
                             onClick={() => handlePronounToggle(pronoun)}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                            className={`tag-hand-drawn transition-all duration-200 hover:scale-105 ${
                                 value.includes(pronoun)
-                                    ? "bg-stone-900 text-white"
-                                    : "bg-stone-200 text-stone-700 hover:bg-stone-300"
+                                    ? "bg-amber-300 text-stone-900 border-stone-800"
+                                    : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"
                             }`}
                         >
                             {pronoun}
