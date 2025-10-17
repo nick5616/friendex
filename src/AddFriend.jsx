@@ -24,9 +24,10 @@ function AddFriend() {
         tags: [],
         description: "",
         interests: [],
-        loveLanguages: "",
+        loveLanguages: [],
         birthday: "",
         howWeMet: "",
+        relationship: "",
         notes: "",
     });
 
@@ -87,6 +88,14 @@ function AddFriend() {
         }));
     };
 
+    // Handle love language selection change
+    const handleLoveLanguageChange = (loveLanguages) => {
+        setFormData((prev) => ({
+            ...prev,
+            loveLanguages,
+        }));
+    };
+
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -106,12 +115,6 @@ function AddFriend() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Parse comma-separated values into arrays
-        const loveLanguagesArray = formData.loveLanguages
-            .split(",")
-            .map((l) => l.trim())
-            .filter((l) => l);
-
         // Create the friend object
         const newFriend = {
             name: formData.name,
@@ -121,11 +124,12 @@ function AddFriend() {
             about: {
                 description: formData.description,
                 interests: formData.interests,
-                loveLanguages: loveLanguagesArray,
+                loveLanguages: formData.loveLanguages,
             },
             keyInfo: {
                 birthday: formData.birthday,
                 howWeMet: formData.howWeMet,
+                relationship: formData.relationship,
             },
             notes: formData.notes,
             createdAt: new Date(),
@@ -201,8 +205,22 @@ function AddFriend() {
                     </h2>
                     <div className="flex flex-col items-center gap-4">
                         <div
-                            className="w-32 h-32 rounded-full bg-stone-200 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-75 transition-opacity relative group"
+                            className="w-32 h-32 bg-stone-200 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-75 transition-opacity relative group"
                             onClick={handleProfilePictureClick}
+                            style={{
+                                borderRadius:
+                                    profilePicture ||
+                                    (formData.name &&
+                                        generateAvatar(formData.name))
+                                        ? "255px 15px 225px 15px/15px 225px 15px 255px"
+                                        : "60% 40% 30% 70% / 60% 30% 70% 40%",
+                                transform:
+                                    profilePicture ||
+                                    (formData.name &&
+                                        generateAvatar(formData.name))
+                                        ? "rotate(0deg)"
+                                        : "rotate(-2deg)",
+                            }}
                         >
                             {profilePicture ||
                             (formData.name && generateAvatar(formData.name)) ? (
@@ -263,7 +281,11 @@ function AddFriend() {
                             required
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
+                            style={{
+                                borderRadius:
+                                    "255px 15px 225px 15px/15px 225px 15px 255px",
+                            }}
                         />
                     </div>
 
@@ -346,24 +368,6 @@ function AddFriend() {
                             onChange={handleInterestChange}
                         />
                     </div>
-
-                    <div>
-                        <label
-                            htmlFor="loveLanguages"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Love Languages
-                        </label>
-                        <input
-                            type="text"
-                            id="loveLanguages"
-                            name="loveLanguages"
-                            value={formData.loveLanguages}
-                            onChange={handleChange}
-                            placeholder="e.g., Quality Time, Gift Giving (comma-separated)"
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
-                        />
-                    </div>
                 </div>
 
                 {/* Key Info */}
@@ -385,8 +389,44 @@ function AddFriend() {
                             name="birthday"
                             value={formData.birthday}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
+                            style={{
+                                borderRadius:
+                                    "255px 15px 225px 15px/15px 225px 15px 255px",
+                            }}
                         />
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="relationship"
+                            className="block text-sm font-medium text-stone-700 mb-1"
+                        >
+                            Relationship
+                        </label>
+                        <select
+                            id="relationship"
+                            name="relationship"
+                            value={formData.relationship}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
+                            style={{
+                                borderRadius:
+                                    "255px 15px 225px 15px/15px 225px 15px 255px",
+                            }}
+                        >
+                            <option value="">Select relationship...</option>
+                            <option value="Acquaintance">Acquaintance</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Good Friend">Good Friend</option>
+                            <option value="Bestie">Bestie</option>
+                            <option value="Boyfriend">Boyfriend</option>
+                            <option value="Girlfriend">Girlfriend</option>
+                            <option value="Partner">Partner</option>
+                            <option value="Fiancé">Fiancé</option>
+                            <option value="Husband">Husband</option>
+                            <option value="Wife">Wife</option>
+                        </select>
                     </div>
 
                     <div>
@@ -403,7 +443,11 @@ function AddFriend() {
                             onChange={handleChange}
                             rows={2}
                             placeholder="Tell the story of how you met..."
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
+                            style={{
+                                borderRadius:
+                                    "255px 15px 225px 15px/15px 225px 15px 255px",
+                            }}
                         />
                     </div>
                 </div>
@@ -415,12 +459,6 @@ function AddFriend() {
                     </h2>
 
                     <div>
-                        <label
-                            htmlFor="notes"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Additional Notes
-                        </label>
                         <textarea
                             id="notes"
                             name="notes"
@@ -428,7 +466,11 @@ function AddFriend() {
                             onChange={handleChange}
                             rows={3}
                             placeholder="Any additional information you'd like to remember..."
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
+                            style={{
+                                borderRadius:
+                                    "255px 15px 225px 15px/15px 225px 15px 255px",
+                            }}
                         />
                     </div>
                 </div>

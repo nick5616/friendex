@@ -26,6 +26,7 @@ function ModifyFriend() {
         loveLanguages: "",
         birthday: "",
         howWeMet: "",
+        relationship: "",
         notes: "",
     });
 
@@ -48,6 +49,7 @@ function ModifyFriend() {
                         : "",
                     birthday: friend.keyInfo?.birthday || "",
                     howWeMet: friend.keyInfo?.howWeMet || "",
+                    relationship: friend.keyInfo?.relationship || "",
                     notes: friend.notes || "",
                 });
             }
@@ -110,6 +112,7 @@ function ModifyFriend() {
             keyInfo: {
                 birthday: formData.birthday,
                 howWeMet: formData.howWeMet,
+                relationship: formData.relationship,
             },
             notes: formData.notes,
         };
@@ -338,6 +341,34 @@ function ModifyFriend() {
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
                         />
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="relationship"
+                            className="block text-sm font-medium text-stone-700 mb-1"
+                        >
+                            Relationship
+                        </label>
+                        <select
+                            id="relationship"
+                            name="relationship"
+                            value={formData.relationship}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                        >
+                            <option value="">Select relationship...</option>
+                            <option value="Acquaintance">Acquaintance</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Good Friend">Good Friend</option>
+                            <option value="Bestie">Bestie</option>
+                            <option value="Boyfriend">Boyfriend</option>
+                            <option value="Girlfriend">Girlfriend</option>
+                            <option value="Partner">Partner</option>
+                            <option value="Fiancé">Fiancé</option>
+                            <option value="Husband">Husband</option>
+                            <option value="Wife">Wife</option>
+                        </select>
                     </div>
 
                     <div>

@@ -21,11 +21,15 @@ body {
         box-shadow: 4px 4px 0px #000;
     }
 
+    .muted-card-hand-drawn {
+        @apply bg-stone-50 border border-stone-200 p-4 transition-all;
+        border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+    }
+
     /* Base button style */
     .btn-hand-drawn {
-        @apply font-bold py-2 px-5 border-2 border-stone-800 text-lg;
+        @apply font-bold py-2 px-5 border-stone-800 text-lg;
         border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-        box-shadow: 2px 2px 0px #000;
 
         /* Add a nice "push down" effect on click */
         @apply transition-all active:translate-y-px active:shadow-none;
