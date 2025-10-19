@@ -9,8 +9,9 @@ import FriendList from "./FriendList";
 import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
 import FilterAndSort from "./FilterAndSort";
+import LandingPage from "./LandingPage";
 
-function App() {
+function FriendexApp() {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -104,27 +105,64 @@ function App() {
     };
 
     const filteredAndSortedFriends = getFilteredAndSortedFriends();
-    const selectedFriend = filteredAndSortedFriends?.find(
-        (f) => f.id === selectedFriendId
+
+    // Always ensure the selected friend is in the RolodexList if there's a selectedFriendId
+    let friendsForRolodex = filteredAndSortedFriends;
+    if (selectedFriendId) {
+        const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
+        const isInFiltered = filteredAndSortedFriends.some(
+            (f) => f.id === selectedFriendId
+        );
+
+        console.log("Debug - selectedFriendId:", selectedFriendId);
+        console.log("Debug - selectedFriend:", selectedFriend);
+        console.log("Debug - isInFiltered:", isInFiltered);
+        console.log(
+            "Debug - filteredAndSortedFriends length:",
+            filteredAndSortedFriends.length
+        );
+
+        if (selectedFriend && !isInFiltered) {
+            console.log("Debug - Adding selected friend to beginning of list");
+            // Add the selected friend to the beginning of the list if it's not in the filtered results
+            friendsForRolodex = [selectedFriend, ...filteredAndSortedFriends];
+        }
+    }
+
+    console.log("Debug - friendsForRolodex length:", friendsForRolodex.length);
+    console.log(
+        "Debug - friendsForRolodex first friend:",
+        friendsForRolodex[0]?.name
     );
+
+    // Find the selected friend from the full friends list, not just filtered
+    const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
 
     // Effect to select the first friend when the list loads or changes
     useEffect(() => {
         const currentList = filteredAndSortedFriends;
+
+        // If we have a newFriendId from navigation state, prioritize that
+        if (location.state?.newFriendId) {
+            return; // Don't override the newFriendId selection
+        }
+
         if (currentList && currentList.length > 0 && !selectedFriendId) {
             setSelectedFriendId(currentList[0].id);
         }
         // If the currently selected friend is deleted or filtered out, select the first one
+        // But only if we're not in the middle of processing a newFriendId
         if (
             currentList &&
             selectedFriendId &&
-            !currentList.some((f) => f.id === selectedFriendId)
+            !currentList.some((f) => f.id === selectedFriendId) &&
+            !location.state?.newFriendId
         ) {
             setSelectedFriendId(
                 currentList.length > 0 ? currentList[0].id : null
             );
         }
-    }, [filteredAndSortedFriends, selectedFriendId]);
+    }, [filteredAndSortedFriends, selectedFriendId, location.state]);
 
     const handleProfilePictureClick = () => {
         if (selectedFriend && fileInputRef.current) {
@@ -289,7 +327,7 @@ function App() {
                     )}
                 </div>
                 <RolodexList
-                    friends={filteredAndSortedFriends || []}
+                    friends={friendsForRolodex || []}
                     selectedId={selectedFriendId}
                     onSelect={setSelectedFriendId}
                 />
@@ -353,6 +391,23 @@ function App() {
                 </section>
             )}
         </div>
+    );
+}
+
+function App() {
+    const [showLandingPage, setShowLandingPage] = useState(
+        !localStorage.getItem("hasVisitedFriendex")
+    );
+
+    const handleLaunchApp = () => {
+        localStorage.setItem("hasVisitedFriendex", "true");
+        setShowLandingPage(false);
+    };
+
+    return showLandingPage ? (
+        <LandingPage onLaunchApp={handleLaunchApp} />
+    ) : (
+        <FriendexApp />
     );
 }
 
