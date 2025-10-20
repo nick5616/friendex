@@ -111,26 +111,6 @@ function FriendDetailView({ friend, basePath = "" }) {
                 </section>
             )}
 
-            {/* Love Languages Section */}
-            {friend.about?.loveLanguages &&
-                friend.about.loveLanguages.length > 0 && (
-                    <section>
-                        <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-2 mb-3">
-                            Love Languages
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                            {friend.about.loveLanguages.map((loveLanguage) => (
-                                <span
-                                    key={loveLanguage}
-                                    className="tag-hand-drawn bg-pink-200 text-pink-800 border-pink-400"
-                                >
-                                    {loveLanguage}
-                                </span>
-                            ))}
-                        </div>
-                    </section>
-                )}
-
             {/* Key Info Section */}
             <section>
                 <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-2 mb-3">
