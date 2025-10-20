@@ -187,7 +187,7 @@ function AddFriend() {
                 >
                     ← Back to Friendex{isDemoMode && " Demo"}
                 </button>
-                <h1 className="text-5xl font-bold text-stone-900">
+                <h1 className="text-4xl font-bold text-stone-900">
                     Add New Friend
                     {isDemoMode && (
                         <span className="text-2xl text-stone-600 ml-2">
