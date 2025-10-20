@@ -270,7 +270,7 @@ function FriendexApp() {
     return (
         <div className="min-h-screen mx-auto md:p-8 flex flex-col">
             <header className="text-center mb-6 relative w-full">
-                <div className="flex flex-row items-center justify-space-between w-full gap-16">
+                <div className="flex flex-row items-center justify-center w-full gap-16">
                     <h1 className="text-6xl font-bold text-stone-900">
                         Friendex
                     </h1>
