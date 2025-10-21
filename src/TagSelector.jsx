@@ -102,6 +102,12 @@ function TagSelector({ value = [], onChange }) {
         <div>
             {/* Search input */}
             <div className="mb-3">
+                <label
+                    htmlFor="tags"
+                    className="block text-sm font-medium text-stone-700 mb-1"
+                >
+                    Tags
+                </label>
                 <input
                     type="text"
                     value={searchTerm}

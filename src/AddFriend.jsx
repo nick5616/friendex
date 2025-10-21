@@ -5,6 +5,7 @@ import { demoDb } from "./demoDb";
 import PronounSelector from "./PronounSelector";
 import TagSelector from "./TagSelector";
 import InterestSelector from "./InterestSelector";
+import RelationshipSelector from "./RelationshipSelector";
 import Tooltip from "./Tooltip";
 
 function AddFriend() {
@@ -93,6 +94,14 @@ function AddFriend() {
         setFormData((prev) => ({
             ...prev,
             interests,
+        }));
+    };
+
+    // Handle relationship selection change
+    const handleRelationshipChange = (relationship) => {
+        setFormData((prev) => ({
+            ...prev,
+            relationship,
         }));
     };
 
@@ -398,35 +407,13 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="relationship"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
+                        <label className="block text-sm font-medium text-stone-700 mb-1">
                             Relationship
                         </label>
-                        <select
-                            id="relationship"
-                            name="relationship"
+                        <RelationshipSelector
                             value={formData.relationship}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
-                            style={{
-                                borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
-                            }}
-                        >
-                            <option value="">Select relationship...</option>
-                            <option value="Acquaintance">Acquaintance</option>
-                            <option value="Friend">Friend</option>
-                            <option value="Good Friend">Good Friend</option>
-                            <option value="Bestie">Bestie</option>
-                            <option value="Boyfriend">Boyfriend</option>
-                            <option value="Girlfriend">Girlfriend</option>
-                            <option value="Partner">Partner</option>
-                            <option value="Fiancé">Fiancé</option>
-                            <option value="Husband">Husband</option>
-                            <option value="Wife">Wife</option>
-                        </select>
+                            onChange={handleRelationshipChange}
+                        />
                     </div>
 
                     <div>

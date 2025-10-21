@@ -106,6 +106,12 @@ function InterestSelector({ value = [], onChange }) {
         <div>
             {/* Search input */}
             <div className="mb-3">
+                <label
+                    htmlFor="interests"
+                    className="block text-sm font-medium text-stone-700 mb-1"
+                >
+                    Interests
+                </label>
                 <input
                     type="text"
                     value={searchTerm}

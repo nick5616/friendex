@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
+import RelationshipSelector from "./RelationshipSelector";
+import InterestSelector from "./InterestSelector";
+import TagSelector from "./TagSelector";
+import PronounSelector from "./PronounSelector";
 
 function ModifyFriend() {
     const navigate = useNavigate();
@@ -66,6 +70,14 @@ function ModifyFriend() {
         }));
     };
 
+    // Handle relationship selection change
+    const handleRelationshipChange = (relationship) => {
+        setFormData((prev) => ({
+            ...prev,
+            relationship,
+        }));
+    };
+
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -80,6 +92,27 @@ function ModifyFriend() {
 
     const handleProfilePictureClick = () => {
         fileInputRef.current?.click();
+    };
+
+    const handleInterestChange = (interests) => {
+        setFormData((prev) => ({
+            ...prev,
+            interests,
+        }));
+    };
+
+    const handlePronounChange = (pronouns) => {
+        setFormData((prev) => ({
+            ...prev,
+            pronouns,
+        }));
+    };
+
+    const handleTagChange = (tags) => {
+        setFormData((prev) => ({
+            ...prev,
+            tags,
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -222,41 +255,15 @@ function ModifyFriend() {
                         />
                     </div>
 
-                    <div>
-                        <label
-                            htmlFor="pronouns"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Pronouns
-                        </label>
-                        <input
-                            type="text"
-                            id="pronouns"
-                            name="pronouns"
-                            value={formData.pronouns}
-                            onChange={handleChange}
-                            placeholder="e.g., she/her, he/him, they/them"
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
-                        />
-                    </div>
+                    <PronounSelector
+                        value={formData.pronouns}
+                        onChange={handlePronounChange}
+                    />
 
-                    <div>
-                        <label
-                            htmlFor="tags"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Tags
-                        </label>
-                        <input
-                            type="text"
-                            id="tags"
-                            name="tags"
-                            value={formData.tags}
-                            onChange={handleChange}
-                            placeholder="e.g., Work, College Friend, Gaming (comma-separated)"
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
-                        />
-                    </div>
+                    <TagSelector
+                        value={formData.tags}
+                        onChange={handleTagChange}
+                    />
                 </div>
 
                 {/* About Section */}
@@ -282,24 +289,10 @@ function ModifyFriend() {
                             className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
                         />
                     </div>
-
-                    <div>
-                        <label
-                            htmlFor="interests"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Interests
-                        </label>
-                        <input
-                            type="text"
-                            id="interests"
-                            name="interests"
-                            value={formData.interests}
-                            onChange={handleChange}
-                            placeholder="e.g., Gaming, Cooking, Hiking (comma-separated)"
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
-                        />
-                    </div>
+                    <InterestSelector
+                        value={formData.interests}
+                        onChange={handleInterestChange}
+                    />
                 </div>
 
                 {/* Key Info */}
@@ -326,31 +319,13 @@ function ModifyFriend() {
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="relationship"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
+                        <label className="block text-sm font-medium text-stone-700 mb-1">
                             Relationship
                         </label>
-                        <select
-                            id="relationship"
-                            name="relationship"
+                        <RelationshipSelector
                             value={formData.relationship}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
-                        >
-                            <option value="">Select relationship...</option>
-                            <option value="Acquaintance">Acquaintance</option>
-                            <option value="Friend">Friend</option>
-                            <option value="Good Friend">Good Friend</option>
-                            <option value="Bestie">Bestie</option>
-                            <option value="Boyfriend">Boyfriend</option>
-                            <option value="Girlfriend">Girlfriend</option>
-                            <option value="Partner">Partner</option>
-                            <option value="Fiancé">Fiancé</option>
-                            <option value="Husband">Husband</option>
-                            <option value="Wife">Wife</option>
-                        </select>
+                            onChange={handleRelationshipChange}
+                        />
                     </div>
 
                     <div>
