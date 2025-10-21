@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
@@ -30,6 +30,14 @@ function AddFriend() {
         relationship: "",
         notes: "",
     });
+
+    useEffect(() => {
+        // set focus on name field immediately
+        const nameInput = document.getElementById("name");
+        if (nameInput) {
+            nameInput.focus();
+        }
+    }, []);
 
     // Generate a simple avatar based on name
     const generateAvatar = (name) => {
