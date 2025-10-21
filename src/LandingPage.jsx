@@ -154,7 +154,7 @@ function LandingPage({ onLaunchApp }) {
 
                     {/* Features Section */}
                     <section className="py-16 mb-12">
-                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-stone-900">
+                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
                             Why Friendex?
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
@@ -173,6 +173,7 @@ function LandingPage({ onLaunchApp }) {
                                     all your people in one place and never
                                     forget who you can reach out to.
                                 </p>
+                                <hr className="w-full border-stone-200 mt-4 mb-8" />
                             </div>
 
                             <div className="flex flex-col items-center text-center space-y-4">
@@ -190,6 +191,7 @@ function LandingPage({ onLaunchApp }) {
                                     jokes, and what you last talked about. Show
                                     them you care.
                                 </p>
+                                <hr className="w-full border-stone-200 mt-4 mb-8" />
                             </div>
 
                             <div className="flex flex-col items-center text-center space-y-4">
@@ -214,7 +216,7 @@ function LandingPage({ onLaunchApp }) {
                     {/* App Preview Section */}
                     <section className="py-16 mb-12">
                         <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-stone-900">
-                            See It In Action
+                            See It In Action (Under Construction 🚧)
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
@@ -409,7 +411,7 @@ function LandingPage({ onLaunchApp }) {
                 </footer>
             </div>
 
-            <style jsx>{`
+            <style jsx="true">{`
                 @keyframes fadeIn {
                     from {
                         opacity: 0;
