@@ -118,29 +118,14 @@ function ModifyFriend() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Parse comma-separated values into arrays
-        const tagsArray = formData.tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter((t) => t);
-        const interestsArray = formData.interests
-            .split(",")
-            .map((i) => i.trim())
-            .filter((i) => i);
-        const loveLanguagesArray = formData.loveLanguages
-            .split(",")
-            .map((l) => l.trim())
-            .filter((l) => l);
-
         // Update the friend in the database
         const updateData = {
             name: formData.name,
             pronouns: formData.pronouns,
-            tags: tagsArray,
+            tags: formData.tags,
             about: {
                 description: formData.description,
-                interests: interestsArray,
-                loveLanguages: loveLanguagesArray,
+                interests: formData.interests,
             },
             keyInfo: {
                 birthday: formData.birthday,
