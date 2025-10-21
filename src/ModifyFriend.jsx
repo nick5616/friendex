@@ -278,7 +278,7 @@ function ModifyFriend() {
                             value={formData.description}
                             onChange={handleChange}
                             rows={3}
-                            placeholder="Tell us about this friend..."
+                            placeholder="About your friend..."
                             className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
                         />
                     </div>

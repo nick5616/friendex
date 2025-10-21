@@ -51,7 +51,9 @@ function FilterAndSort({
                                 onChange={(e) => setSortBy(e.target.value)}
                                 className="px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
                             >
-                                <option value="none">None</option>
+                                <option value="none">
+                                    Date added (Oldest First)
+                                </option>
                                 <option value="name">Name (A-Z)</option>
                                 <option value="age">Age (Oldest First)</option>
                             </select>
@@ -80,15 +82,6 @@ function FilterAndSort({
                                 className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
                             />
                         </div>
-
-                        {filterText && (
-                            <button
-                                onClick={() => setFilterText("")}
-                                className="px-3 py-2 bg-stone-700 text-white rounded-md hover:bg-stone-600 transition-colors text-sm font-medium"
-                            >
-                                Clear
-                            </button>
-                        )}
                     </div>
                     <div className="text-sm text-stone-600">
                         {filteredCount} friend{filteredCount !== 1 ? "s" : ""}

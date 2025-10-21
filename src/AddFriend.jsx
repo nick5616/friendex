@@ -331,7 +331,7 @@ function AddFriend() {
                             value={formData.description}
                             onChange={handleChange}
                             rows={3}
-                            placeholder="Tell us about this friend..."
+                            placeholder="About your friend..."
                             className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
                             style={{
                                 borderRadius:
