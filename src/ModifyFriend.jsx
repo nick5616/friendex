@@ -300,24 +300,6 @@ function ModifyFriend() {
                             className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
                         />
                     </div>
-
-                    <div>
-                        <label
-                            htmlFor="loveLanguages"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Love Languages
-                        </label>
-                        <input
-                            type="text"
-                            id="loveLanguages"
-                            name="loveLanguages"
-                            value={formData.loveLanguages}
-                            onChange={handleChange}
-                            placeholder="e.g., Quality Time, Gift Giving (comma-separated)"
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
-                        />
-                    </div>
                 </div>
 
                 {/* Key Info */}

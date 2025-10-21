@@ -88,14 +88,6 @@ function AddFriend() {
         }));
     };
 
-    // Handle love language selection change
-    const handleLoveLanguageChange = (loveLanguages) => {
-        setFormData((prev) => ({
-            ...prev,
-            loveLanguages,
-        }));
-    };
-
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
