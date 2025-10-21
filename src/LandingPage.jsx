@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import transitionImage from "./assets/images/Screenshot_2025-10-20_at_12.55.33_AM-removebg-preview.png";
+import mainFriendexInterfaceImage from "./assets/images/screenshots/mainFriendexInterface.png";
+import friendDetailsTop from "./assets/images/screenshots/friendDetailsTop.png";
+import friendDetailsBottom from "./assets/images/screenshots/friedDetailsBottom.png";
 
 const isMobile = window.innerWidth < 768;
 
@@ -112,7 +115,7 @@ function LandingPage({ onLaunchApp }) {
                                 <span className="inline-block">Gotta </span>
                                 <span
                                     key={currentWord}
-                                    className="inline-block mx-2 animate-[fadeIn_0.5s_ease-in-out] text-left text-amber-600 "
+                                    className="inline-block mx-2 animate-[fadeIn_0.5s_ease-in-out] text-left text-red-500 "
                                 >
                                     {words[currentWord]}
                                 </span>
@@ -215,16 +218,12 @@ function LandingPage({ onLaunchApp }) {
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                            {/* Screenshot placeholder 1 */}
-                            <div className="card-hand-drawn aspect-[9/16] md:aspect-video flex items-center justify-center bg-stone-100">
-                                <div className="text-center p-8">
-                                    <p className="text-stone-400 text-lg">
-                                        📱 Main Friendex Interface
-                                    </p>
-                                    <p className="text-stone-400 text-sm mt-2">
-                                        (Screenshot goes here)
-                                    </p>
-                                </div>
+                            <div className="aspect-[9/16] md:aspect-video flex items-center justify-center card-hand-drawn bg-amber-50 w-fit py-2 px-0">
+                                <img
+                                    src={mainFriendexInterfaceImage}
+                                    alt="Main Friendex Interface"
+                                    className="w-full h-full object-contain"
+                                />
                             </div>
 
                             {/* Screenshot placeholder 2 */}
@@ -234,7 +233,11 @@ function LandingPage({ onLaunchApp }) {
                                         👤 Friend Entry View
                                     </p>
                                     <p className="text-stone-400 text-sm mt-2">
-                                        (Screenshot goes here)
+                                        <img
+                                            src={friendDetailsBottom}
+                                            alt="Friend Details Bottom"
+                                            className="w-full h-full object-contain"
+                                        />
                                     </p>
                                 </div>
                             </div>
@@ -246,9 +249,11 @@ function LandingPage({ onLaunchApp }) {
                                 <p className="text-stone-400 text-xl">
                                     🎬 Interactive Demo
                                 </p>
-                                <p className="text-stone-400 text-sm mt-2">
-                                    (GIF of adding a friend goes here)
-                                </p>
+                                <img
+                                    src={friendDetailsTop}
+                                    alt="Friend Details Top"
+                                    className="w-full h-full object-contain"
+                                />
                             </div>
                         </div>
                     </section>
@@ -274,24 +279,27 @@ function LandingPage({ onLaunchApp }) {
                             </div>
 
                             {/* Testimonial placeholder 2 */}
-                            <div className="muted-card-hand-drawn opacity-50">
-                                <p className="text-lg text-stone-500 italic mb-4">
-                                    [Future testimonial from user about specific
-                                    feature they love]
+                            <div className="muted-card-hand-drawn">
+                                <p className="text-lg text-stone-700 italic mb-4">
+                                    "I like this one. The app. Good for
+                                    remember."
                                 </p>
-                                <p className="text-stone-400 font-bold">
-                                    — Coming soon
+                                <p className="text-stone-600 font-bold">
+                                    — Beta User
                                 </p>
                             </div>
 
                             {/* Testimonial placeholder 3 */}
-                            <div className="muted-card-hand-drawn opacity-50">
-                                <p className="text-lg text-stone-500 italic mb-4">
-                                    [Future testimonial about how it improved
-                                    their relationships]
+                            <div className="muted-card-hand-drawn">
+                                <p className="text-lg text-stone-700 italic mb-4">
+                                    "I can finally be the friend I wan to be!
+                                    With Friendex, I can finally have all my
+                                    friend's likes and dislikes in one place. I
+                                    no longer forget my loved one's allergies,
+                                    or pet peeves."
                                 </p>
-                                <p className="text-stone-400 font-bold">
-                                    — Coming soon
+                                <p className="text-stone-600 font-bold">
+                                    — Beta User
                                 </p>
                             </div>
                         </div>

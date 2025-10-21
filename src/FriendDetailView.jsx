@@ -1,8 +1,10 @@
 // src/FriendDetailView.jsx
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-function FriendDetailView({ friend, basePath = "" }) {
+function FriendDetailView({ friend, basePath = "", onDeleteFriend }) {
     const navigate = useNavigate();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     if (!friend) {
         return (
             <div className="card-hand-drawn text-center p-8">
@@ -35,6 +37,18 @@ function FriendDetailView({ friend, basePath = "" }) {
         });
     };
 
+    // Handle delete confirmation
+    const handleDeleteConfirm = () => {
+        if (onDeleteFriend) {
+            onDeleteFriend(friend.id);
+        }
+        setShowDeleteModal(false);
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteModal(false);
+    };
+
     return (
         <div className="card-hand-drawn space-y-6 p-6">
             {/* Header with Profile Picture and Name */}
@@ -56,14 +70,35 @@ function FriendDetailView({ friend, basePath = "" }) {
                             </span>
                         )}
                     </div>
-                    <button
-                        onClick={() =>
-                            navigate(`${basePath}/modify/${friend.id}`)
-                        }
-                        className="btn-hand-drawn btn-primary text-sm px-4 py-2"
-                    >
-                        Modify
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() =>
+                                navigate(`${basePath}/modify/${friend.id}`)
+                            }
+                            className="btn-hand-drawn btn-primary text-sm px-4 py-2"
+                        >
+                            Modify
+                        </button>
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="btn-hand-drawn btn-secondary border-2 border-amber-200 text-sm px-4 py-2 hover:bg-red-100"
+                            title="Delete friend"
+                        >
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -168,6 +203,35 @@ function FriendDetailView({ friend, basePath = "" }) {
                     <p>Added on {formatCreatedDate(friend.createdAt)}</p>
                 </div>
             </section>
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="card-hand-drawn p-6 max-w-md mx-4">
+                        <h3 className="text-2xl font-bold text-amber-600 mb-4">
+                            Confirm Delete
+                        </h3>
+                        <p className="text-lg text-stone-700 mb-6">
+                            Are you sure you want to delete{" "}
+                            <strong>{friend.name}</strong>?
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={handleDeleteCancel}
+                                className="btn-hand-drawn btn-secondary px-4 py-2"
+                            >
+                                No
+                            </button>
+                            <button
+                                onClick={handleDeleteConfirm}
+                                className="btn-hand-drawn bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+                            >
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

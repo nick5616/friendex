@@ -267,6 +267,10 @@ function FriendexApp() {
         }
     };
 
+    const handleDeleteFriend = async (friendId) => {
+        await currentDb.friends.delete(friendId);
+    };
+
     return (
         <div className="min-h-screen mx-auto md:p-8 flex flex-col">
             <header className="text-center mb-6 relative w-full">
@@ -335,7 +339,11 @@ function FriendexApp() {
 
             {/* --- Selected Friend Detail View --- */}
             <section className="flex-grow px-2 pb-2">
-                <FriendDetailView friend={selectedFriend} basePath={basePath} />
+                <FriendDetailView
+                    friend={selectedFriend}
+                    basePath={basePath}
+                    onDeleteFriend={handleDeleteFriend}
+                />
             </section>
 
             {/* Export/Import/Reset Buttons */}
