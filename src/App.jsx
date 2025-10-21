@@ -343,6 +343,7 @@ function FriendexApp() {
                     friend={selectedFriend}
                     basePath={basePath}
                     onDeleteFriend={handleDeleteFriend}
+                    currentDb={currentDb}
                 />
             </section>
 

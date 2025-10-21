@@ -2,9 +2,74 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-function FriendDetailView({ friend, basePath = "", onDeleteFriend }) {
+function FriendDetailView({
+    friend,
+    basePath = "",
+    onDeleteFriend,
+    currentDb,
+}) {
     const navigate = useNavigate();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showAddNoteTextField, setShowAddNoteTextField] = useState(false);
+    const [newNote, setNewNote] = useState("");
+
+    async function handleAddNote() {
+        console.log("adding note", newNote);
+        console.log("friend id", friend.id);
+        console.log("currentDb", currentDb);
+        console.log("friend before update", friend);
+
+        try {
+            // Handle both string and array formats for notes
+            let existingNotes = [];
+            if (friend.notes) {
+                if (Array.isArray(friend.notes)) {
+                    // Check if this is an array of characters (corrupted data)
+                    if (
+                        friend.notes.length > 0 &&
+                        typeof friend.notes[0] === "string" &&
+                        friend.notes[0].length === 1
+                    ) {
+                        // This is corrupted data - reconstruct the original string
+                        const reconstructedString = friend.notes
+                            .join("")
+                            .trim();
+                        existingNotes = reconstructedString
+                            ? [reconstructedString]
+                            : [];
+                    } else {
+                        // This is proper array of note strings
+                        existingNotes = friend.notes;
+                    }
+                } else {
+                    // If it's a string, convert to array
+                    existingNotes = [friend.notes];
+                }
+            }
+
+            console.log("existingNotes after processing", existingNotes);
+            const newNotes = [...existingNotes, newNote];
+            console.log("newNotes array", newNotes);
+
+            // Use direct object update instead of callback
+            const result = await currentDb.friends.update(friend.id, {
+                notes: newNotes,
+            });
+
+            console.log("update result", result);
+
+            // Verify the update worked
+            const updatedFriend = await currentDb.friends.get(friend.id);
+            console.log("friend after update", updatedFriend);
+            console.log("updated friend notes", updatedFriend?.notes);
+        } catch (error) {
+            console.error("Error updating friend:", error);
+        }
+
+        setShowAddNoteTextField(false);
+        setNewNote("");
+    }
+
     if (!friend) {
         return (
             <div className="card-hand-drawn text-center p-8">
@@ -185,14 +250,106 @@ function FriendDetailView({ friend, basePath = "", onDeleteFriend }) {
             {/* Notes Section */}
             {friend.notes && (
                 <section>
-                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-2 mb-3">
-                        Notes
-                    </h3>
+                    <div className="flex items-center justify-between border-b-2 border-dashed border-stone-400 pb-2 mb-3">
+                        <h3 className="text-2xl font-bold">Notes</h3>
+                        <button
+                            onClick={() => setShowAddNoteTextField(true)}
+                            className="btn-hand-drawn btn-primary text-sm px-4 py-2"
+                        >
+                            +
+                        </button>
+                    </div>
+                    {showAddNoteTextField && (
+                        <div className="flex flex-col justify-between pb-2 mb-3">
+                            <textarea
+                                className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
+                                placeholder="Enter your note here..."
+                                value={newNote}
+                                onChange={(e) => setNewNote(e.target.value)}
+                            />
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => {
+                                        setShowAddNoteTextField(false);
+                                        setNewNote("");
+                                    }}
+                                    className="btn-hand-drawn btn-secondary text-sm px-4 py-2 w-fit mt-2 "
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleAddNote}
+                                    className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit mt-2 "
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     <div
                         className="text-lg text-stone-700 bg-amber-100 p-4 leading-relaxed"
                         style={{ borderRadius: "15px" }}
                     >
-                        {friend.notes}
+                        {(() => {
+                            console.log("Displaying notes:", friend.notes);
+                            console.log("Notes type:", typeof friend.notes);
+                            console.log(
+                                "Notes isArray:",
+                                Array.isArray(friend.notes)
+                            );
+
+                            if (Array.isArray(friend.notes)) {
+                                console.log(
+                                    "Notes array length:",
+                                    friend.notes.length
+                                );
+                                console.log(
+                                    "Notes array contents:",
+                                    friend.notes
+                                );
+
+                                // Check if this is corrupted data (array of individual characters)
+                                if (
+                                    friend.notes.length > 0 &&
+                                    typeof friend.notes[0] === "string" &&
+                                    friend.notes[0].length === 1
+                                ) {
+                                    // Reconstruct the original string
+                                    const reconstructedString = friend.notes
+                                        .join("")
+                                        .trim();
+                                    console.log(
+                                        "Reconstructed string:",
+                                        reconstructedString
+                                    );
+                                    return reconstructedString || "No notes";
+                                } else {
+                                    // Display as proper array of note strings
+                                    return friend.notes.map((note, index) => {
+                                        console.log(
+                                            `Note ${index}:`,
+                                            note,
+                                            "Type:",
+                                            typeof note
+                                        );
+                                        return (
+                                            <div
+                                                key={index}
+                                                className="mb-2 last:mb-0"
+                                            >
+                                                {note}
+                                            </div>
+                                        );
+                                    });
+                                }
+                            } else {
+                                console.log(
+                                    "Displaying as string:",
+                                    friend.notes
+                                );
+                                return friend.notes;
+                            }
+                        })()}
                     </div>
                 </section>
             )}
