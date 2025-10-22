@@ -181,3 +181,148 @@ db.version(3)
 
         await tx.interests.bulkAdd(defaultInterests);
     });
+
+// Add relationships table in version 4
+db.version(4)
+    .stores({
+        friends: "++id, name, *tags",
+        tags: "name, usageCount, lastUsed, createdAt",
+        interests: "name, usageCount, lastUsed, createdAt",
+        relationships: "name, usageCount, lastUsed, createdAt",
+    })
+    .upgrade(async (tx) => {
+        // Add default relationships when upgrading to version 4
+        const defaultRelationships = [
+            // Family relationships
+            {
+                name: "Sister",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Brother",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Mother",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Father",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Son",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Daughter",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            // Romantic relationships
+            {
+                name: "Boyfriend",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Girlfriend",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Partner",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Fiance",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Husband",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Wife",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            // Friendly relationships
+            {
+                name: "Colleague",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Classmate",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Neighbor",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Coworker",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Acquaintance",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Friend",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Good Friend",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Bestie",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Bestest Friend",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+        ];
+
+        await tx.relationships.bulkAdd(defaultRelationships);
+    });

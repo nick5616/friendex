@@ -14,7 +14,7 @@ const DescriptionSelector = forwardRef(
             <div>
                 <label
                     htmlFor="description"
-                    className="block text-sm font-medium text-stone-700 mb-1"
+                    className="block text-md font-medium text-stone-700 mb-1"
                 >
                     Description
                 </label>

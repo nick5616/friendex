@@ -32,7 +32,7 @@ function ModifyFriend() {
         loveLanguages: "",
         birthday: "",
         howWeMet: "",
-        relationship: "",
+        relationships: [],
         notes: "",
     });
 
@@ -55,7 +55,7 @@ function ModifyFriend() {
                         : "",
                     birthday: friend.keyInfo?.birthday || "",
                     howWeMet: friend.keyInfo?.howWeMet || "",
-                    relationship: friend.keyInfo?.relationship || "",
+                    relationships: friend.keyInfo?.relationships || [],
                     notes: friend.notes || "",
                 });
             }
@@ -73,10 +73,10 @@ function ModifyFriend() {
     };
 
     // Handle relationship selection change
-    const handleRelationshipChange = (relationship) => {
+    const handleRelationshipChange = (relationships) => {
         setFormData((prev) => ({
             ...prev,
-            relationship,
+            relationships,
         }));
     };
 
@@ -132,7 +132,7 @@ function ModifyFriend() {
             keyInfo: {
                 birthday: formData.birthday,
                 howWeMet: formData.howWeMet,
-                relationship: formData.relationship,
+                relationships: formData.relationships,
             },
             notes: formData.notes,
         };
@@ -285,11 +285,8 @@ function ModifyFriend() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Relationship
-                        </label>
                         <RelationshipSelector
-                            value={formData.relationship}
+                            value={formData.relationships}
                             onChange={handleRelationshipChange}
                         />
                     </div>

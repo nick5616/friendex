@@ -32,7 +32,7 @@ function AddFriend() {
         loveLanguages: [],
         birthday: "",
         howWeMet: "",
-        relationship: "",
+        relationships: [],
         notes: "",
     });
     const [debouncedName, setDebouncedName] = useState("");
@@ -116,10 +116,10 @@ function AddFriend() {
     };
 
     // Handle relationship selection change
-    const handleRelationshipChange = (relationship) => {
+    const handleRelationshipChange = (relationships) => {
         setFormData((prev) => ({
             ...prev,
-            relationship,
+            relationships,
         }));
     };
 
@@ -156,7 +156,7 @@ function AddFriend() {
             keyInfo: {
                 birthday: formData.birthday,
                 howWeMet: formData.howWeMet,
-                relationship: formData.relationship,
+                relationships: formData.relationships,
             },
             notes: formData.notes,
             createdAt: new Date(),
@@ -198,6 +198,27 @@ function AddFriend() {
                 }
             } catch (error) {
                 console.warn("Failed to update interest usage counts:", error);
+            }
+        }
+
+        // Increment usage count for all selected relationships
+        if (formData.relationships.length > 0) {
+            try {
+                for (const relationship of formData.relationships) {
+                    await db.relationships
+                        .where("name")
+                        .equals(relationship)
+                        .modify((relationshipRecord) => {
+                            relationshipRecord.usageCount =
+                                (relationshipRecord.usageCount || 0) + 1;
+                            relationshipRecord.lastUsed = new Date();
+                        });
+                }
+            } catch (error) {
+                console.warn(
+                    "Failed to update relationship usage counts:",
+                    error
+                );
             }
         }
 
@@ -354,11 +375,8 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Relationship
-                        </label>
                         <RelationshipSelector
-                            value={formData.relationship}
+                            value={formData.relationships}
                             onChange={handleRelationshipChange}
                         />
                     </div>

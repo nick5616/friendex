@@ -104,11 +104,11 @@ function TagSelector({ value = [], onChange }) {
             <div className="mb-3">
                 <label
                     htmlFor="tags"
-                    className="block text-sm font-medium text-stone-700 mb-1"
+                    className="block text-md font-medium text-stone-700 mb-1"
                 >
                     Tags
                 </label>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
+                <label className="block text-sm font-medium text-stone-700 mb-1">
                     What do you associate with this friend?
                 </label>
                 <input

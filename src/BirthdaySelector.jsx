@@ -20,7 +20,7 @@ const BirthdaySelector = forwardRef(
             <div>
                 <label
                     htmlFor="birthday"
-                    className="block text-sm font-medium text-stone-700 mb-1"
+                    className="block text-md font-medium text-stone-700 mb-1"
                 >
                     Birthday
                 </label>

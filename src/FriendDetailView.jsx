@@ -121,11 +121,21 @@ function FriendDetailView({
                                 {friend.pronouns}
                             </p>
                         )}
-                        {friend.keyInfo?.relationship && (
-                            <span className="tag-hand-drawn text-sm">
-                                {friend.keyInfo.relationship}
-                            </span>
-                        )}
+                        {friend.keyInfo?.relationships &&
+                            friend.keyInfo.relationships.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                    {friend.keyInfo.relationships.map(
+                                        (relationship, index) => (
+                                            <span
+                                                key={index}
+                                                className="tag-hand-drawn text-sm"
+                                            >
+                                                {relationship}
+                                            </span>
+                                        )
+                                    )}
+                                </div>
+                            )}
                     </div>
                     <div className="flex gap-2">
                         <button
