@@ -609,3 +609,172 @@ export const seedDatabase = async () => {
         console.log("Database already contains data, skipping seed.");
     }
 };
+
+// Function to seed tags and interests if they're empty
+export const seedTagsAndInterests = async () => {
+    // Check if tags table is empty
+    const tagCount = await db.tags.count();
+    if (tagCount === 0) {
+        console.log("Tags table is empty, seeding with popular tags...");
+        const popularTags = [
+            {
+                name: "Work",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "College",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "High School",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Family",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Neighbor",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Gaming",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Sports",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Music",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Art",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Travel",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Childhood",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Online",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+        ];
+        await db.tags.bulkAdd(popularTags);
+        console.log("Tags seeded successfully!");
+    }
+
+    // Check if interests table is empty
+    const interestCount = await db.interests.count();
+    if (interestCount === 0) {
+        console.log(
+            "Interests table is empty, seeding with popular interests..."
+        );
+        const popularInterests = [
+            {
+                name: "Gaming",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Sports",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Music",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Art",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Travel",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Reading",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Cooking",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Photography",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Movies",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Fitness",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Technology",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+            {
+                name: "Dancing",
+                usageCount: 0,
+                lastUsed: new Date(),
+                createdAt: new Date(),
+            },
+        ];
+        await db.interests.bulkAdd(popularInterests);
+        console.log("Interests seeded successfully!");
+    }
+};
