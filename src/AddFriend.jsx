@@ -6,12 +6,14 @@ import PronounSelector from "./PronounSelector";
 import TagSelector from "./TagSelector";
 import InterestSelector from "./InterestSelector";
 import RelationshipSelector from "./RelationshipSelector";
+import NameSelector from "./NameSelector";
 import { seedTagsAndInterests } from "./seed";
 
 function AddFriend() {
     const navigate = useNavigate();
     const location = useLocation();
     const fileInputRef = useRef(null);
+    const nameInputRef = useRef(null);
 
     // Determine if we're in demo mode based on the URL
     const isDemoMode = location.pathname.startsWith("/demo");
@@ -41,9 +43,8 @@ function AddFriend() {
 
     useEffect(() => {
         // set focus on name field immediately
-        const nameInput = document.getElementById("name");
-        if (nameInput) {
-            nameInput.focus();
+        if (nameInputRef.current) {
+            nameInputRef.current.focus();
         }
     }, []);
 
@@ -295,24 +296,10 @@ function AddFriend() {
                     </h2>
 
                     <div>
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Name *
-                        </label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            required
+                        <NameSelector
+                            ref={nameInputRef}
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
-                            style={{
-                                borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
-                            }}
                         />
                     </div>
 
