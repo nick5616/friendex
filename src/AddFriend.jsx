@@ -8,6 +8,7 @@ import InterestSelector from "./InterestSelector";
 import RelationshipSelector from "./RelationshipSelector";
 import NameSelector from "./NameSelector";
 import BirthdaySelector from "./BirthdaySelector";
+import DescriptionSelector from "./DescriptionSelector";
 import { seedTagsAndInterests } from "./seed";
 
 function AddFriend() {
@@ -325,25 +326,9 @@ function AddFriend() {
                     </h2>
 
                     <div>
-                        <label
-                            htmlFor="description"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Description
-                        </label>
-                        <textarea
-                            id="description"
-                            name="description"
+                        <DescriptionSelector
                             value={formData.description}
                             onChange={handleChange}
-                            rows={3}
-                            placeholder="About your friend..."
-                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
-                            style={{
-                                borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
-                                letterSpacing: "0.5px",
-                            }}
                         />
                     </div>
 
