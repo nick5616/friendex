@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { db } from "./db";
+import { capitalizeEachFirstLetter } from "./utils";
 
 function TagSelector({ value = [], onChange }) {
     const [searchTerm, setSearchTerm] = useState("");
@@ -7,6 +8,7 @@ function TagSelector({ value = [], onChange }) {
     const [allTags, setAllTags] = useState([]);
     const [topTags, setTopTags] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const tagInputRef = useRef(null);
 
     // Initialize database and load tags
     useEffect(() => {
@@ -56,9 +58,7 @@ function TagSelector({ value = [], onChange }) {
 
     // Handle adding new tag from search
     const handleAddNewTag = async () => {
-        const newTag =
-            searchTerm.trim().charAt(0).toUpperCase() +
-            searchTerm.trim().slice(1);
+        const newTag = capitalizeEachFirstLetter(searchTerm.trim());
 
         if (newTag && !allTags.includes(newTag)) {
             try {
@@ -81,6 +81,12 @@ function TagSelector({ value = [], onChange }) {
                 setSearchTerm("");
             } catch (error) {
                 console.error("Failed to create new tag:", error);
+            } finally {
+                // focus the search input
+                if (tagInputRef.current) {
+                    tagInputRef.current.focus();
+                    setIsSearchFocused(true);
+                }
             }
         }
     };
@@ -112,6 +118,7 @@ function TagSelector({ value = [], onChange }) {
                     What do you associate with this friend?
                 </label>
                 <input
+                    ref={tagInputRef}
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -138,6 +145,7 @@ function TagSelector({ value = [], onChange }) {
                             <span
                                 key={tag}
                                 className="tag-hand-drawn bg-amber-300 text-stone-900 border-stone-800"
+                                onClick={() => handleTagToggle(tag)}
                             >
                                 {tag}
                             </span>
@@ -167,10 +175,7 @@ function TagSelector({ value = [], onChange }) {
                                 onClick={handleAddNewTag}
                                 className="tag-hand-drawn bg-green-200 text-green-800 border-green-400 hover:bg-green-300 transition-colors"
                             >
-                                + Add "
-                                {searchTerm.charAt(0).toUpperCase() +
-                                    searchTerm.slice(1)}
-                                "
+                                + Add "{capitalizeEachFirstLetter(searchTerm)}"
                             </button>
                         )}
 
@@ -195,7 +200,8 @@ function TagSelector({ value = [], onChange }) {
                         {/* Show message when no results */}
                         {searchTerm.trim() && filteredTags.length === 0 && (
                             <div className="text-sm text-stone-500 italic">
-                                No existing tags match "{searchTerm}". Press
+                                No existing tags match "
+                                {capitalizeEachFirstLetter(searchTerm)}". Press
                                 Enter or click "Add" to create a new tag.
                             </div>
                         )}

@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { db } from "./db";
+import { capitalizeEachFirstLetter } from "./utils";
 
 function InterestSelector({ value = [], onChange }) {
     const [searchTerm, setSearchTerm] = useState("");
@@ -7,7 +8,7 @@ function InterestSelector({ value = [], onChange }) {
     const [allInterests, setAllInterests] = useState([]);
     const [topInterests, setTopInterests] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-
+    const interestInputRef = useRef(null);
     // Initialize database and load interests
     useEffect(() => {
         const initializeInterests = async () => {
@@ -60,9 +61,7 @@ function InterestSelector({ value = [], onChange }) {
 
     // Handle adding new interest from search
     const handleAddNewInterest = async () => {
-        const newInterest =
-            searchTerm.trim().charAt(0).toUpperCase() +
-            searchTerm.trim().slice(1);
+        const newInterest = capitalizeEachFirstLetter(searchTerm.trim());
 
         if (newInterest && !allInterests.includes(newInterest)) {
             try {
@@ -85,6 +84,12 @@ function InterestSelector({ value = [], onChange }) {
                 setSearchTerm("");
             } catch (error) {
                 console.error("Failed to create new interest:", error);
+            } finally {
+                // focus the search input
+                if (interestInputRef.current) {
+                    interestInputRef.current.focus();
+                    setIsSearchFocused(true);
+                }
             }
         }
     };
@@ -116,6 +121,7 @@ function InterestSelector({ value = [], onChange }) {
                     What does this friend enjoy doing?
                 </label>
                 <input
+                    ref={interestInputRef}
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -142,6 +148,7 @@ function InterestSelector({ value = [], onChange }) {
                             <span
                                 key={interest}
                                 className="tag-hand-drawn bg-amber-300 text-stone-900 border-stone-800"
+                                onClick={() => handleInterestToggle(interest)}
                             >
                                 {interest}
                             </span>
@@ -173,9 +180,7 @@ function InterestSelector({ value = [], onChange }) {
                                     className="tag-hand-drawn bg-green-200 text-green-800 border-green-400 hover:bg-green-300 transition-colors"
                                 >
                                     + Add "
-                                    {searchTerm.charAt(0).toUpperCase() +
-                                        searchTerm.slice(1)}
-                                    "
+                                    {capitalizeEachFirstLetter(searchTerm)}"
                                 </button>
                             )}
 
@@ -203,7 +208,8 @@ function InterestSelector({ value = [], onChange }) {
                         {searchTerm.trim() &&
                             filteredInterests.length === 0 && (
                                 <div className="text-sm text-stone-500 italic">
-                                    No existing interests match "{searchTerm}".
+                                    No existing interests match "
+                                    {capitalizeEachFirstLetter(searchTerm)}".
                                     Press Enter or click "Add" to create a new
                                     interest.
                                 </div>
