@@ -3,12 +3,6 @@ import React from "react";
 function NotesSelector({ value, onChange }) {
     return (
         <div>
-            <label
-                htmlFor="notes"
-                className="block text-md font-medium text-stone-700 mb-1"
-            >
-                Additional Notes
-            </label>
             <textarea
                 id="notes"
                 name="notes"
