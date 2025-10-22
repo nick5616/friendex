@@ -108,9 +108,12 @@ function InterestSelector({ value = [], onChange }) {
             <div className="mb-3">
                 <label
                     htmlFor="interests"
-                    className="block text-sm font-medium text-stone-700 mb-1"
+                    className="block text-md font-medium text-stone-700 mb-1"
                 >
                     Interests
+                </label>
+                <label className="block text-sm font-medium text-stone-700 mb-1">
+                    What does this friend enjoy doing?
                 </label>
                 <input
                     type="text"
