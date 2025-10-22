@@ -13,7 +13,7 @@ import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
 import { seedTagsAndInterests } from "./seed";
 
-function AddFriend() {
+function AddFriend(friend) {
     const navigate = useNavigate();
     const location = useLocation();
     const fileInputRef = useRef(null);
@@ -37,11 +37,31 @@ function AddFriend() {
         relationships: [],
         notes: "",
     });
+    console.log("formData", formData);
+    console.log("friend", friend);
     const [debouncedName, setDebouncedName] = useState("");
+    const [draftRestored, setDraftRestored] = useState(false);
 
     useEffect(() => {
         // Always seed tags and interests if they're empty, even in production
         seedTagsAndInterests();
+    }, []);
+
+    // Restore form data from session storage on component mount
+    useEffect(() => {
+        const savedData = sessionStorage.getItem("addFriendDraft");
+        if (savedData) {
+            try {
+                const parsedData = JSON.parse(savedData);
+                setFormData(parsedData);
+                setDraftRestored(true);
+                // Clear the notification after 3 seconds
+                setTimeout(() => setDraftRestored(false), 3000);
+            } catch (error) {
+                console.warn("Failed to restore draft data:", error);
+                sessionStorage.removeItem("addFriendDraft");
+            }
+        }
     }, []);
 
     useEffect(() => {
@@ -59,6 +79,16 @@ function AddFriend() {
 
         return () => clearTimeout(timer);
     }, [formData.name]);
+
+    // Auto-save form data to session storage with debouncing
+    useEffect(() => {
+        const saveFormData = () => {
+            sessionStorage.setItem("addFriendDraft", JSON.stringify(formData));
+        };
+
+        const timeoutId = setTimeout(saveFormData, 1000); // Debounced save
+        return () => clearTimeout(timeoutId);
+    }, [formData]);
 
     // Generate a simple avatar based on name
     const generateAvatar = (name) => {
@@ -95,6 +125,7 @@ function AddFriend() {
 
     // Handle pronoun selection change
     const handlePronounChange = (pronouns) => {
+        console.log("changed pronouns", pronouns);
         setFormData((prev) => ({
             ...prev,
             pronouns,
@@ -224,6 +255,9 @@ function AddFriend() {
             }
         }
 
+        // Clear session storage draft data
+        sessionStorage.removeItem("addFriendDraft");
+
         // Navigate back to main page with the new friend ID
         navigate(basePath || "/", { state: { newFriendId } });
     };
@@ -247,6 +281,13 @@ function AddFriend() {
                         </span>
                     )}
                 </h1>
+                {draftRestored && (
+                    <div className="muted-card-hand-drawn mt-4 p-3 bg-green-200 border border-green-600 transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-top-2 delay-500">
+                        <p className="text-green-800 text-sm">
+                            📝 Draft restored from previous session
+                        </p>
+                    </div>
+                )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -304,46 +345,44 @@ function AddFriend() {
                         />
                         <p className="text-sm text-stone-600 text-center">
                             Click to upload a photo
-                            {debouncedName && !profilePicture && (
-                                <span className="block mt-1">
-                                    (or leave blank for auto-generated avatar)
-                                </span>
-                            )}
                         </p>
                     </div>
                 </div>
 
                 {/* Basic Info */}
-                <div className="card-hand-drawn px-4 py-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-6">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Basic Info
                     </h2>
+                    <hr className="border-stone-200 w-full" />
+                    <div className="space-y-6">
+                        <div>
+                            <NameSelector
+                                ref={nameInputRef}
+                                value={formData.name}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                    <div>
-                        <NameSelector
-                            ref={nameInputRef}
-                            value={formData.name}
-                            onChange={handleChange}
-                        />
-                    </div>
+                        <div>
+                            <PronounSelector
+                                value={formData.pronouns}
+                                onChange={handlePronounChange}
+                            />
+                        </div>
 
-                    <div>
-                        <PronounSelector
-                            value={formData.pronouns}
-                            onChange={handlePronounChange}
-                        />
-                    </div>
-
-                    <div>
-                        <TagSelector
-                            value={formData.tags}
-                            onChange={handleTagChange}
-                        />
+                        <div>
+                            <TagSelector
+                                value={formData.tags}
+                                onChange={handleTagChange}
+                                pronouns={formData.pronouns}
+                            />
+                        </div>
                     </div>
                 </div>
 
                 {/* About Section */}
-                <div className="card-hand-drawn px-4 py-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-6">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         About
                     </h2>
@@ -359,12 +398,13 @@ function AddFriend() {
                         <InterestSelector
                             value={formData.interests}
                             onChange={handleInterestChange}
+                            pronouns={formData.pronouns}
                         />
                     </div>
                 </div>
 
                 {/* Key Info */}
-                <div className="card-hand-drawn px-4 py-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-6">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Key Info
                     </h2>
@@ -392,7 +432,7 @@ function AddFriend() {
                 </div>
 
                 {/* Notes */}
-                <div className="card-hand-drawn px-4 py-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-6">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Notes
                     </h2>
@@ -415,7 +455,10 @@ function AddFriend() {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate(basePath || "/")}
+                        onClick={() => {
+                            sessionStorage.removeItem("addFriendDraft");
+                            navigate(basePath || "/");
+                        }}
                         className="px-6 py-3 rounded-md border border-stone-300 hover:bg-stone-100 transition-colors font-medium"
                     >
                         Cancel

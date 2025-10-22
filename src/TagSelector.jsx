@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { db } from "./db";
 import { capitalizeEachFirstLetter } from "./utils";
 
-function TagSelector({ value = [], onChange }) {
+function TagSelector({ value = [], onChange, pronouns }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [allTags, setAllTags] = useState([]);
@@ -104,6 +104,18 @@ function TagSelector({ value = [], onChange }) {
         }
     };
 
+    console.log("got pronouns", pronouns);
+    // console.log("got pronouns", pronouns.split("/"));
+    if (!pronouns || pronouns.length === 0 || !Array.isArray(pronouns)) {
+        return null;
+    }
+
+    console.log("got pronouns!", pronouns[0]);
+
+    const possessivePronoun = pronouns[0].split("/")[1];
+
+    console.log("possessivePronoun", possessivePronoun);
+
     return (
         <div>
             {/* Search input */}
@@ -115,7 +127,7 @@ function TagSelector({ value = [], onChange }) {
                     Tags
                 </label>
                 <label className="block text-sm font-medium text-stone-700 mb-1">
-                    What do you associate with this friend?
+                    What do you associate with {possessivePronoun}?
                 </label>
                 <input
                     ref={tagInputRef}

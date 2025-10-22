@@ -25,6 +25,7 @@ function ModifyFriend() {
     const [loading, setLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState(null);
     const [originalProfilePicture, setOriginalProfilePicture] = useState(null);
+    const [draftRestored, setDraftRestored] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         pronouns: "",
@@ -41,30 +42,66 @@ function ModifyFriend() {
     // Load the friend's current data
     useEffect(() => {
         const loadFriend = async () => {
-            const friend = await currentDb.friends.get(parseInt(id));
-            if (friend) {
-                setOriginalProfilePicture(friend.profilePicture);
-                setFormData({
-                    name: friend.name || "",
-                    pronouns: friend.pronouns || "",
-                    tags: friend.tags ? friend.tags.join(", ") : "",
-                    description: friend.about?.description || "",
-                    interests: friend.about?.interests
-                        ? friend.about.interests.join(", ")
-                        : "",
-                    loveLanguages: friend.about?.loveLanguages
-                        ? friend.about.loveLanguages.join(", ")
-                        : "",
-                    birthday: friend.keyInfo?.birthday || "",
-                    howWeMet: friend.keyInfo?.howWeMet || "",
-                    relationships: friend.keyInfo?.relationships || [],
-                    notes: friend.notes || "",
-                });
+            // Check for session storage draft first
+            const savedData = sessionStorage.getItem(`modifyFriendDraft_${id}`);
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    setFormData(parsedData.formData);
+                    if (parsedData.profilePicture) {
+                        setProfilePicture(parsedData.profilePicture);
+                    }
+                    setDraftRestored(true);
+                    // Clear the notification after 3 seconds
+                    setTimeout(() => setDraftRestored(false), 3000);
+                } catch (error) {
+                    console.warn("Failed to restore draft data:", error);
+                    sessionStorage.removeItem(`modifyFriendDraft_${id}`);
+                }
+            } else {
+                // Load from database if no draft exists
+                const friend = await currentDb.friends.get(parseInt(id));
+                if (friend) {
+                    setOriginalProfilePicture(friend.profilePicture);
+                    setFormData({
+                        name: friend.name || "",
+                        pronouns: friend.pronouns || "",
+                        tags: friend.tags ? friend.tags.join(", ") : "",
+                        description: friend.about?.description || "",
+                        interests: friend.about?.interests
+                            ? friend.about.interests.join(", ")
+                            : "",
+                        loveLanguages: friend.about?.loveLanguages
+                            ? friend.about.loveLanguages.join(", ")
+                            : "",
+                        birthday: friend.keyInfo?.birthday || "",
+                        howWeMet: friend.keyInfo?.howWeMet || "",
+                        relationships: friend.keyInfo?.relationships || [],
+                        notes: friend.notes || "",
+                    });
+                }
             }
             setLoading(false);
         };
         loadFriend();
     }, [id, currentDb]);
+
+    // Auto-save form data to session storage with debouncing
+    useEffect(() => {
+        const saveFormData = () => {
+            const dataToSave = {
+                formData,
+                profilePicture,
+            };
+            sessionStorage.setItem(
+                `modifyFriendDraft_${id}`,
+                JSON.stringify(dataToSave)
+            );
+        };
+
+        const timeoutId = setTimeout(saveFormData, 1000); // Debounced save
+        return () => clearTimeout(timeoutId);
+    }, [formData, profilePicture, id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -146,6 +183,9 @@ function ModifyFriend() {
 
         await currentDb.friends.update(parseInt(id), updateData);
 
+        // Clear session storage draft data
+        sessionStorage.removeItem(`modifyFriendDraft_${id}`);
+
         // Navigate back to main page with the modified friend ID
         navigate(basePath || "/", { state: { newFriendId: parseInt(id) } });
     };
@@ -162,7 +202,10 @@ function ModifyFriend() {
         <div className="min-h-screen mx-auto p-8 max-w-3xl">
             <div className="mb-8">
                 <button
-                    onClick={() => navigate(basePath || "/")}
+                    onClick={() => {
+                        sessionStorage.removeItem(`modifyFriendDraft_${id}`);
+                        navigate(basePath || "/");
+                    }}
                     className="text-stone-600 hover:text-stone-900 mb-4 flex items-center"
                 >
                     ← Back to Friendex{isDemoMode && " Demo"}
@@ -175,6 +218,13 @@ function ModifyFriend() {
                         </span>
                     )}
                 </h1>
+                {draftRestored && (
+                    <div className="muted-card-hand-drawn mt-4 p-3 bg-green-200 border border-green-600 transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-top-2 delay-500">
+                        <p className="text-green-800 text-sm">
+                            📝 Draft restored from previous session
+                        </p>
+                    </div>
+                )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -325,7 +375,12 @@ function ModifyFriend() {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate(basePath || "/")}
+                        onClick={() => {
+                            sessionStorage.removeItem(
+                                `modifyFriendDraft_${id}`
+                            );
+                            navigate(basePath || "/");
+                        }}
                         className="px-6 py-3 rounded-md border border-stone-300 hover:bg-stone-100 transition-colors font-medium"
                     >
                         Cancel

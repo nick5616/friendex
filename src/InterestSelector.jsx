@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { db } from "./db";
 import { capitalizeEachFirstLetter } from "./utils";
 
-function InterestSelector({ value = [], onChange }) {
+function InterestSelector({ value = [], onChange, pronouns }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [allInterests, setAllInterests] = useState([]);
@@ -107,6 +107,21 @@ function InterestSelector({ value = [], onChange }) {
         }
     };
 
+    const getPronounInContext = (pronoun) => {
+        if (pronoun) return pronoun;
+    };
+
+    console.log("got pronouns", pronouns);
+    if (!pronouns || pronouns.length === 0 || !Array.isArray(pronouns)) {
+        return null;
+    }
+
+    console.log("got pronouns!", pronouns[0]);
+
+    const nonpossessivePronoun = pronouns[0].split("/")[0];
+
+    console.log("nonpossessivePronoun", nonpossessivePronoun);
+
     return (
         <div>
             {/* Search input */}
@@ -118,7 +133,11 @@ function InterestSelector({ value = [], onChange }) {
                     Interests
                 </label>
                 <label className="block text-sm font-medium text-stone-700 mb-1">
-                    What does this friend enjoy doing?
+                    What{" "}
+                    {nonpossessivePronoun.toLowerCase() === "they"
+                        ? "do"
+                        : "does"}{" "}
+                    {nonpossessivePronoun} like to do?
                 </label>
                 <input
                     ref={interestInputRef}
