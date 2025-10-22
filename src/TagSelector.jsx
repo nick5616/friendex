@@ -108,6 +108,9 @@ function TagSelector({ value = [], onChange }) {
                 >
                     Tags
                 </label>
+                <label className="block text-xs font-medium text-stone-700 mb-1">
+                    What do you associate with this friend?
+                </label>
                 <input
                     type="text"
                     value={searchTerm}
