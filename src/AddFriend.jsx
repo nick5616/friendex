@@ -9,6 +9,8 @@ import RelationshipSelector from "./RelationshipSelector";
 import NameSelector from "./NameSelector";
 import BirthdaySelector from "./BirthdaySelector";
 import DescriptionSelector from "./DescriptionSelector";
+import HowWeMetSelector from "./HowWeMetSelector";
+import NotesSelector from "./NotesSelector";
 import { seedTagsAndInterests } from "./seed";
 
 function AddFriend() {
@@ -227,7 +229,7 @@ function AddFriend() {
     };
 
     return (
-        <div className="min-h-screen mx-auto p-8 max-w-3xl">
+        <div className="min-h-screen mx-auto px-4 py-6 max-w-3xl">
             <div className="mb-8">
                 {location.state && location.state.newFriendId && (
                     <button
@@ -249,7 +251,7 @@ function AddFriend() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Profile Picture Upload */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Profile Picture
                     </h2>
@@ -312,7 +314,7 @@ function AddFriend() {
                 </div>
 
                 {/* Basic Info */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Basic Info
                     </h2>
@@ -341,7 +343,7 @@ function AddFriend() {
                 </div>
 
                 {/* About Section */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         About
                     </h2>
@@ -362,7 +364,7 @@ function AddFriend() {
                 </div>
 
                 {/* Key Info */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Key Info
                     </h2>
@@ -382,47 +384,23 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="howWeMet"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            How We Met
-                        </label>
-                        <textarea
-                            id="howWeMet"
-                            name="howWeMet"
+                        <HowWeMetSelector
                             value={formData.howWeMet}
                             onChange={handleChange}
-                            rows={2}
-                            placeholder="Tell the story of how you met..."
-                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
-                            style={{
-                                borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
-                            }}
                         />
                     </div>
                 </div>
 
                 {/* Notes */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="card-hand-drawn px-4 py-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Notes
                     </h2>
 
                     <div>
-                        <textarea
-                            id="notes"
-                            name="notes"
+                        <NotesSelector
                             value={formData.notes}
                             onChange={handleChange}
-                            rows={3}
-                            placeholder="Any additional information you'd like to remember..."
-                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
-                            style={{
-                                borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
-                            }}
                         />
                     </div>
                 </div>
@@ -431,7 +409,7 @@ function AddFriend() {
                 <div className="flex gap-4">
                     <button
                         type="submit"
-                        className="flex-1 bg-stone-900 text-white px-6 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium"
+                        className="flex-1 bg-stone-900 text-white px-4 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium"
                     >
                         Add Friend
                     </button>

@@ -32,13 +32,12 @@ function PronounSelector({ value = [], onChange }) {
         <div>
             <label
                 htmlFor="pronouns"
-                className="block text-sm font-medium text-stone-700 mb-1"
+                className="block text-md font-medium text-stone-700 mb-1"
             >
                 Pronouns
             </label>
             {/* Real-time display of selected pronouns */}
             <div className="mb-3 p-3 bg-stone-50 border border-stone-200 muted-card-hand-drawn">
-                <div className="text-sm text-stone-600 mb-1">Preview:</div>
                 <div className="text-lg font-medium text-stone-800">
                     {value.length > 0
                         ? formatPronounsDisplay(value)

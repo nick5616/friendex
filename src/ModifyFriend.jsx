@@ -8,6 +8,8 @@ import TagSelector from "./TagSelector";
 import PronounSelector from "./PronounSelector";
 import BirthdaySelector from "./BirthdaySelector";
 import DescriptionSelector from "./DescriptionSelector";
+import HowWeMetSelector from "./HowWeMetSelector";
+import NotesSelector from "./NotesSelector";
 
 function ModifyFriend() {
     const navigate = useNavigate();
@@ -292,20 +294,9 @@ function ModifyFriend() {
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="howWeMet"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            How We Met
-                        </label>
-                        <textarea
-                            id="howWeMet"
-                            name="howWeMet"
+                        <HowWeMetSelector
                             value={formData.howWeMet}
                             onChange={handleChange}
-                            rows={2}
-                            placeholder="Tell the story of how you met..."
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
                         />
                     </div>
                 </div>
@@ -317,20 +308,9 @@ function ModifyFriend() {
                     </h2>
 
                     <div>
-                        <label
-                            htmlFor="notes"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Additional Notes
-                        </label>
-                        <textarea
-                            id="notes"
-                            name="notes"
+                        <NotesSelector
                             value={formData.notes}
                             onChange={handleChange}
-                            rows={3}
-                            placeholder="Any additional information you'd like to remember..."
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
                         />
                     </div>
                 </div>

@@ -135,7 +135,7 @@ function InterestSelector({ value = [], onChange }) {
             {value.length > 0 && (
                 <div className="mb-3">
                     <div className="text-sm text-stone-600 mb-2">
-                        Selected interests:
+                        Selected interests
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {value.map((interest) => (
@@ -160,8 +160,8 @@ function InterestSelector({ value = [], onChange }) {
                     <>
                         <div className="text-sm text-stone-600 mb-2">
                             {searchTerm.trim()
-                                ? "Search results:"
-                                : "Most popular interests:"}
+                                ? "Search results"
+                                : "Most popular interests"}
                         </div>
 
                         {/* Show "Add new interest" option if search doesn't match existing interests */}

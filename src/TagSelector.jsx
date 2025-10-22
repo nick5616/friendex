@@ -131,7 +131,7 @@ function TagSelector({ value = [], onChange }) {
             {value.length > 0 && (
                 <div className="mb-3">
                     <div className="text-sm text-stone-600 mb-2">
-                        Selected tags:
+                        Selected tags
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {value.map((tag) => (
@@ -156,8 +156,8 @@ function TagSelector({ value = [], onChange }) {
                     <>
                         <div className="text-sm text-stone-600 mb-2">
                             {searchTerm.trim()
-                                ? "Search results:"
-                                : "Most popular tags:"}
+                                ? "Search results"
+                                : "Most popular tags"}
                         </div>
 
                         {/* Show "Add new tag" option if search doesn't match existing tags */}
