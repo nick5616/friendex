@@ -6,7 +6,7 @@ import PronounSelector from "./PronounSelector";
 import TagSelector from "./TagSelector";
 import InterestSelector from "./InterestSelector";
 import RelationshipSelector from "./RelationshipSelector";
-import Tooltip from "./Tooltip";
+import { seedTagsAndInterests } from "./seed";
 
 function AddFriend() {
     const navigate = useNavigate();
@@ -31,6 +31,13 @@ function AddFriend() {
         relationship: "",
         notes: "",
     });
+    const [debouncedName, setDebouncedName] = useState("");
+
+    useEffect(() => {
+        // Always seed tags and interests if they're empty, even in production
+        console.log("Seeding tags and interests");
+        seedTagsAndInterests();
+    }, []);
 
     useEffect(() => {
         // set focus on name field immediately
@@ -39,6 +46,15 @@ function AddFriend() {
             nameInput.focus();
         }
     }, []);
+
+    // Debounce the name input
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedName(formData.name);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [formData.name]);
 
     // Generate a simple avatar based on name
     const generateAvatar = (name) => {
@@ -190,12 +206,14 @@ function AddFriend() {
     return (
         <div className="min-h-screen mx-auto p-8 max-w-3xl">
             <div className="mb-8">
-                <button
-                    onClick={() => navigate(basePath || "/")}
-                    className="text-stone-600 hover:text-stone-900 mb-4 flex items-center"
-                >
-                    ← Back to Friendex{isDemoMode && " Demo"}
-                </button>
+                {location.state && location.state.newFriendId && (
+                    <button
+                        onClick={() => navigate(basePath || "/")}
+                        className="text-stone-600 hover:text-stone-900 mb-4 flex items-center"
+                    >
+                        ← Back to Friendex{isDemoMode && " Demo"}
+                    </button>
+                )}
                 <h1 className="text-4xl font-bold text-stone-900">
                     Add New Friend
                     {isDemoMode && (
@@ -219,24 +237,24 @@ function AddFriend() {
                             style={{
                                 borderRadius:
                                     profilePicture ||
-                                    (formData.name &&
-                                        generateAvatar(formData.name))
+                                    (debouncedName &&
+                                        generateAvatar(debouncedName))
                                         ? "255px 15px 225px 15px/15px 225px 15px 255px"
                                         : "60% 40% 30% 70% / 60% 30% 70% 40%",
                                 transform:
                                     profilePicture ||
-                                    (formData.name &&
-                                        generateAvatar(formData.name))
+                                    (debouncedName &&
+                                        generateAvatar(debouncedName))
                                         ? "rotate(0deg)"
                                         : "rotate(-2deg)",
                             }}
                         >
                             {profilePicture ||
-                            (formData.name && generateAvatar(formData.name)) ? (
+                            (debouncedName && generateAvatar(debouncedName)) ? (
                                 <img
                                     src={
                                         profilePicture ||
-                                        generateAvatar(formData.name)
+                                        generateAvatar(debouncedName)
                                     }
                                     alt="Profile preview"
                                     className="w-full h-full object-cover"
@@ -261,7 +279,7 @@ function AddFriend() {
                         />
                         <p className="text-sm text-stone-600 text-center">
                             Click to upload a photo
-                            {formData.name && !profilePicture && (
+                            {debouncedName && !profilePicture && (
                                 <span className="block mt-1">
                                     (or leave blank for auto-generated avatar)
                                 </span>
@@ -309,19 +327,6 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <label className="block text-sm font-medium text-stone-700">
-                                Tags
-                            </label>
-                            <Tooltip
-                                content="What do you associate with this friend?"
-                                placement="right"
-                            >
-                                <span className="text-white text-xs font-bold">
-                                    i
-                                </span>
-                            </Tooltip>
-                        </div>
                         <TagSelector
                             value={formData.tags}
                             onChange={handleTagChange}
@@ -359,19 +364,6 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <label className="block text-sm font-medium text-stone-700">
-                                Interests
-                            </label>
-                            <Tooltip
-                                content="What does this friend enjoy doing?"
-                                placement="right"
-                            >
-                                <span className="text-white text-xs font-bold">
-                                    i
-                                </span>
-                            </Tooltip>
-                        </div>
                         <InterestSelector
                             value={formData.interests}
                             onChange={handleInterestChange}
