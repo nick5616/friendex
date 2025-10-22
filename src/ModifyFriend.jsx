@@ -6,6 +6,7 @@ import RelationshipSelector from "./RelationshipSelector";
 import InterestSelector from "./InterestSelector";
 import TagSelector from "./TagSelector";
 import PronounSelector from "./PronounSelector";
+import BirthdaySelector from "./BirthdaySelector";
 
 function ModifyFriend() {
     const navigate = useNavigate();
@@ -287,19 +288,9 @@ function ModifyFriend() {
                     </h2>
 
                     <div>
-                        <label
-                            htmlFor="birthday"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Birthday
-                        </label>
-                        <input
-                            type="date"
-                            id="birthday"
-                            name="birthday"
+                        <BirthdaySelector
                             value={formData.birthday}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
                         />
                     </div>
 

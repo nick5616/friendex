@@ -7,6 +7,7 @@ import TagSelector from "./TagSelector";
 import InterestSelector from "./InterestSelector";
 import RelationshipSelector from "./RelationshipSelector";
 import NameSelector from "./NameSelector";
+import BirthdaySelector from "./BirthdaySelector";
 import { seedTagsAndInterests } from "./seed";
 
 function AddFriend() {
@@ -37,7 +38,6 @@ function AddFriend() {
 
     useEffect(() => {
         // Always seed tags and interests if they're empty, even in production
-        console.log("Seeding tags and interests");
         seedTagsAndInterests();
     }, []);
 
@@ -304,9 +304,6 @@ function AddFriend() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Pronouns
-                        </label>
                         <PronounSelector
                             value={formData.pronouns}
                             onChange={handlePronounChange}
@@ -365,23 +362,9 @@ function AddFriend() {
                     </h2>
 
                     <div>
-                        <label
-                            htmlFor="birthday"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Birthday
-                        </label>
-                        <input
-                            type="date"
-                            id="birthday"
-                            name="birthday"
+                        <BirthdaySelector
                             value={formData.birthday}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
-                            style={{
-                                borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
-                            }}
                         />
                     </div>
 
