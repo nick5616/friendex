@@ -3,7 +3,6 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
-import { seedDatabase } from "./seed";
 import { seedDemoDatabase } from "./demoSeed";
 import FriendList from "./FriendList";
 import RolodexList from "./RolodexList.tsx";
@@ -33,10 +32,6 @@ function FriendexApp() {
         if (isDemoMode) {
             seedDemoDatabase();
         }
-        // Note: seedDatabase is commented out for production, but could be called here if needed
-        // else {
-        //     seedDatabase();
-        // }
     }, [isDemoMode]);
 
     // Check if we're returning from adding a new friend
@@ -47,6 +42,10 @@ function FriendexApp() {
             navigate(location.pathname, { replace: true });
         }
     }, [location, navigate]);
+
+    if (friends && friends.length === 0) {
+        navigate("/add");
+    }
 
     // Apply filtering and sorting
     const getFilteredAndSortedFriends = () => {
