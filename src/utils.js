@@ -10,7 +10,7 @@ export const fromCommaStringToArray = (value) => {
         return value;
     }
     if (value) {
-        return value.split(",");
+        return value.split(",").map((tag) => tag.trim());
     }
     return [];
 };

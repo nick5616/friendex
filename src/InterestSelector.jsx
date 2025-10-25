@@ -1,8 +1,13 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { db } from "./db";
-import { capitalizeEachFirstLetter } from "./utils";
+import {
+    capitalizeEachFirstLetter,
+    fromCommaStringToArray,
+    fromArrayToCommaString,
+} from "./utils";
 
 function InterestSelector({ value = [], onChange, pronouns }) {
+    const input = fromCommaStringToArray(value);
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [allInterests, setAllInterests] = useState([]);
@@ -50,13 +55,17 @@ function InterestSelector({ value = [], onChange, pronouns }) {
 
     // Handle interest selection
     const handleInterestToggle = (interest) => {
-        if (value.includes(interest)) {
+        let newInterests;
+        if (input.includes(interest)) {
             // Remove interest if already selected
-            onChange(value.filter((i) => i !== interest));
+            newInterests = input.filter((i) => i !== interest);
         } else {
             // Add interest in the order they were selected
-            onChange([...value, interest]);
+            newInterests = [...input, interest];
         }
+
+        // Always convert to comma-separated string for consistency
+        onChange(fromArrayToCommaString(newInterests));
     };
 
     // Handle adding new interest from search
@@ -75,7 +84,7 @@ function InterestSelector({ value = [], onChange, pronouns }) {
                 });
 
                 // Add to current selection
-                onChange([...value, newInterest]);
+                onChange(fromArrayToCommaString([...input, newInterest]));
 
                 // Update local state
                 setAllInterests((prev) => [...prev, newInterest]);
@@ -107,18 +116,9 @@ function InterestSelector({ value = [], onChange, pronouns }) {
         }
     };
 
-    const getPronounInContext = (pronoun) => {
-        if (pronoun) return pronoun;
-    };
-
-    console.log("got pronouns", pronouns);
-    if (!pronouns || pronouns.length === 0 || !Array.isArray(pronouns)) {
-        return null;
-    }
-
-    console.log("got pronouns!", pronouns[0]);
-
-    const nonpossessivePronoun = pronouns[0].split("/")[0];
+    console.log("spronouns", pronouns);
+    const nonpossessivePronoun =
+        pronouns && pronouns.length > 0 ? pronouns[0].split("/")[0] : "they";
 
     console.log("nonpossessivePronoun", nonpossessivePronoun);
 
@@ -157,13 +157,13 @@ function InterestSelector({ value = [], onChange, pronouns }) {
             </div>
 
             {/* Selected interests display */}
-            {value.length > 0 && (
+            {input.length > 0 && (
                 <div className="mb-3">
                     <div className="text-sm text-stone-600 mb-2">
                         Selected interests
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        {value.map((interest) => (
+                        {input.map((interest) => (
                             <span
                                 key={interest}
                                 className="tag-hand-drawn bg-amber-300 text-stone-900 border-stone-800"
@@ -213,7 +213,7 @@ function InterestSelector({ value = [], onChange, pronouns }) {
                                         handleInterestToggle(interest)
                                     }
                                     className={`tag-hand-drawn transition-all duration-200 hover:scale-105 ${
-                                        value.includes(interest)
+                                        input.includes(interest)
                                             ? "bg-amber-300 text-stone-900 border-stone-800"
                                             : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"
                                     }`}

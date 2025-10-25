@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
@@ -15,6 +15,7 @@ function ModifyFriend() {
     const navigate = useNavigate();
     const location = useLocation();
     const { id } = useParams();
+
     const fileInputRef = useRef(null);
 
     // Determine if we're in demo mode based on the URL
@@ -25,6 +26,8 @@ function ModifyFriend() {
     const [loading, setLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState(null);
     const [originalProfilePicture, setOriginalProfilePicture] = useState(null);
+    console.log("originalProfilePicture", originalProfilePicture);
+    console.log("profilePicture", profilePicture);
     const [draftRestored, setDraftRestored] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
@@ -38,6 +41,14 @@ function ModifyFriend() {
         relationships: [],
         notes: "",
     });
+
+    const friend = useMemo(() => {
+        if (currentDb) {
+            return currentDb.friends.get(parseInt(id));
+        }
+        return null;
+    }, [id, currentDb]);
+    console.log("got friend", friend);
 
     // Load the friend's current data
     useEffect(() => {
@@ -58,11 +69,16 @@ function ModifyFriend() {
                     console.warn("Failed to restore draft data:", error);
                     sessionStorage.removeItem(`modifyFriendDraft_${id}`);
                 }
-            } else {
-                // Load from database if no draft exists
-                const friend = await currentDb.friends.get(parseInt(id));
-                if (friend) {
-                    setOriginalProfilePicture(friend.profilePicture);
+            }
+
+            // Always load the original profile picture from database
+            // This ensures we have the original picture even when draft is restored
+            const friend = await currentDb.friends.get(parseInt(id));
+            if (friend) {
+                setOriginalProfilePicture(friend.profilePicture);
+
+                // Only set form data if no draft was restored
+                if (!savedData) {
                     setFormData({
                         name: friend.name || "",
                         pronouns: friend.pronouns || "",
@@ -163,10 +179,16 @@ function ModifyFriend() {
         const updateData = {
             name: formData.name,
             pronouns: formData.pronouns,
-            tags: formData.tags,
+            tags: formData.tags
+                ? formData.tags.split(", ").filter((tag) => tag.trim())
+                : [],
             about: {
                 description: formData.description,
-                interests: formData.interests,
+                interests: formData.interests
+                    ? formData.interests
+                          .split(", ")
+                          .filter((interest) => interest.trim())
+                    : [],
             },
             keyInfo: {
                 birthday: formData.birthday,
@@ -210,8 +232,22 @@ function ModifyFriend() {
                 >
                     ← Back to Friendex{isDemoMode && " Demo"}
                 </button>
-                <h1 className="text-5xl font-bold text-stone-900">
-                    Modify Friend
+                <h1 className="text-5xl font-bold text-stone-900 flex items-center">
+                    <svg
+                        className="w-12 h-12 mr-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                        />
+                    </svg>
+                    Friend
                     {isDemoMode && (
                         <span className="text-2xl text-stone-600 ml-2">
                             (Demo)
@@ -295,12 +331,13 @@ function ModifyFriend() {
                     </div>
 
                     <PronounSelector
-                        value={formData.pronouns}
+                        value={formData.pronouns || friend.pronouns}
                         onChange={handlePronounChange}
                     />
 
                     <TagSelector
-                        value={formData.tags}
+                        value={formData.tags || friend.tags}
+                        pronouns={formData.pronouns || friend.pronouns}
                         onChange={handleTagChange}
                     />
                 </div>
@@ -318,7 +355,8 @@ function ModifyFriend() {
                         />
                     </div>
                     <InterestSelector
-                        value={formData.interests}
+                        value={formData.interests || friend.interests}
+                        pronouns={formData.pronouns || friend.pronouns}
                         onChange={handleInterestChange}
                     />
                 </div>
@@ -369,8 +407,22 @@ function ModifyFriend() {
                 <div className="flex gap-4">
                     <button
                         type="submit"
-                        className="flex-1 bg-amber-600 text-white px-6 py-3 rounded-md hover:bg-amber-700 transition-colors font-medium"
+                        className="flex-1 bg-amber-600 text-white px-6 py-3 rounded-md hover:bg-amber-700 transition-colors font-medium flex items-center justify-center gap-2"
                     >
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                            />
+                        </svg>
                         Save Changes
                     </button>
                     <button
@@ -381,8 +433,22 @@ function ModifyFriend() {
                             );
                             navigate(basePath || "/");
                         }}
-                        className="px-6 py-3 rounded-md border border-stone-300 hover:bg-stone-100 transition-colors font-medium"
+                        className="px-6 py-3 rounded-md border border-stone-300 hover:bg-stone-100 transition-colors font-medium flex items-center gap-2"
                     >
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                        </svg>
                         Cancel
                     </button>
                 </div>

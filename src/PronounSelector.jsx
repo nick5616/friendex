@@ -1,17 +1,19 @@
 import { useState } from "react";
-
+import { fromCommaStringToArray } from "./utils";
 function PronounSelector({ value = [], onChange }) {
+    console.log("PronounSelector got value", value);
+    console.log(" API got pronouns", value);
     // Available pronoun options
     const pronounOptions = ["he/him", "she/her", "they/them", "it/its"];
-
+    const input = fromCommaStringToArray(value);
     // Handle pronoun selection
     const handlePronounToggle = (pronoun) => {
-        if (value.includes(pronoun)) {
+        if (input.includes(pronoun)) {
             // Remove pronoun if already selected
-            onChange(value.filter((p) => p !== pronoun));
+            onChange(input.filter((p) => p !== pronoun));
         } else {
             // Add pronoun in the order they were selected
-            onChange([...value, pronoun]);
+            onChange([...input, pronoun]);
         }
     };
 
@@ -19,7 +21,7 @@ function PronounSelector({ value = [], onChange }) {
     const formatPronounsDisplay = (pronouns) => {
         if (pronouns.length === 0) return "";
         if (pronouns.length === 1) return pronouns[0];
-
+        console.log("got pronouns in formatPronounsDisplay", pronouns);
         const multiPronounString = pronouns
             .map((pronoun) => {
                 return pronoun.split("/")[0];
@@ -39,8 +41,8 @@ function PronounSelector({ value = [], onChange }) {
             {/* Real-time display of selected pronouns */}
             <div className="mb-3 p-3 bg-stone-50 border border-stone-200 muted-card-hand-drawn">
                 <div className="text-lg font-medium text-stone-800">
-                    {value.length > 0
-                        ? formatPronounsDisplay(value)
+                    {input.length > 0
+                        ? formatPronounsDisplay(input)
                         : "No pronouns selected"}
                 </div>
             </div>
@@ -57,7 +59,7 @@ function PronounSelector({ value = [], onChange }) {
                             type="button"
                             onClick={() => handlePronounToggle(pronoun)}
                             className={`tag-hand-drawn transition-all duration-200 hover:scale-105 ${
-                                value.includes(pronoun)
+                                input.includes(pronoun)
                                     ? "bg-amber-300 text-stone-900 border-stone-800"
                                     : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"
                             }`}

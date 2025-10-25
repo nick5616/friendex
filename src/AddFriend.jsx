@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
 import PronounSelector from "./PronounSelector";
@@ -12,15 +12,15 @@ import DescriptionSelector from "./DescriptionSelector";
 import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
 import { seedTagsAndInterests } from "./seed";
+import useIsDemoMode from "./hooks/useIsDemoMode";
 
 function AddFriend(friend) {
     const navigate = useNavigate();
-    const location = useLocation();
+    const isDemoMode = useIsDemoMode();
     const fileInputRef = useRef(null);
     const nameInputRef = useRef(null);
 
     // Determine if we're in demo mode based on the URL
-    const isDemoMode = location.pathname.startsWith("/demo");
     const currentDb = isDemoMode ? demoDb : db;
     const basePath = isDemoMode ? "/demo" : "";
 
@@ -134,17 +134,25 @@ function AddFriend(friend) {
 
     // Handle tag selection change
     const handleTagChange = (tags) => {
+        // Convert comma-separated string back to array
+        const tagsArray = tags
+            ? tags.split(", ").filter((tag) => tag.trim())
+            : [];
         setFormData((prev) => ({
             ...prev,
-            tags,
+            tags: tagsArray,
         }));
     };
 
     // Handle interest selection change
     const handleInterestChange = (interests) => {
+        // Convert comma-separated string back to array
+        const interestsArray = interests
+            ? interests.split(", ").filter((interest) => interest.trim())
+            : [];
         setFormData((prev) => ({
             ...prev,
-            interests,
+            interests: interestsArray,
         }));
     };
 
@@ -180,10 +188,10 @@ function AddFriend(friend) {
             name: formData.name,
             pronouns: formData.pronouns.join("/"),
             profilePicture: profilePicture || generateAvatar(formData.name),
-            tags: formData.tags,
+            tags: formData.tags, // Already an array from handleTagChange
             about: {
                 description: formData.description,
-                interests: formData.interests,
+                interests: formData.interests, // Already an array from handleInterestChange
                 loveLanguages: formData.loveLanguages,
             },
             keyInfo: {
@@ -372,7 +380,7 @@ function AddFriend(friend) {
 
                         <div>
                             <TagSelector
-                                value={formData.tags}
+                                value={formData.tags.join(", ")}
                                 onChange={handleTagChange}
                                 pronouns={formData.pronouns}
                             />
@@ -395,7 +403,7 @@ function AddFriend(friend) {
 
                     <div>
                         <InterestSelector
-                            value={formData.interests}
+                            value={formData.interests.join(", ")}
                             onChange={handleInterestChange}
                             pronouns={formData.pronouns}
                         />

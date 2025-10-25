@@ -1,8 +1,13 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { db } from "./db";
-import { capitalizeEachFirstLetter } from "./utils";
+import {
+    capitalizeEachFirstLetter,
+    fromCommaStringToArray,
+    fromArrayToCommaString,
+} from "./utils";
 
 function TagSelector({ value = [], onChange, pronouns }) {
+    const input = fromCommaStringToArray(value);
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [allTags, setAllTags] = useState([]);
@@ -47,13 +52,17 @@ function TagSelector({ value = [], onChange, pronouns }) {
 
     // Handle tag selection
     const handleTagToggle = (tag) => {
-        if (value.includes(tag)) {
+        let newTags;
+        if (input.includes(tag)) {
             // Remove tag if already selected
-            onChange(value.filter((t) => t !== tag));
+            newTags = input.filter((t) => t !== tag);
         } else {
             // Add tag in the order they were selected
-            onChange([...value, tag]);
+            newTags = [...input, tag];
         }
+
+        // Always convert to comma-separated string for consistency
+        onChange(fromArrayToCommaString(newTags));
     };
 
     // Handle adding new tag from search
@@ -72,7 +81,7 @@ function TagSelector({ value = [], onChange, pronouns }) {
                 });
 
                 // Add to current selection
-                onChange([...value, newTag]);
+                onChange(fromArrayToCommaString([...input, newTag]));
 
                 // Update local state
                 setAllTags((prev) => [...prev, newTag]);
@@ -104,17 +113,9 @@ function TagSelector({ value = [], onChange, pronouns }) {
         }
     };
 
-    console.log("got pronouns", pronouns);
-    // console.log("got pronouns", pronouns.split("/"));
-    if (!pronouns || pronouns.length === 0 || !Array.isArray(pronouns)) {
-        return null;
-    }
-
-    console.log("got pronouns!", pronouns[0]);
-
-    const possessivePronoun = pronouns[0].split("/")[1];
-
-    console.log("possessivePronoun", possessivePronoun);
+    console.log("spronouns", pronouns);
+    const possessivePronoun =
+        pronouns && pronouns.length > 0 ? pronouns[0].split("/")[1] : "them";
 
     return (
         <div>
@@ -147,13 +148,13 @@ function TagSelector({ value = [], onChange, pronouns }) {
             </div>
 
             {/* Selected tags display */}
-            {value.length > 0 && (
+            {input.length > 0 && (
                 <div className="mb-3">
                     <div className="text-sm text-stone-600 mb-2">
                         Selected tags
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        {value.map((tag) => (
+                        {input.map((tag) => (
                             <span
                                 key={tag}
                                 className="tag-hand-drawn bg-amber-300 text-stone-900 border-stone-800"
@@ -199,7 +200,7 @@ function TagSelector({ value = [], onChange, pronouns }) {
                                     type="button"
                                     onClick={() => handleTagToggle(tag)}
                                     className={`tag-hand-drawn transition-all duration-200 hover:scale-105 ${
-                                        value.includes(tag)
+                                        input.includes(tag)
                                             ? "bg-amber-300 text-stone-900 border-stone-800"
                                             : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"
                                     }`}
