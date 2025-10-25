@@ -7,6 +7,7 @@ import {
     isHapticSupported,
     triggerEnhancedHaptic,
     testVibration,
+    setForceHapticSupport,
 } from "./hapticUtils";
 import React from "react";
 
@@ -204,13 +205,25 @@ function RolodexList({ friends, selectedId, onSelect }) {
 
     return (
         <div className="flex-1 flex flex-col">
-            {/* Test button for vibration */}
-            <button
-                onClick={testVibration}
-                className="mb-2 px-4 py-2 bg-blue-500 text-white rounded"
-            >
-                Test Vibration
-            </button>
+            {/* Test buttons for vibration */}
+            <div className="mb-2 flex gap-2">
+                <button
+                    onClick={testVibration}
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                    Test Vibration
+                </button>
+                <button
+                    onClick={() => setForceHapticSupport(!hapticSupported)}
+                    className={`px-4 py-2 rounded ${
+                        hapticSupported
+                            ? "bg-green-500 text-white"
+                            : "bg-gray-500 text-white"
+                    }`}
+                >
+                    {hapticSupported ? "Haptic ON" : "Haptic OFF"}
+                </button>
+            </div>
             <div
                 ref={containerRef}
                 className="flex-1 overflow-hidden relative"
