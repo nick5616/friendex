@@ -20,6 +20,11 @@ export const triggerHapticFeedback = (type = "light") => {
 
 // Check if device supports haptic feedback
 export const isHapticSupported = () => {
+    // Manual override for testing
+    if (forceHapticSupport) {
+        return true;
+    }
+
     // Check if vibration API exists
     const hasVibrateAPI =
         "vibrate" in navigator && navigator.vibrate !== undefined;
@@ -82,6 +87,14 @@ export const testVibration = () => {
     } catch (error) {
         // Silent fail
     }
+};
+
+// Manual override for testing
+let forceHapticSupport = false;
+
+// Function to manually override haptic support for testing
+export const setForceHapticSupport = (force) => {
+    forceHapticSupport = force;
 };
 
 // Debounced haptic feedback to prevent excessive vibrations
