@@ -221,7 +221,7 @@ function ModifyFriend() {
     }
 
     return (
-        <div className="min-h-screen mx-auto p-8 max-w-3xl">
+        <div className="min-h-screen mx-auto p-4 max-w-3xl">
             <div className="mb-8">
                 <button
                     onClick={() => {
