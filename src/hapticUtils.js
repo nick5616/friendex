@@ -3,25 +3,48 @@ export const triggerHapticFeedback = (type = "light") => {
     // Check if the device supports haptic feedback
     if ("vibrate" in navigator) {
         try {
-            switch (type) {
-                case "light":
-                    // Light haptic feedback (10ms)
-                    navigator.vibrate(10);
-                    break;
-                case "medium":
-                    // Medium haptic feedback (20ms)
-                    navigator.vibrate(20);
-                    break;
-                case "heavy":
-                    // Heavy haptic feedback (30ms)
-                    navigator.vibrate(30);
-                    break;
-                case "selection":
-                    // Selection haptic feedback (5ms)
-                    navigator.vibrate(5);
-                    break;
-                default:
-                    navigator.vibrate(10);
+            // Safari on iOS requires longer vibration patterns
+            const isSafari = /^((?!chrome|android).)*safari/i.test(
+                navigator.userAgent
+            );
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+            if (isSafari || isIOS) {
+                // iOS Safari needs longer patterns and user interaction
+                switch (type) {
+                    case "light":
+                        navigator.vibrate([50, 10, 50]);
+                        break;
+                    case "medium":
+                        navigator.vibrate([100, 20, 100]);
+                        break;
+                    case "heavy":
+                        navigator.vibrate([200, 30, 200]);
+                        break;
+                    case "selection":
+                        navigator.vibrate([30, 10, 30]);
+                        break;
+                    default:
+                        navigator.vibrate([50, 10, 50]);
+                }
+            } else {
+                // Standard vibration for other browsers
+                switch (type) {
+                    case "light":
+                        navigator.vibrate(10);
+                        break;
+                    case "medium":
+                        navigator.vibrate(20);
+                        break;
+                    case "heavy":
+                        navigator.vibrate(30);
+                        break;
+                    case "selection":
+                        navigator.vibrate(5);
+                        break;
+                    default:
+                        navigator.vibrate(10);
+                }
             }
         } catch (error) {
             console.log("Haptic feedback not supported or blocked:", error);
@@ -36,6 +59,7 @@ export const isHapticSupported = () => {
 
 // Enhanced haptic feedback with fallback
 export const triggerEnhancedHaptic = (type = "light") => {
+    console.log("triggerEnhancedHaptic called with type:", type);
     // Try modern haptic feedback first
     if (navigator.vibrate) {
         try {
@@ -49,13 +73,22 @@ export const triggerEnhancedHaptic = (type = "light") => {
             };
 
             const pattern = patterns[type] || patterns.light;
+            console.log("Triggering vibration with pattern:", pattern);
             navigator.vibrate(pattern);
         } catch (error) {
             console.log("Enhanced haptic feedback failed:", error);
             // Fallback to simple vibration
             triggerHapticFeedback(type);
         }
+    } else {
+        console.log("navigator.vibrate not available");
     }
+};
+
+// Test function to manually trigger vibration
+export const testVibration = () => {
+    console.log("Testing vibration...");
+    triggerEnhancedHaptic("light");
 };
 
 // Debounced haptic feedback to prevent excessive vibrations
