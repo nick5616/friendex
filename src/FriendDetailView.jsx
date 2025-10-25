@@ -152,7 +152,7 @@ function FriendDetailView({
                 {/* Name and Modify Button */}
                 <div className="flex-1 flex items-start justify-between">
                     <div>
-                        <h2 className="text-4xl font-bold text-amber-600 mb-2">
+                        <h2 className="text-4xl font-bold text-amber-600 my-2">
                             {friend.name}
                         </h2>
                         <div className="flex items-center gap-2">
