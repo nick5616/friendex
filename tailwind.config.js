@@ -4,7 +4,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                handwriting: ["Gaegu", "sans-serif"],
+                handwriting: ["Gaegu", "cursive", "sans-serif"],
             },
         },
     },

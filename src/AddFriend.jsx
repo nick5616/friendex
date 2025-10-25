@@ -265,14 +265,13 @@ function AddFriend(friend) {
     return (
         <div className="min-h-screen mx-auto px-4 py-6 max-w-3xl">
             <div className="mb-8">
-                {location.state && location.state.newFriendId && (
-                    <button
-                        onClick={() => navigate(basePath || "/")}
-                        className="text-stone-600 hover:text-stone-900 mb-4 flex items-center"
-                    >
-                        ← Back to Friendex{isDemoMode && " Demo"}
-                    </button>
-                )}
+                <button
+                    onClick={() => navigate(basePath || "/")}
+                    className="text-stone-600 hover:text-stone-900 mb-4 flex items-center"
+                >
+                    ← Back to Friendex{isDemoMode && " Demo"}
+                </button>
+
                 <h1 className="text-4xl font-bold text-stone-900">
                     Add New Friend
                     {isDemoMode && (
@@ -449,8 +448,22 @@ function AddFriend(friend) {
                 <div className="flex gap-4">
                     <button
                         type="submit"
-                        className="flex-1 bg-stone-900 text-white px-4 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium"
+                        className="flex-1 bg-stone-900 text-white px-4 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium flex items-center justify-center gap-2"
                     >
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 4v16m8-8H4"
+                            />
+                        </svg>
                         Add Friend
                     </button>
                     <button
@@ -459,8 +472,22 @@ function AddFriend(friend) {
                             sessionStorage.removeItem("addFriendDraft");
                             navigate(basePath || "/");
                         }}
-                        className="px-6 py-3 rounded-md border border-stone-300 hover:bg-stone-100 transition-colors font-medium"
+                        className="px-6 py-3 rounded-md border border-stone-300 hover:bg-stone-100 transition-colors font-medium flex items-center gap-2"
                     >
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                        </svg>
                         Cancel
                     </button>
                 </div>

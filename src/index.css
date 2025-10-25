@@ -5,7 +5,31 @@
 
 /* 1. Set the base font and background color for the whole app */
 body {
-    @apply bg-amber-50 text-stone-800 font-handwriting antialiased;
+    @apply bg-amber-50 text-stone-800 antialiased;
+}
+
+/* Force Gaegu font on everything - this overrides Tailwind */
+html,
+body,
+* {
+    font-family: "Gaegu", cursive !important;
+}
+
+/* Specific overrides for common elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+div,
+span,
+button,
+input,
+textarea,
+select {
+    font-family: "Gaegu", cursive !important;
 }
 
 /* 2. Define our reusable hand-drawn components */

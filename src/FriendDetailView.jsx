@@ -144,7 +144,19 @@ function FriendDetailView({
                             }
                             className="btn-hand-drawn btn-primary text-sm px-4 py-2"
                         >
-                            Modify
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                            </svg>
                         </button>
                         <button
                             onClick={() => setShowDeleteModal(true)}
@@ -278,14 +290,42 @@ function FriendDetailView({
                                         setShowAddNoteTextField(false);
                                         setNewNote("");
                                     }}
-                                    className="btn-hand-drawn btn-secondary text-sm px-4 py-2 w-fit mt-2 "
+                                    className="btn-hand-drawn btn-secondary text-sm px-4 py-2 w-fit mt-2 flex items-center gap-2"
                                 >
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
+                                    </svg>
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleAddNote}
-                                    className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit mt-2 "
+                                    className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit mt-2 flex items-center gap-2"
                                 >
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                                        />
+                                    </svg>
                                     Save
                                 </button>
                             </div>

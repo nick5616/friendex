@@ -4,3 +4,20 @@ export const capitalizeEachFirstLetter = (sentence) => {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
 };
+
+export const fromCommaStringToArray = (value) => {
+    if (Array.isArray(value)) {
+        return value;
+    }
+    if (value) {
+        return value.split(",");
+    }
+    return [];
+};
+
+export const fromArrayToCommaString = (value) => {
+    if (Array.isArray(value)) {
+        return value.join(", ");
+    }
+    return value || "";
+};

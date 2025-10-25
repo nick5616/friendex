@@ -2,19 +2,113 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <link rel="icon" type="image/png" href="/icons/favicon-32x32.png" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/icons/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="192x192"
+            href="/icons/android-chrome-192x192.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="512x512"
+            href="/icons/android-chrome512x512.png"
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="google-adsense-account" content="ca-pub-7645101328954208" />
-        <title>friendex</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+        <!-- PWA Meta Tags -->
+        <meta name="theme-color" content="#f59e0b" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Friendex" />
+        <meta name="msapplication-TileColor" content="#f59e0b" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+
+        <!-- Web App Manifest -->
+        <link rel="manifest" href="/manifest.json" />
+
+        <!-- Apple Touch Icons -->
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <link
-            href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap"
-            rel="stylesheet"
+            rel="apple-touch-icon"
+            sizes="152x152"
+            href="/icons/apple-touch-icon.png"
         />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/icons/apple-touch-icon.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="167x167"
+            href="/icons/apple-touch-icon.png"
+        />
+
+        <title>friendex</title>
+        <!-- Local fonts for offline functionality -->
+        <link rel="stylesheet" href="/fonts/gaegu.css" />
     </head>
     <body>
         <div id="root"></div>
         <script type="module" src="/src/main.jsx"></script>
+
+        <!-- Service Worker Registration -->
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker
+                        .register("/sw.js")
+                        .then((registration) => {
+                            console.log("SW registered: ", registration);
+                        })
+                        .catch((registrationError) => {
+                            console.log(
+                                "SW registration failed: ",
+                                registrationError
+                            );
+                        });
+                });
+            }
+        </script>
+
+        <!-- Font Loading Check -->
+        <script>
+            // Force Gaegu font on all elements
+            function applyGaeguFont() {
+                const style = document.createElement("style");
+                style.textContent = `
+                    html, body, * {
+                        font-family: "Gaegu", cursive !important;
+                    }
+                `;
+                document.head.appendChild(style);
+
+                // Also apply directly to body
+                document.body.style.fontFamily = '"Gaegu", cursive';
+
+                console.log("Gaegu font forced on all elements");
+            }
+
+            // Apply immediately
+            applyGaeguFont();
+
+            // Apply again after fonts load
+            document.fonts.ready.then(() => {
+                console.log("Fonts loaded, applying Gaegu font");
+                applyGaeguFont();
+            });
+
+            // Apply after a delay to catch any late-loading elements
+            setTimeout(applyGaeguFont, 1000);
+        </script>
     </body>
 </html>

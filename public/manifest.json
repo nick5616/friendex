@@ -1,0 +1,73 @@
+{
+    "name": "Friendex - Personal Relationship Manager",
+    "short_name": "Friendex",
+    "description": "A Pokedex-style personal relationship manager to help you remember and strengthen your connections with friends, family, and partners.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#fef3c7",
+    "theme_color": "#f59e0b",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "en",
+    "categories": ["productivity", "lifestyle", "utilities"],
+    "icons": [
+        {
+            "src": "/icons/favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/android-chrome512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/icons/android-chrome512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Add Friend",
+            "short_name": "Add Friend",
+            "description": "Add a new friend to your collection",
+            "url": "/add",
+            "icons": [
+                {
+                    "src": "/icons/android-chrome-192x192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/screenshots/desktop-screenshot.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "/screenshots/mobile-screenshot.png",
+            "sizes": "390x844",
+            "type": "image/png",
+            "form_factor": "narrow"
+        }
+    ]
+}

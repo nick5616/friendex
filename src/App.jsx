@@ -9,6 +9,7 @@ import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
 import FilterAndSort from "./FilterAndSort";
 import LandingPage from "./LandingPage";
+import PWAInstallPrompt from "./PWAInstallPrompt";
 
 function FriendexApp() {
     const navigate = useNavigate();
@@ -279,7 +280,7 @@ function FriendexApp() {
                     </h1>
                     <button
                         onClick={() => navigate(`${basePath}/add`)}
-                        className="bg-stone-900 text-white px-3 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium text-sm"
+                        className="bg-stone-900 text-white px-3 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium text-sm flex items-center gap-2"
                     >
                         New Friend
                     </button>
@@ -398,6 +399,7 @@ function FriendexApp() {
                     </button>
                 </section>
             )}
+            <PWAInstallPrompt />
         </div>
     );
 }
