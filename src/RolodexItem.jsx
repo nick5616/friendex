@@ -10,8 +10,33 @@ export function RolodexItem({
     index,
     onClick,
     isSelected,
-    selectedColor,
+    selectedColor = "red",
 }) {
+    // Define color mappings for better visibility
+    const colorMap = {
+        red: {
+            selected: { backgroundColor: "#fca5a5", color: "#1c1917" }, // red-300 bg, stone-900 text
+            unselected: { backgroundColor: "#fef2f2", color: "#1c1917" }, // red-50 bg, stone-900 text
+        },
+        blue: {
+            selected: { backgroundColor: "#93c5fd", color: "#1c1917" }, // blue-300 bg, stone-900 text
+            unselected: { backgroundColor: "#eff6ff", color: "#1c1917" }, // blue-50 bg, stone-900 text
+        },
+        green: {
+            selected: { backgroundColor: "#86efac", color: "#1c1917" }, // green-300 bg, stone-900 text
+            unselected: { backgroundColor: "#f0fdf4", color: "#1c1917" }, // green-50 bg, stone-900 text
+        },
+        purple: {
+            selected: { backgroundColor: "#c4b5fd", color: "#1c1917" }, // purple-300 bg, stone-900 text
+            unselected: { backgroundColor: "#faf5ff", color: "#1c1917" }, // purple-50 bg, stone-900 text
+        },
+        yellow: {
+            selected: { backgroundColor: "#fde047", color: "#1c1917" }, // yellow-300 bg, stone-900 text
+            unselected: { backgroundColor: "#fefce8", color: "#1c1917" }, // yellow-50 bg, stone-900 text
+        },
+    };
+
+    const colors = colorMap[selectedColor] || colorMap.red;
     // This calculates the item's absolute position relative to the top of the viewport.
     const itemY = useTransform(scrollY, (y) => index * ITEM_HEIGHT + y);
 
@@ -60,14 +85,15 @@ export function RolodexItem({
         >
             <button
                 onClick={onClick}
-                className={`w-full text-left text-xl leading-[1.2rem] font-bold p-2 h-full transition-colors duration-150 
-          ${
-              isSelected
-                  ? `bg-${selectedColor} text-stone-900`
-                  : `bg-${selectedColor}-50`
-          }`}
+                className="w-full text-left text-xl leading-[1.2rem] font-bold p-2 h-full transition-colors duration-150"
                 style={{
                     borderRadius: "255px 15px 225px 15px/15px 225px 15px 255px",
+                    backgroundColor: isSelected
+                        ? colors.selected.backgroundColor
+                        : colors.unselected.backgroundColor,
+                    color: isSelected
+                        ? colors.selected.color
+                        : colors.unselected.color,
                 }}
             >
                 {friend.name}

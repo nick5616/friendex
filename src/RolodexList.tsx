@@ -2,7 +2,11 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { RolodexItem } from "./RolodexItem";
-import { createDebouncedHaptic, isHapticSupported } from "./hapticUtils";
+import {
+    createDebouncedHaptic,
+    isHapticSupported,
+    triggerEnhancedHaptic,
+} from "./hapticUtils";
 import React from "react";
 
 const ITEM_HEIGHT = 56;
@@ -51,7 +55,7 @@ function RolodexList({ friends, selectedId, onSelect }) {
 
         // Trigger haptic feedback for drag end
         if (hapticSupported) {
-            debouncedHaptic("selection");
+            triggerEnhancedHaptic("selection");
         }
 
         const currentY = scrollY.get();
@@ -100,7 +104,8 @@ function RolodexList({ friends, selectedId, onSelect }) {
                 scrollVelocity > 50
             ) {
                 const hapticType = scrollVelocity > 100 ? "medium" : "light";
-                debouncedHaptic(hapticType);
+                // Use enhanced haptic for better mobile compatibility
+                triggerEnhancedHaptic(hapticType);
                 lastScrollDirection.current = currentDirection;
             }
         }
@@ -114,7 +119,7 @@ function RolodexList({ friends, selectedId, onSelect }) {
 
         // Check if we hit a boundary and provide stronger haptic feedback
         if (hapticSupported && (newY === maxY || newY === minY)) {
-            debouncedHaptic("heavy");
+            triggerEnhancedHaptic("heavy");
         }
 
         scrollY.set(newY);
@@ -189,7 +194,7 @@ function RolodexList({ friends, selectedId, onSelect }) {
                     setIsDragging(true);
                     // Trigger haptic feedback for drag start
                     if (hapticSupported) {
-                        debouncedHaptic("light");
+                        triggerEnhancedHaptic("light");
                     }
                 }}
                 onDragEnd={handleDragEnd}
@@ -212,9 +217,7 @@ function RolodexList({ friends, selectedId, onSelect }) {
                         scrollY={scrollY}
                         isSelected={friend.id === selectedId}
                         onClick={() => onSelect(friend.id)}
-                        selectedColor={
-                            hapticSupported ? "amber-300" : "blue-300"
-                        }
+                        selectedColor={hapticSupported ? "blue" : "amber"}
                     />
                 ))}
             </motion.ul>
