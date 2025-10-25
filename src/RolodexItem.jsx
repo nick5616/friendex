@@ -4,7 +4,14 @@ import { motion, useTransform } from "framer-motion";
 const ITEM_HEIGHT = 56;
 const LIST_HEIGHT = 5 * ITEM_HEIGHT;
 
-export function RolodexItem({ friend, scrollY, index, onClick, isSelected }) {
+export function RolodexItem({
+    friend,
+    scrollY,
+    index,
+    onClick,
+    isSelected,
+    selectedColor,
+}) {
     // This calculates the item's absolute position relative to the top of the viewport.
     const itemY = useTransform(scrollY, (y) => index * ITEM_HEIGHT + y);
 
@@ -54,7 +61,11 @@ export function RolodexItem({ friend, scrollY, index, onClick, isSelected }) {
             <button
                 onClick={onClick}
                 className={`w-full text-left text-xl leading-[1.2rem] font-bold p-2 h-full transition-colors duration-150 
-          ${isSelected ? "bg-amber-300 text-stone-900" : "bg-amber-50"}`}
+          ${
+              isSelected
+                  ? `bg-${selectedColor} text-stone-900`
+                  : `bg-${selectedColor}-50`
+          }`}
                 style={{
                     borderRadius: "255px 15px 225px 15px/15px 225px 15px 255px",
                 }}
