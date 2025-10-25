@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
 import { seedDemoDatabase } from "./demoSeed";
+import { runMigration } from "./migration";
 import FriendList from "./FriendList";
 import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
@@ -28,11 +29,19 @@ function FriendexApp() {
     const [filterText, setFilterText] = useState("");
     const [filterField, setFilterField] = useState("name");
 
-    // Seed the appropriate database on initial mount
+    // Seed the appropriate database on initial mount and run migration
     useEffect(() => {
-        if (isDemoMode) {
-            seedDemoDatabase();
-        }
+        const initializeApp = async () => {
+            // Run migration first (works on both databases)
+            await runMigration();
+
+            // Then seed demo database if needed
+            if (isDemoMode) {
+                seedDemoDatabase();
+            }
+        };
+
+        initializeApp();
     }, [isDemoMode]);
 
     // Check if we're returning from adding a new friend
