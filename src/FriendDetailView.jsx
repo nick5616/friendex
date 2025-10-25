@@ -116,11 +116,14 @@ function FriendDetailView({
                         <h2 className="text-4xl font-bold text-amber-600 mb-2">
                             {friend.name}
                         </h2>
-                        {friend.pronouns && (
-                            <p className="text-lg text-stone-600 mb-2">
-                                {friend.pronouns}
-                            </p>
-                        )}
+                        <div className="flex items-center gap-2">
+                            {friend.pronouns && (
+                                <div className="pill-tag-hand-drawn w-[fit-content] mb-2 bg-amber-100">
+                                    {friend.pronouns}
+                                </div>
+                            )}
+                        </div>
+
                         {friend.keyInfo?.relationships &&
                             friend.keyInfo.relationships.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
