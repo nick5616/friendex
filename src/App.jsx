@@ -123,26 +123,11 @@ function FriendexApp() {
             (f) => f.id === selectedFriendId
         );
 
-        console.log("Debug - selectedFriendId:", selectedFriendId);
-        console.log("Debug - selectedFriend:", selectedFriend);
-        console.log("Debug - isInFiltered:", isInFiltered);
-        console.log(
-            "Debug - filteredAndSortedFriends length:",
-            filteredAndSortedFriends.length
-        );
-
         if (selectedFriend && !isInFiltered) {
-            console.log("Debug - Adding selected friend to beginning of list");
             // Add the selected friend to the beginning of the list if it's not in the filtered results
             friendsForRolodex = [selectedFriend, ...filteredAndSortedFriends];
         }
     }
-
-    console.log("Debug - friendsForRolodex length:", friendsForRolodex.length);
-    console.log(
-        "Debug - friendsForRolodex first friend:",
-        friendsForRolodex[0]?.name
-    );
 
     // Find the selected friend from the full friends list, not just filtered
     const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
@@ -289,7 +274,7 @@ function FriendexApp() {
                     </h1>
                     <button
                         onClick={() => navigate(`${basePath}/add`)}
-                        className="bg-stone-900 text-white px-3 py-3 rounded-md hover:bg-stone-800 transition-colors font-medium text-sm flex items-center gap-2"
+                        className="btn-hand-drawn bg-amber-300 text-black px-3 py-3 hover:bg-amber-400 transition-colors font-bold text-sm flex items-center gap-2"
                     >
                         New Friend
                     </button>
@@ -305,63 +290,93 @@ function FriendexApp() {
                 setFilterField={setFilterField}
                 filteredCount={filteredAndSortedFriends.length}
             />
-
-            <section className="flex flex-row md:flex-row items-center gap-4 mb-6">
-                <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center ml-4 relative group">
-                    {selectedFriend?.profilePicture ? (
-                        <>
-                            <img
-                                src={selectedFriend.profilePicture}
-                                alt={`Avatar for ${selectedFriend.name}`}
-                                className="w-full h-full object-cover cursor-pointer transition-opacity group-hover:opacity-75"
-                                style={{
-                                    borderRadius:
-                                        "255px 15px 225px 15px/15px 225px 15px 255px",
-                                }}
-                                onClick={handleProfilePictureClick}
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                <span className="bg-stone-900 text-white px-4 py-2 rounded-md text-sm font-medium">
-                                    Change Photo
-                                </span>
-                            </div>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="hidden"
-                            />
-                        </>
-                    ) : (
-                        <div className="text-stone-400 text-center">
-                            No Friend Selected
+            {friendsForRolodex.length > 0 ? (
+                <>
+                    <section className="flex flex-row md:flex-row items-center gap-4 mb-6">
+                        <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center ml-4 relative group">
+                            {selectedFriend?.profilePicture ? (
+                                <>
+                                    <img
+                                        src={selectedFriend.profilePicture}
+                                        alt={`Avatar for ${selectedFriend.name}`}
+                                        className="w-full h-full object-cover cursor-pointer transition-opacity group-hover:opacity-75"
+                                        style={{
+                                            borderRadius:
+                                                "255px 15px 225px 15px/15px 225px 15px 255px",
+                                        }}
+                                        onClick={handleProfilePictureClick}
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                        <span className="bg-stone-900 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                            Change Photo
+                                        </span>
+                                    </div>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+                                </>
+                            ) : (
+                                <div className="text-stone-400 text-center">
+                                    No Friend Selected
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-                <RolodexList
-                    friends={friendsForRolodex || []}
-                    selectedId={selectedFriendId}
-                    onSelect={setSelectedFriendId}
-                />
-            </section>
+                        <RolodexList
+                            friends={friendsForRolodex || []}
+                            selectedId={selectedFriendId}
+                            onSelect={setSelectedFriendId}
+                        />
+                    </section>
 
-            {/* --- Selected Friend Detail View --- */}
-            <section className="flex-grow px-2 pb-2">
-                <FriendDetailView
-                    friend={selectedFriend}
-                    basePath={basePath}
-                    onDeleteFriend={handleDeleteFriend}
-                    currentDb={currentDb}
-                />
-            </section>
+                    <section className="flex-grow px-2 pb-2">
+                        <FriendDetailView
+                            friend={selectedFriend}
+                            basePath={basePath}
+                            onDeleteFriend={handleDeleteFriend}
+                            currentDb={currentDb}
+                        />
+                    </section>
+                </>
+            ) : (
+                <section className="flex-grow px-2 py-2 justify-center items-center">
+                    <div className="text-center text-stone-600">
+                        No friends to found with {filterField} "{filterText}".
+                        <div className="flex justify-center mt-4">
+                            <button
+                                onClick={() => navigate(`${basePath}/add`)}
+                                className="btn-hand-drawn bg-amber-300 text-black p-4 hover:bg-amber-400 transition-colors font-bold text-md flex items-center gap-2"
+                            >
+                                Create a New Friend
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                    stroke="currentColor"
+                                    className="w-5 h-5"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M12 4.5v15m7.5-7.5h-15"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Export/Import/Reset Buttons */}
             {!isDemoMode && (
                 <section className="px-2 pb-4 mt-6 flex justify-center gap-4">
                     <button
                         onClick={handleImportClick}
-                        className="bg-stone-700 text-white px-6 py-3 rounded-md hover:bg-stone-600 transition-colors font-medium flex items-center gap-2"
+                        className="btn-hand-drawn border-2 border-stone-700 bg-amber-50 text-black text-sm px-6 py-3 hover:bg-amber-400 transition-colors font-medium flex items-center gap-2"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -369,7 +384,7 @@ function FriendexApp() {
                             viewBox="0 0 24 24"
                             strokeWidth={2}
                             stroke="currentColor"
-                            className="w-5 h-5"
+                            className="w-4 h-4"
                         >
                             <path
                                 strokeLinecap="round"
@@ -388,7 +403,7 @@ function FriendexApp() {
                     />
                     <button
                         onClick={handleExportFriends}
-                        className="bg-stone-700 text-white px-6 py-3 rounded-md hover:bg-stone-600 transition-colors font-medium flex items-center gap-2"
+                        className="btn-hand-drawn border-2 border-stone-700 bg-amber-50 text-sm text-black px-6 py-3 hover:bg-amber-400 transition-colors font-medium flex items-center gap-2"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -396,7 +411,7 @@ function FriendexApp() {
                             viewBox="0 0 24 24"
                             strokeWidth={2}
                             stroke="currentColor"
-                            className="w-5 h-5"
+                            className="w-4 h-4"
                         >
                             <path
                                 strokeLinecap="round"
