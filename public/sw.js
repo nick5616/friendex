@@ -1,11 +1,11 @@
-const CACHE_NAME = "friendex-v1.0.1";
-const STATIC_CACHE_NAME = "friendex-static-v1.0.1";
-const DYNAMIC_CACHE_NAME = "friendex-dynamic-v1.0.1";
+const CACHE_NAME = "friendex-v1761461573548";
+const STATIC_CACHE_NAME = "friendex-static-v1761461573548";
+const DYNAMIC_CACHE_NAME = "friendex-dynamic-v1761461573548";
 
 // Assets to cache for offline functionality
 const STATIC_ASSETS = [
     "/",
-    "/index.html",
+    // Don't cache index.html - it contains dynamic asset hashes
     "/manifest.json",
     "/vite.svg",
     "/fonts/gaegu.css",
