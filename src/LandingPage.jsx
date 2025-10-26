@@ -3,13 +3,15 @@ import transitionImage from "./assets/images/Screenshot_2025-10-20_at_12.55.33_A
 import mainFriendexInterfaceImage from "./assets/images/screenshots/mainFriendexInterface.png";
 import friendDetailsTop from "./assets/images/screenshots/friendDetailsTop.png";
 import friendDetailsBottom from "./assets/images/screenshots/friedDetailsBottom.png";
-
-const isMobile = window.innerWidth < 768;
+import useIsMobile from "./hooks/useIsMobile";
 
 function LandingPage({ onLaunchApp }) {
+    const isMobile = useIsMobile();
     const [scrollY, setScrollY] = useState(0);
     const [currentWord, setCurrentWord] = useState(0);
     const [particles, setParticles] = useState([]);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [wordWidth, setWordWidth] = useState(0);
 
     const words = [
         "Remember",
@@ -18,7 +20,6 @@ function LandingPage({ onLaunchApp }) {
         "Cherish",
         "Appreciate",
         "Value",
-        "Connect with",
         "Catch",
     ];
 
@@ -30,10 +31,35 @@ function LandingPage({ onLaunchApp }) {
 
     useEffect(() => {
         const interval = setInterval(() => {
+            setIsAnimating(true);
             setCurrentWord((prev) => (prev + 1) % words.length);
         }, 2000);
         return () => clearInterval(interval);
     }, []);
+
+    // Measure word width and animate
+    useEffect(() => {
+        const measureWord = () => {
+            const tempElement = document.createElement("span");
+            tempElement.style.visibility = "hidden";
+            tempElement.style.position = "absolute";
+            tempElement.style.fontSize = isMobile ? "2rem" : "4rem";
+            tempElement.style.fontWeight = "bold";
+            tempElement.style.whiteSpace = "nowrap";
+            tempElement.style.fontFamily = "inherit";
+            tempElement.textContent = words[currentWord];
+            document.body.appendChild(tempElement);
+
+            const width = tempElement.offsetWidth;
+            document.body.removeChild(tempElement);
+
+            // Use exact width to prevent wrapping
+            setWordWidth(width);
+            setIsAnimating(false);
+        };
+
+        measureWord();
+    }, [currentWord, isMobile]);
 
     // Generate subtle floating particles
     useEffect(() => {
@@ -112,14 +138,24 @@ function LandingPage({ onLaunchApp }) {
                             </h1>
 
                             <div className="text-2xl md:text-4xl font-bold h-12 flex items-center justify-center cursor-default card-hand-drawn">
-                                <span className="inline-block">Gotta </span>
-                                <span
-                                    key={currentWord}
-                                    className="inline-block mx-2 animate-[fadeIn_0.5s_ease-in-out] text-left text-red-500 "
+                                <span className="inline-block">Gotta</span>
+                                <div
+                                    className="inline-block text-red-500 overflow-hidden"
+                                    style={{
+                                        width: `${wordWidth}px`,
+                                        transition:
+                                            "width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                                        opacity: isAnimating ? 0.7 : 1,
+                                    }}
                                 >
-                                    {words[currentWord]}
-                                </span>
-                                <span className="inline-block"> 'em all!</span>
+                                    <span
+                                        key={currentWord}
+                                        className="inline-block animate-[fadeIn_0.5s_ease-in-out] whitespace-nowrap"
+                                    >
+                                        {words[currentWord]}
+                                    </span>
+                                </div>
+                                <span className="inline-block">'em all!</span>
                             </div>
 
                             <p className="text-xl md:text-2xl text-stone-900 max-w-2xl mx-auto mt-6">
@@ -313,48 +349,59 @@ function LandingPage({ onLaunchApp }) {
                             How It Works
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                            <div className="card-hand-drawn">
-                                <div className="text-4xl mb-3">📇</div>
+                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100">
+                                <div className="flex flex-col justify-center text-8xl opacity-30 absolute right-[-20px] top-[35px]">
+                                    📇
+                                </div>
                                 <h3 className="text-2xl font-bold mb-2 text-stone-900">
                                     Create Entries
                                 </h3>
-                                <p className="text-stone-700">
+                                <p className="text-black text-lg">
                                     Add people to your Friendex with their name,
                                     photo, and any details you want to remember
                                     about them.
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn">
-                                <div className="text-4xl mb-3">✏️</div>
+                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100">
+                                <div
+                                    className="flex flex-col justify-center text-8xl opacity-40 absolute right-[-20px] top-[35px]"
+                                    style={{ transform: "scaleX(-1)" }}
+                                >
+                                    ✏️
+                                </div>
                                 <h3 className="text-2xl font-bold mb-2 text-stone-900">
                                     Track Details
                                 </h3>
-                                <p className="text-stone-700">
+                                <p className="text-stone-900 text-lg">
                                     Log conversations, interests, important
                                     dates, and anything else that helps you stay
                                     connected.
                                 </p>
                             </div>
-
-                            <div className="card-hand-drawn">
-                                <div className="text-4xl mb-3">📱</div>
+                            {/* TODO: Add share profiles feature */}
+                            {/* <div className="card-hand-drawn overflow-hidden relative">
+                                <div className="flex flex-col justify-center text-8xl opacity-40 absolute right-[-20px] top-[35px]">
+                                    📱
+                                </div>
                                 <h3 className="text-2xl font-bold mb-2 text-stone-900">
                                     Share Profiles
                                 </h3>
-                                <p className="text-stone-700">
+                                <p className="text-stone-800">
                                     Generate a QR code to easily exchange
                                     contact info and add new friends to your
                                     index.
                                 </p>
-                            </div>
+                            </div> */}
 
-                            <div className="card-hand-drawn">
-                                <div className="text-4xl mb-3">💝</div>
+                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100">
+                                <div className="flex flex-col justify-center text-8xl opacity-30 absolute right-[-20px] top-[35px]">
+                                    💝
+                                </div>
                                 <h3 className="text-2xl font-bold mb-2 text-stone-900">
                                     Stay Connected
                                 </h3>
-                                <p className="text-stone-700">
+                                <p className="text-stone-900 text-lg ">
                                     Browse your Friendex regularly to remind
                                     yourself who to reach out to and strengthen
                                     your bonds.
@@ -366,7 +413,6 @@ function LandingPage({ onLaunchApp }) {
                     {/* Privacy Section */}
                     <section className="py-16 mb-12">
                         <div className="card-hand-drawn p-8 md:p-12 text-center">
-                            <div className="text-5xl md:text-6xl mb-4">🛡️</div>
                             <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6">
                                 Private by Default.
                                 <br />
