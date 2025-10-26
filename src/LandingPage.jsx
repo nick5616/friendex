@@ -414,9 +414,9 @@ function LandingPage({ onLaunchApp }) {
                     <section className="py-16 mb-12">
                         <div className="card-hand-drawn p-8 md:p-12 text-center">
                             <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6">
-                                Private by Default.
+                                Private by Default
                                 <br />
-                                You're in Control.
+                                You're in Control
                             </h2>
                             <p className="text-xl text-stone-700 max-w-3xl mx-auto leading-relaxed">
                                 We believe you should own your data. The
