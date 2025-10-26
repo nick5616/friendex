@@ -2,11 +2,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { RolodexItem } from "./RolodexItem";
-import {
-    createDebouncedHaptic,
-    isHapticSupported,
-    triggerEnhancedHaptic,
-} from "./hapticUtils";
 import React from "react";
 
 const ITEM_HEIGHT = 56;
@@ -20,9 +15,6 @@ function RolodexList({ friends, selectedId, onSelect }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Haptic feedback setup
-    const hapticSupported = isHapticSupported();
-    const debouncedHaptic = createDebouncedHaptic(100); // 100ms debounce for smooth scrolling
     const lastScrollDirection = useRef<"up" | "down" | null>(null);
     const lastCenterIndex = useRef<number>(-1);
 
@@ -31,11 +23,6 @@ function RolodexList({ friends, selectedId, onSelect }) {
     console.log("RolodexList Debug - friends length:", friends.length);
     console.log("RolodexList Debug - selectedId:", selectedId);
     console.log("RolodexList Debug - selectedIndex:", selectedIndex);
-    console.log("RolodexList Debug - hapticSupported:", hapticSupported);
-    console.log(
-        "RolodexList Debug - selectedColor:",
-        hapticSupported ? "blue" : "amber"
-    );
     console.log(
         "RolodexList Debug - friends names:",
         friends.map((f) => f.name)
@@ -58,11 +45,6 @@ function RolodexList({ friends, selectedId, onSelect }) {
 
     const handleDragEnd = (event, info) => {
         setIsDragging(false);
-
-        // Trigger haptic feedback for drag end
-        if (hapticSupported) {
-            triggerEnhancedHaptic("selection");
-        }
 
         const currentY = scrollY.get();
         const velocity = info.velocity.y;
@@ -96,18 +78,10 @@ function RolodexList({ friends, selectedId, onSelect }) {
         return clampedIndex;
     };
 
-    // Check if center item changed and trigger haptic feedback
+    // Check if center item changed
     const checkCenterItemChange = (currentY) => {
         const centerIndex = getCenterFriendIndex(currentY);
-        if (
-            centerIndex !== lastCenterIndex.current &&
-            lastCenterIndex.current !== -1
-        ) {
-            // Center item changed, trigger haptic feedback
-            if (hapticSupported) {
-                triggerEnhancedHaptic("light");
-            }
-        }
+
         lastCenterIndex.current = centerIndex;
         return centerIndex;
     };
@@ -115,34 +89,12 @@ function RolodexList({ friends, selectedId, onSelect }) {
     const handleWheel = (e) => {
         e.preventDefault();
 
-        // Enhanced haptic feedback based on scroll direction and velocity
-        if (hapticSupported) {
-            const currentDirection = e.deltaY > 0 ? "down" : "up";
-            const scrollVelocity = Math.abs(e.deltaY);
-
-            // Only trigger haptic if direction changed or for significant scroll
-            if (
-                lastScrollDirection.current !== currentDirection ||
-                scrollVelocity > 50
-            ) {
-                const hapticType = scrollVelocity > 100 ? "medium" : "light";
-                // Use enhanced haptic for better mobile compatibility
-                triggerEnhancedHaptic(hapticType);
-                lastScrollDirection.current = currentDirection;
-            }
-        }
-
         // Update scroll position with clamping
         const currentY = scrollY.get();
         const centerOffset = LIST_HEIGHT / 2 - ITEM_HEIGHT / 2;
         const maxY = centerOffset; // First item centered
         const minY = -(friends.length - 1) * ITEM_HEIGHT + centerOffset; // Last item centered
         const newY = Math.max(minY, Math.min(maxY, currentY - e.deltaY * 0.5));
-
-        // Check if we hit a boundary and provide stronger haptic feedback
-        if (hapticSupported && (newY === maxY || newY === minY)) {
-            triggerEnhancedHaptic("heavy");
-        }
 
         scrollY.set(newY);
 
@@ -214,10 +166,6 @@ function RolodexList({ friends, selectedId, onSelect }) {
                 drag="y"
                 onDragStart={() => {
                     setIsDragging(true);
-                    // Trigger haptic feedback for drag start
-                    if (hapticSupported) {
-                        triggerEnhancedHaptic("light");
-                    }
                 }}
                 onDragEnd={handleDragEnd}
                 // Constrain dragging to keep first item at top and last item at bottom
@@ -239,7 +187,6 @@ function RolodexList({ friends, selectedId, onSelect }) {
                         scrollY={scrollY}
                         isSelected={friend.id === selectedId}
                         onClick={() => onSelect(friend.id)}
-                        selectedColor={hapticSupported ? "blue" : "amber"}
                     />
                 ))}
             </motion.ul>

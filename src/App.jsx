@@ -11,11 +11,6 @@ import FriendDetailView from "./FriendDetailView";
 import FilterAndSort from "./FilterAndSort";
 import LandingPage from "./LandingPage";
 import PWAInstallPrompt from "./PWAInstallPrompt";
-import {
-    testVibration,
-    setForceHapticSupport,
-    isHapticSupported,
-} from "./hapticUtils";
 
 function FriendexApp() {
     const navigate = useNavigate();
@@ -33,9 +28,6 @@ function FriendexApp() {
     const [sortBy, setSortBy] = useState("name");
     const [filterText, setFilterText] = useState("");
     const [filterField, setFilterField] = useState("name");
-
-    // Haptic feedback state
-    const hapticSupported = isHapticSupported();
 
     // Seed the appropriate database on initial mount and run migration
     useEffect(() => {
@@ -285,25 +277,6 @@ function FriendexApp() {
                         className="btn-hand-drawn bg-amber-300 text-black px-3 py-3 hover:bg-amber-400 transition-colors font-bold text-sm flex items-center gap-2"
                     >
                         New Friend
-                    </button>
-                </div>
-                {/* Haptic feedback controls */}
-                <div className="flex justify-center gap-2 mt-4">
-                    <button
-                        onClick={testVibration}
-                        className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
-                    >
-                        Test Vibration
-                    </button>
-                    <button
-                        onClick={() => setForceHapticSupport(!hapticSupported)}
-                        className={`px-3 py-1 rounded text-sm ${
-                            hapticSupported
-                                ? "bg-green-500 text-white"
-                                : "bg-gray-500 text-white"
-                        }`}
-                    >
-                        {hapticSupported ? "Haptic ON" : "Haptic OFF"}
                     </button>
                 </div>
             </header>
