@@ -172,7 +172,7 @@ function LandingPage({ onLaunchApp }) {
                             </button>
 
                             <p className="text-stone-500 mt-3 text-lg">
-                                Free to start, private by default. 🔒
+                                Free to start, private by default.
                             </p>
                         </div>
                     </section>
