@@ -67,6 +67,7 @@ export const triggerEnhancedHaptic = (type = "light") => {
 
 // Test function to manually trigger vibration
 export const testVibration = () => {
+    console.log("Testing vibration");
     if (!navigator.vibrate) {
         return;
     }

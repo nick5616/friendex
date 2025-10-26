@@ -6,8 +6,6 @@ import {
     createDebouncedHaptic,
     isHapticSupported,
     triggerEnhancedHaptic,
-    testVibration,
-    setForceHapticSupport,
 } from "./hapticUtils";
 import React from "react";
 
@@ -204,68 +202,47 @@ function RolodexList({ friends, selectedId, onSelect }) {
     }
 
     return (
-        <div className="flex-1 flex flex-col">
-            {/* Test buttons for vibration */}
-            <div className="mb-2 flex gap-2">
-                <button
-                    onClick={testVibration}
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                    Test Vibration
-                </button>
-                <button
-                    onClick={() => setForceHapticSupport(!hapticSupported)}
-                    className={`px-4 py-2 rounded ${
-                        hapticSupported
-                            ? "bg-green-500 text-white"
-                            : "bg-gray-500 text-white"
-                    }`}
-                >
-                    {hapticSupported ? "Haptic ON" : "Haptic OFF"}
-                </button>
-            </div>
-            <div
-                ref={containerRef}
-                className="flex-1 overflow-hidden relative"
-                style={{ height: LIST_HEIGHT }}
+        <div
+            ref={containerRef}
+            className="flex-1 overflow-hidden relative"
+            style={{ height: LIST_HEIGHT }}
+        >
+            <motion.ul
+                className="relative w-full"
+                // Give the <ul> the full height of all its items.
+                style={{ y: scrollY, height: friends.length * ITEM_HEIGHT }}
+                drag="y"
+                onDragStart={() => {
+                    setIsDragging(true);
+                    // Trigger haptic feedback for drag start
+                    if (hapticSupported) {
+                        triggerEnhancedHaptic("light");
+                    }
+                }}
+                onDragEnd={handleDragEnd}
+                // Constrain dragging to keep first item at top and last item at bottom
+                dragConstraints={{
+                    top:
+                        -(friends.length - 1) * ITEM_HEIGHT +
+                        LIST_HEIGHT / 2 -
+                        ITEM_HEIGHT / 2,
+                    bottom: LIST_HEIGHT / 2 - ITEM_HEIGHT / 2,
+                }}
+                dragTransition={{ bounceStiffness: 400, bounceDamping: 50 }}
             >
-                <motion.ul
-                    className="relative w-full"
-                    // Give the <ul> the full height of all its items.
-                    style={{ y: scrollY, height: friends.length * ITEM_HEIGHT }}
-                    drag="y"
-                    onDragStart={() => {
-                        setIsDragging(true);
-                        // Trigger haptic feedback for drag start
-                        if (hapticSupported) {
-                            triggerEnhancedHaptic("light");
-                        }
-                    }}
-                    onDragEnd={handleDragEnd}
-                    // Constrain dragging to keep first item at top and last item at bottom
-                    dragConstraints={{
-                        top:
-                            -(friends.length - 1) * ITEM_HEIGHT +
-                            LIST_HEIGHT / 2 -
-                            ITEM_HEIGHT / 2,
-                        bottom: LIST_HEIGHT / 2 - ITEM_HEIGHT / 2,
-                    }}
-                    dragTransition={{ bounceStiffness: 400, bounceDamping: 50 }}
-                >
-                    {/* Map over the entire friends list with distinct top and bottom */}
-                    {friends.map((friend, i) => (
-                        <RolodexItem
-                            key={friend.id}
-                            friend={friend}
-                            index={i}
-                            scrollY={scrollY}
-                            isSelected={friend.id === selectedId}
-                            onClick={() => onSelect(friend.id)}
-                            selectedColor={hapticSupported ? "blue" : "amber"}
-                        />
-                    ))}
-                </motion.ul>
-            </div>
+                {/* Map over the entire friends list with distinct top and bottom */}
+                {friends.map((friend, i) => (
+                    <RolodexItem
+                        key={friend.id}
+                        friend={friend}
+                        index={i}
+                        scrollY={scrollY}
+                        isSelected={friend.id === selectedId}
+                        onClick={() => onSelect(friend.id)}
+                        selectedColor={hapticSupported ? "blue" : "amber"}
+                    />
+                ))}
+            </motion.ul>
         </div>
     );
 }
