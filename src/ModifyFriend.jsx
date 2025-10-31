@@ -10,6 +10,7 @@ import BirthdaySelector from "./BirthdaySelector";
 import DescriptionSelector from "./DescriptionSelector";
 import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
+import NameSelector from "./NameSelector";
 
 function ModifyFriend() {
     const navigate = useNavigate();
@@ -232,27 +233,11 @@ function ModifyFriend() {
                 >
                     ← Back to Friendex{isDemoMode && " Demo"}
                 </button>
-                <h1 className="text-5xl font-bold text-stone-900 flex items-center">
-                    <svg
-                        className="w-12 h-12 mr-3"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                        />
-                    </svg>
-                    Friend
-                    {isDemoMode && (
-                        <span className="text-2xl text-stone-600 ml-2">
-                            (Demo)
-                        </span>
-                    )}
+                <h1 className="text-4xl font-bold text-stone-900 flex items-center">
+                    Edit
+                    <span className="text-4xl font-bold text-stone-600 ml-2">
+                        {formData.name}
+                    </span>
                 </h1>
                 {draftRestored && (
                     <div className="muted-card-hand-drawn mt-4 p-3 bg-green-200 border border-green-600 transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-top-2 delay-500">
@@ -308,27 +293,10 @@ function ModifyFriend() {
 
                 {/* Basic Info */}
                 <div className="card-hand-drawn p-6 space-y-4">
-                    <h2 className="text-2xl font-bold text-stone-800 mb-4">
-                        Basic Info
-                    </h2>
-
-                    <div>
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-stone-700 mb-1"
-                        >
-                            Name *
-                        </label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            required
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
-                        />
-                    </div>
+                    <NameSelector
+                        value={formData.name}
+                        onChange={handleChange}
+                    />
 
                     <PronounSelector
                         value={formData.pronouns || friend.pronouns}

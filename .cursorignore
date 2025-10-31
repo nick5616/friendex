@@ -1,0 +1,45 @@
+# Build outputs and dependencies
+node_modules/
+dist/
+build/
+out/
+coverage/
+.tmp/
+.cache/
+
+# IDE and OS cruft
+.vscode/
+.DS_Store
+
+# Logs and locks
+*.log
+*.lock
+
+# Large assets (keep AI context lean)
+public/icons/**
+public/fonts/**
+public/*.svg
+public/*.png
+public/*.jpg
+public/*.jpeg
+public/*.webp
+
+# Source images and media
+src/assets/images/**
+src/assets/**/*.png
+src/assets/**/*.jpg
+src/assets/**/*.jpeg
+src/assets/**/*.svg
+src/assets/**/*.webp
+
+# Font binaries
+*.ttf
+*.otf
+*.woff
+*.woff2
+
+# Misc cache
+**/.vite/**
+**/.next/**
+**/.turbo/**
+

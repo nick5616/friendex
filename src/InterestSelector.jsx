@@ -7,6 +7,7 @@ import {
 } from "./utils";
 
 function InterestSelector({ value = [], onChange, pronouns }) {
+    console.log("pronouns passed in", pronouns);
     const input = fromCommaStringToArray(value);
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
