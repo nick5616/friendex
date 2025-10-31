@@ -20,6 +20,8 @@ const NameSelector = forwardRef(({ value, onChange, required = true }, ref) => {
                 required={required}
                 value={value}
                 onChange={onChange}
+                inputMode="text"
+                enterKeyHint="next"
                 className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
                 style={{
                     borderRadius: "255px 15px 225px 15px/15px 225px 15px 255px",

@@ -65,10 +65,74 @@ function AddFriend(friend) {
     }, []);
 
     useEffect(() => {
-        // set focus on name field immediately
-        if (nameInputRef.current) {
-            nameInputRef.current.focus();
+        const inputEl = nameInputRef.current;
+        if (!inputEl) return;
+
+        const hasVirtualKeyboard =
+            typeof navigator !== "undefined" && "virtualKeyboard" in navigator;
+
+        let focused = false;
+
+        const focusName = () => {
+            if (!nameInputRef.current) return false;
+            if (document.activeElement === nameInputRef.current) return true;
+            try {
+                nameInputRef.current.focus({ preventScroll: true });
+                if (hasVirtualKeyboard && navigator.virtualKeyboard?.show) {
+                    // Best effort on supporting browsers
+                    navigator.virtualKeyboard.show().catch(() => {});
+                }
+                return document.activeElement === nameInputRef.current;
+            } catch {
+                return false;
+            }
+        };
+
+        // Try immediately, then on next frame, then shortly after
+        focused = focusName();
+        if (!focused) {
+            requestAnimationFrame(() => {
+                focused = focusName();
+                if (!focused) {
+                    setTimeout(() => {
+                        focusName();
+                    }, 100);
+                }
+            });
         }
+
+        // For browsers that require a user gesture (e.g., Safari/Firefox),
+        // set a one-time listener that will focus on first interaction.
+        const handleFirstInteraction = () => {
+            if (focusName()) {
+                document.removeEventListener(
+                    "touchstart",
+                    handleFirstInteraction,
+                    true
+                );
+                document.removeEventListener(
+                    "mousedown",
+                    handleFirstInteraction,
+                    true
+                );
+            }
+        };
+
+        document.addEventListener("touchstart", handleFirstInteraction, true);
+        document.addEventListener("mousedown", handleFirstInteraction, true);
+
+        return () => {
+            document.removeEventListener(
+                "touchstart",
+                handleFirstInteraction,
+                true
+            );
+            document.removeEventListener(
+                "mousedown",
+                handleFirstInteraction,
+                true
+            );
+        };
     }, []);
 
     // Debounce the name input
