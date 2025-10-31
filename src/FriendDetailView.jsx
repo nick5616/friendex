@@ -112,7 +112,7 @@ function FriendDetailView({
                 {/* New note button */}
                 <button
                     onClick={() => setShowAddNoteTextField(true)}
-                    className="bg-amber-200 pill-tag-hand-drawn text-sm px-4 py-2 flex items-center gap-2"
+                    className="bg-amber-200 pill-tag-hand-drawn text-sm flex items-center gap-2"
                 >
                     <svg
                         className="w-4 h-4"
@@ -131,7 +131,7 @@ function FriendDetailView({
                 </button>
                 <button
                     onClick={() => navigate(`${basePath}/modify/${friend.id}`)}
-                    className="bg-amber-200 pill-tag-hand-drawn text-sm px-4 py-2 flex items-center gap-2"
+                    className="bg-amber-200 pill-tag-hand-drawn text-sm flex items-center gap-2"
                 >
                     <svg
                         className="w-4 h-4"
@@ -150,7 +150,7 @@ function FriendDetailView({
                 </button>
                 <button
                     onClick={() => setShowDeleteModal(true)}
-                    className="bg-red-200 pill-tag-hand-drawn text-sm px-4 py-2 flex items-center gap-2"
+                    className="bg-red-200 pill-tag-hand-drawn text-sm flex items-center gap-2"
                     title="Delete friend"
                 >
                     <svg
