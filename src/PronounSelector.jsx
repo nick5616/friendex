@@ -52,7 +52,7 @@ function PronounSelector({ value = [], onChange }) {
                 <div className="text-sm text-stone-600 mb-2">
                     Select pronouns (click to add/remove):
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2" enterKeyHint="next">
                     {pronounOptions.map((pronoun) => (
                         <button
                             key={pronoun}
