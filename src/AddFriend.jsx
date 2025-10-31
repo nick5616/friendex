@@ -13,6 +13,7 @@ import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
 import { seedTagsAndInterests } from "./seed";
 import useIsDemoMode from "./hooks/useIsDemoMode";
+import useMobileAutofocus from "./hooks/useMobileAutofocus";
 
 function AddFriend(friend) {
     const navigate = useNavigate();
@@ -64,76 +65,7 @@ function AddFriend(friend) {
         }
     }, []);
 
-    useEffect(() => {
-        const inputEl = nameInputRef.current;
-        if (!inputEl) return;
-
-        const hasVirtualKeyboard =
-            typeof navigator !== "undefined" && "virtualKeyboard" in navigator;
-
-        let focused = false;
-
-        const focusName = () => {
-            if (!nameInputRef.current) return false;
-            if (document.activeElement === nameInputRef.current) return true;
-            try {
-                nameInputRef.current.focus({ preventScroll: true });
-                if (hasVirtualKeyboard && navigator.virtualKeyboard?.show) {
-                    // Best effort on supporting browsers
-                    navigator.virtualKeyboard.show().catch(() => {});
-                }
-                return document.activeElement === nameInputRef.current;
-            } catch {
-                return false;
-            }
-        };
-
-        // Try immediately, then on next frame, then shortly after
-        focused = focusName();
-        if (!focused) {
-            requestAnimationFrame(() => {
-                focused = focusName();
-                if (!focused) {
-                    setTimeout(() => {
-                        focusName();
-                    }, 100);
-                }
-            });
-        }
-
-        // For browsers that require a user gesture (e.g., Safari/Firefox),
-        // set a one-time listener that will focus on first interaction.
-        const handleFirstInteraction = () => {
-            if (focusName()) {
-                document.removeEventListener(
-                    "touchstart",
-                    handleFirstInteraction,
-                    true
-                );
-                document.removeEventListener(
-                    "mousedown",
-                    handleFirstInteraction,
-                    true
-                );
-            }
-        };
-
-        document.addEventListener("touchstart", handleFirstInteraction, true);
-        document.addEventListener("mousedown", handleFirstInteraction, true);
-
-        return () => {
-            document.removeEventListener(
-                "touchstart",
-                handleFirstInteraction,
-                true
-            );
-            document.removeEventListener(
-                "mousedown",
-                handleFirstInteraction,
-                true
-            );
-        };
-    }, []);
+    useMobileAutofocus(nameInputRef);
 
     // Debounce the name input
     useEffect(() => {
