@@ -3,7 +3,6 @@ import { useEffect } from "react";
 /**
  * Reusable mobile-friendly autofocus hook.
  * - Focuses the given element
- * - Uses VirtualKeyboard API when available (Chrome/Edge)
  * - Adds one-time first interaction fallback for Safari/Firefox/others
  */
 export default function useMobileAutofocus(
@@ -19,18 +18,12 @@ export default function useMobileAutofocus(
         const element = targetRef?.current;
         if (!element) return;
 
-        const hasVirtualKeyboard =
-            typeof navigator !== "undefined" && "virtualKeyboard" in navigator;
-
         const focusTarget = () => {
             const el = targetRef?.current;
             if (!el) return false;
             if (document.activeElement === el) return true;
             try {
                 el.focus({ preventScroll: true });
-                if (hasVirtualKeyboard && navigator.virtualKeyboard?.show) {
-                    navigator.virtualKeyboard.show().catch(() => {});
-                }
                 return document.activeElement === el;
             } catch {
                 return false;
