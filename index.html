@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="fonts-loading">
     <head>
         <meta charset="UTF-8" />
         <link rel="icon" type="image/png" href="/icons/favicon-32x32.png" />
@@ -56,9 +56,35 @@
         <title>friendex</title>
         <!-- Local fonts for offline functionality -->
         <link rel="stylesheet" href="/fonts/gaegu.css" />
+        <style>
+            /* Hide app until Gaegu is ready to avoid FOUT */
+            .fonts-loading #root {
+                visibility: hidden;
+            }
+        </style>
     </head>
     <body>
         <div id="root"></div>
+        <script>
+            (async () => {
+                try {
+                    if (document.fonts && document.fonts.load) {
+                        // If already available (cached), don't wait
+                        const isReady =
+                            document.fonts.check('1em "Gaegu"') ||
+                            document.fonts.check('400 1em "Gaegu"');
+                        if (!isReady) {
+                            await Promise.all([
+                                document.fonts.load('400 1em "Gaegu"'),
+                                document.fonts.load('700 1em "Gaegu"'),
+                            ]);
+                        }
+                    }
+                } finally {
+                    document.documentElement.classList.remove("fonts-loading");
+                }
+            })();
+        </script>
         <script type="module" src="/src/main.jsx"></script>
 
         <!-- Service Worker Registration -->
@@ -88,37 +114,6 @@
                         });
                 });
             }
-        </script>
-
-        <!-- Font Loading Check -->
-        <script>
-            // Force Gaegu font on all elements
-            function applyGaeguFont() {
-                const style = document.createElement("style");
-                style.textContent = `
-                    html, body, * {
-                        font-family: "Gaegu", cursive !important;
-                    }
-                `;
-                document.head.appendChild(style);
-
-                // Also apply directly to body
-                document.body.style.fontFamily = '"Gaegu", cursive';
-
-                console.log("Gaegu font forced on all elements");
-            }
-
-            // Apply immediately
-            applyGaeguFont();
-
-            // Apply again after fonts load
-            document.fonts.ready.then(() => {
-                console.log("Fonts loaded, applying Gaegu font");
-                applyGaeguFont();
-            });
-
-            // Apply after a delay to catch any late-loading elements
-            setTimeout(applyGaeguFont, 1000);
         </script>
     </body>
 </html>
