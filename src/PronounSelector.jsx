@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef } from "react";
 import { fromCommaStringToArray } from "./utils";
 function PronounSelector({ value = [], onChange }) {
     console.log("PronounSelector got value", value);
@@ -30,8 +30,24 @@ function PronounSelector({ value = [], onChange }) {
         return multiPronounString;
     };
 
+    const containerRef = useRef(null);
+
     return (
-        <div>
+        <div ref={containerRef}>
+            {/* Focus anchor so mobile keyboard Next lands here; shifts focus to first button */}
+            <input
+                type="text"
+                className="sr-only"
+                tabIndex={0}
+                enterKeyHint="next"
+                aria-label="Pronoun selector focus anchor"
+                onFocus={() => {
+                    const container = containerRef.current;
+                    if (!container) return;
+                    const firstButton = container.querySelector("button");
+                    if (firstButton) firstButton.focus();
+                }}
+            />
             <label
                 htmlFor="pronouns"
                 className="block text-md font-medium text-stone-700 mb-1"
@@ -52,7 +68,7 @@ function PronounSelector({ value = [], onChange }) {
                 <div className="text-sm text-stone-600 mb-2">
                     Select pronouns (click to add/remove):
                 </div>
-                <div className="flex flex-wrap gap-2" enterKeyHint="next">
+                <div className="flex flex-wrap gap-2">
                     {pronounOptions.map((pronoun) => (
                         <button
                             key={pronoun}
