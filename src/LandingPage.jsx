@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FileStack, BookOpen, Sparkles } from "lucide-react";
 import transitionImage from "./assets/images/Screenshot_2025-10-20_at_12.55.33_AM-removebg-preview.png";
 import mainFriendexInterfaceImage from "./assets/images/screenshots/mainFriendexInterface.png";
 import friendDetailsTop from "./assets/images/screenshots/friendDetailsTop.png";
@@ -193,13 +194,13 @@ function LandingPage({ onLaunchApp }) {
                         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
                             Why Friendex?
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-12">
                             <div className="flex flex-col items-center text-center space-y-4">
-                                {/* Feature image placeholder 1 */}
                                 <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <p className="text-stone-400">
-                                        📇 Feature Visual
-                                    </p>
+                                    <FileStack
+                                        className="w-[85%] h-[85%] text-sky-400"
+                                        strokeWidth={1.75}
+                                    />
                                 </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
                                     Beat Object Permanence
@@ -209,15 +210,14 @@ function LandingPage({ onLaunchApp }) {
                                     all your people in one place and never
                                     forget who you can reach out to.
                                 </p>
-                                <hr className="w-full border-stone-200 mt-4 mb-8" />
                             </div>
 
                             <div className="flex flex-col items-center text-center space-y-4">
-                                {/* Feature image placeholder 2 */}
                                 <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <p className="text-stone-400">
-                                        ✏️ Feature Visual
-                                    </p>
+                                    <BookOpen
+                                        className="w-[85%] h-[85%] text-stone-500"
+                                        strokeWidth={1.75}
+                                    />
                                 </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
                                     Remember the Details
@@ -227,15 +227,14 @@ function LandingPage({ onLaunchApp }) {
                                     jokes, and what you last talked about. Show
                                     them you care.
                                 </p>
-                                <hr className="w-full border-stone-200 mt-4 mb-8" />
                             </div>
 
                             <div className="flex flex-col items-center text-center space-y-4">
-                                {/* Feature image placeholder 3 */}
                                 <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <p className="text-stone-400">
-                                        ✨ Feature Visual
-                                    </p>
+                                    <Sparkles
+                                        className="w-[85%] h-[85%] text-yellow-500"
+                                        strokeWidth={1.75}
+                                    />
                                 </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
                                     A Joy to Use
