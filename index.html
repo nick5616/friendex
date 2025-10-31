@@ -69,6 +69,16 @@
                         .register("/sw.js")
                         .then((registration) => {
                             console.log("SW registered: ", registration);
+                            // Reload once when a new SW takes control to avoid stale HTML/assets
+                            let hasRefreshed = false;
+                            navigator.serviceWorker.addEventListener(
+                                "controllerchange",
+                                () => {
+                                    if (hasRefreshed) return;
+                                    hasRefreshed = true;
+                                    window.location.reload();
+                                }
+                            );
                         })
                         .catch((registrationError) => {
                             console.log(

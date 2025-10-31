@@ -1,13 +1,12 @@
-const CACHE_NAME = "friendex-v1761461573548";
-const STATIC_CACHE_NAME = "friendex-static-v1761461573548";
-const DYNAMIC_CACHE_NAME = "friendex-dynamic-v1761461573548";
+const CACHE_VERSION = "v2025-10-31-1";
+const CACHE_NAME = `friendex-${CACHE_VERSION}`;
+const STATIC_CACHE_NAME = `friendex-static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE_NAME = `friendex-dynamic-${CACHE_VERSION}`;
 
 // Assets to cache for offline functionality
 const STATIC_ASSETS = [
-    "/",
-    // Don't cache index.html - it contains dynamic asset hashes
+    // Keep only stable, non-hashed assets
     "/manifest.json",
-    "/vite.svg",
     "/fonts/gaegu.css",
     "/fonts/gaegu-regular.woff2",
     "/fonts/gaegu-bold.woff2",
@@ -105,106 +104,50 @@ self.addEventListener("fetch", (event) => {
     }
 
     event.respondWith(
-        // For development, use network-first strategy for JS/CSS files
         (async () => {
-            const isDevFile =
-                request.url.includes("/src/") ||
-                request.url.includes(".js") ||
-                request.url.includes(".css") ||
-                request.url.includes("vite") ||
-                request.url.includes("@vite");
+            // Always bypass caching for JS and CSS (avoid hashed filename churn issues)
+            if (
+                request.destination === "script" ||
+                request.destination === "style" ||
+                request.url.includes("/assets/") ||
+                request.url.endsWith(".js") ||
+                request.url.endsWith(".css")
+            ) {
+                return fetch(request);
+            }
 
-            if (isDevFile) {
+            // Network-first for HTML documents with no-store to avoid stale index.html
+            if (request.destination === "document") {
                 try {
-                    // Try network first for development files
-                    const networkResponse = await fetch(request);
-                    if (networkResponse.ok) {
-                        console.log(
-                            "Service Worker: Serving from network (dev file):",
-                            request.url
-                        );
-                        return networkResponse;
-                    }
-                } catch (error) {
-                    console.log(
-                        "Service Worker: Network failed for dev file, trying cache:",
-                        request.url
-                    );
-                }
-
-                // Fallback to cache for dev files
-                const cachedResponse = await caches.match(request);
-                if (cachedResponse) {
-                    console.log(
-                        "Service Worker: Serving dev file from cache:",
-                        request.url
-                    );
-                    return cachedResponse;
+                    const fresh = await fetch(new Request(request, { cache: "no-store" }));
+                    return fresh;
+                } catch (_) {
+                    const cached = await caches.match("/index.html");
+                    if (cached) return cached;
+                    return new Response("Offline", { status: 503 });
                 }
             }
 
-            // For other files, use cache-first strategy
+            // Cache-first for static assets we explicitly cached (images, fonts, manifest)
             const cachedResponse = await caches.match(request);
             if (cachedResponse) {
-                console.log("Service Worker: Serving from cache:", request.url);
                 return cachedResponse;
             }
 
-            // Otherwise, fetch from network
             try {
                 const networkResponse = await fetch(request);
-
-                // Don't cache non-successful responses
                 if (
-                    !networkResponse ||
-                    networkResponse.status !== 200 ||
-                    networkResponse.type !== "basic"
+                    networkResponse &&
+                    networkResponse.status === 200 &&
+                    networkResponse.type === "basic" &&
+                    (request.destination === "image" || request.destination === "font")
                 ) {
-                    return networkResponse;
+                    const cache = await caches.open(DYNAMIC_CACHE_NAME);
+                    cache.put(request, networkResponse.clone());
                 }
-
-                // Clone the response for caching
-                const responseToCache = networkResponse.clone();
-
-                // Cache dynamic content (JS, CSS, images, etc.)
-                const cache = await caches.open(DYNAMIC_CACHE_NAME);
-                await cache.put(request, responseToCache);
-
-                console.log(
-                    "Service Worker: Serving from network and caching:",
-                    request.url
-                );
                 return networkResponse;
-            } catch (error) {
-                console.log(
-                    "Service Worker: Network request failed:",
-                    request.url,
-                    error
-                );
-
-                // Return offline page for navigation requests
-                if (request.destination === "document") {
-                    return caches.match("/index.html");
-                }
-
-                // For asset requests, try to serve from static cache
-                if (
-                    request.destination === "script" ||
-                    request.destination === "style" ||
-                    request.destination === "image" ||
-                    request.destination === "font"
-                ) {
-                    return caches.match(request);
-                }
-
-                // Return a generic offline response for other requests
-                return new Response("Offline", {
-                    status: 503,
-                    statusText: "Service Unavailable",
-                    headers: new Headers({
-                        "Content-Type": "text/plain",
-                    }),
-                });
+            } catch (_) {
+                return new Response("Offline", { status: 503 });
             }
         })()
     );
