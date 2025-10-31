@@ -116,16 +116,30 @@ self.addEventListener("fetch", (event) => {
                 return fetch(request);
             }
 
-            // Network-first for HTML documents with no-store to avoid stale index.html
+            // Network-first for HTML documents with no-store; fallback to SPA index.html on 404
             if (request.destination === "document") {
                 try {
-                    const fresh = await fetch(new Request(request, { cache: "no-store" }));
-                    return fresh;
+                    const fresh = await fetch(
+                        new Request(request, { cache: "no-store" })
+                    );
+                    if (fresh && fresh.ok) {
+                        return fresh;
+                    }
+
+                    // Some hosts 404 on client routes; fallback to root index.html
+                    const rootIndex = await fetch(
+                        new Request("/", { cache: "no-store" })
+                    );
+                    if (rootIndex && rootIndex.ok) {
+                        return rootIndex;
+                    }
                 } catch (_) {
-                    const cached = await caches.match("/index.html");
-                    if (cached) return cached;
-                    return new Response("Offline", { status: 503 });
+                    // ignore and try cache fallback below
                 }
+
+                const cached = await caches.match("/index.html");
+                if (cached) return cached;
+                return new Response("Offline", { status: 503 });
             }
 
             // Cache-first for static assets we explicitly cached (images, fonts, manifest)
@@ -140,7 +154,8 @@ self.addEventListener("fetch", (event) => {
                     networkResponse &&
                     networkResponse.status === 200 &&
                     networkResponse.type === "basic" &&
-                    (request.destination === "image" || request.destination === "font")
+                    (request.destination === "image" ||
+                        request.destination === "font")
                 ) {
                     const cache = await caches.open(DYNAMIC_CACHE_NAME);
                     cache.put(request, networkResponse.clone());
