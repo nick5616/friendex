@@ -107,7 +107,7 @@ function FriendDetailView({
     };
 
     return (
-        <div className="card-hand-drawn space-y-6 p-6 relative">
+        <div className="card-hand-drawn p-6 relative">
             <div className="absolute top-0 right-0 flex gap-2 mr-5 mt-4">
                 {/* New note button */}
                 <button
@@ -173,8 +173,8 @@ function FriendDetailView({
             <div className="flex items-start gap-6">
                 {/* Name and Modify Button */}
                 <div className="flex-1 flex items-start justify-between">
-                    <div>
-                        <h2 className="text-5xl font-bold text-amber-600 my-2">
+                    <div className="my-4 mt-8">
+                        <h2 className="text-5xl font-bold text-amber-600">
                             {friend.name}
                         </h2>
                         <div className="flex items-center gap-2">

@@ -13,7 +13,6 @@ import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
 import { seedTagsAndInterests } from "./seed";
 import useIsDemoMode from "./hooks/useIsDemoMode";
-import useMobileAutofocus from "./hooks/useMobileAutofocus";
 
 function AddFriend(friend) {
     const navigate = useNavigate();
@@ -46,6 +45,7 @@ function AddFriend(friend) {
     useEffect(() => {
         // Always seed tags and interests if they're empty, even in production
         seedTagsAndInterests();
+        nameInputRef.current?.focus();
     }, []);
 
     // Restore form data from session storage on component mount
@@ -64,8 +64,6 @@ function AddFriend(friend) {
             }
         }
     }, []);
-
-    useMobileAutofocus(nameInputRef);
 
     // Debounce the name input
     useEffect(() => {
