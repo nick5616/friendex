@@ -267,18 +267,16 @@ function FriendexApp() {
 
     return (
         <div className="min-h-screen mx-auto md:p-8 flex flex-col">
-            <header className="text-center mb-6 relative w-full">
-                <div className="flex flex-row items-center justify-center w-full gap-16">
-                    <h1 className="text-6xl font-bold text-stone-900">
-                        Friendex
-                    </h1>
-                    <button
-                        onClick={() => navigate(`${basePath}/add`)}
-                        className="btn-hand-drawn bg-amber-300 text-black px-3 py-3 hover:bg-amber-400 transition-colors font-bold text-sm flex items-center gap-2"
-                    >
-                        New Friend
-                    </button>
-                </div>
+            <header className="text-center mb-6 w-full flex justify-between items-center px-2">
+                {/* <div className="flex flex-row items-center justify-between w-full"> */}
+                <h1 className="text-6xl font-bold text-stone-900">Friendex</h1>
+                <button
+                    onClick={() => navigate(`${basePath}/add`)}
+                    className="btn-hand-drawn bg-amber-300 text-black px-3 py-3 hover:bg-amber-400 transition-colors font-bold text-sm flex items-center gap-2 border-2 border-stone-800"
+                >
+                    New Friend
+                </button>
+                {/* </div> */}
             </header>
             {/* Filter and Sort Controls */}
             <FilterAndSort
