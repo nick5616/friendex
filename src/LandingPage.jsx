@@ -79,7 +79,7 @@ function LandingPage({ onLaunchApp }) {
 
     // Calculate Pokéball transformation based on scroll
     const pokeballScale = 1 + scrollY / 300;
-    const pokeballOpacity = Math.max(0, 1 - scrollY / 400);
+    const pokeballOpacity = Math.max(0.2, 0.2 + scrollY / 400 - 0.2);
     const pokeballTransform = `scale(${pokeballScale}) translateY(${
         scrollY * 0.3
     }px)`;
