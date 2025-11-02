@@ -173,7 +173,7 @@ function FriendDetailView({
             <div className="flex items-start gap-6">
                 {/* Name and Modify Button */}
                 <div className="flex-1 flex items-start justify-between">
-                    <div className="my-4 mt-8">
+                    <div className="my-8">
                         <h2 className="text-5xl font-bold text-amber-600">
                             {friend.name}
                         </h2>
@@ -206,8 +206,8 @@ function FriendDetailView({
 
             {/* Tags Section */}
             {friend.tags && friend.tags.length > 0 && (
-                <section>
-                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-2 mb-3">
+                <section className="mb-4">
+                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-1 mb-2">
                         Tags
                     </h3>
                     <div className="flex flex-wrap gap-2">
@@ -222,8 +222,8 @@ function FriendDetailView({
 
             {/* About Section */}
             {friend.about?.description && (
-                <section>
-                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-2 mb-3">
+                <section className="mb-4">
+                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-1 mb-2">
                         About
                     </h3>
                     <p className="text-lg text-stone-700 leading-relaxed">
@@ -234,8 +234,8 @@ function FriendDetailView({
 
             {/* Interests Section */}
             {friend.about?.interests && friend.about.interests.length > 0 && (
-                <section>
-                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-2 mb-3">
+                <section className="mb-4">
+                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-1 mb-2">
                         Interests
                     </h3>
                     <div className="flex flex-wrap gap-2">
@@ -249,8 +249,8 @@ function FriendDetailView({
             )}
 
             {/* Key Info Section */}
-            <section>
-                <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-2 mb-3">
+            <section className="mb-4">
+                <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-1 mb-2">
                     Key Info
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -286,9 +286,11 @@ function FriendDetailView({
 
             {/* Notes Section */}
             {friend.notes && friend.notes.length > 0 ? (
-                <section>
-                    <div className="flex items-center justify-between border-b-2 border-dashed border-stone-400 pb-2 mb-3">
-                        <h3 className="text-2xl font-bold">Notes</h3>
+                <section className="mb-2">
+                    <div className="flex items-center justify-between border-b-2 border-dashed border-stone-400 mb-2 pb-1">
+                        <h3 className="text-2xl font-bold border-stone-400">
+                            Notes
+                        </h3>
                         <button
                             onClick={() => {
                                 setShowAddNoteTextField(!showAddNoteTextField);
@@ -299,7 +301,7 @@ function FriendDetailView({
                         </button>
                     </div>
                     {showAddNoteTextField && (
-                        <div className="flex flex-col justify-between pb-2 mb-3">
+                        <div className="flex flex-col justify-between mb-2">
                             <textarea
                                 id="newNoteTextField"
                                 className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500"
@@ -307,7 +309,7 @@ function FriendDetailView({
                                 value={newNote}
                                 onChange={(e) => setNewNote(e.target.value)}
                             />
-                            <div className="flex justify-end">
+                            <div className="flex justify-end mb-2">
                                 <button
                                     onClick={() => {
                                         setShowAddNoteTextField(false);
@@ -333,7 +335,7 @@ function FriendDetailView({
                                 </button>
                                 <button
                                     onClick={handleAddNote}
-                                    className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit mt-2 flex items-center gap-2"
+                                    className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit flex items-center gap-2"
                                 >
                                     <svg
                                         className="w-4 h-4"
@@ -407,10 +409,10 @@ function FriendDetailView({
                             onChange={(e) => setNewNote(e.target.value)}
                         />
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-end mb-2">
                         <button
                             onClick={handleAddNote}
-                            className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit mt-2 flex items-center gap-2"
+                            className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit flex items-center gap-2"
                         >
                             Save
                         </button>
@@ -419,7 +421,7 @@ function FriendDetailView({
             )}
 
             {/* Metadata Section */}
-            <section className="border-t-2 border-dashed border-stone-300 pt-4">
+            <section className="pt-4">
                 <div className="text-sm text-stone-500">
                     <p>Added on {formatCreatedDate(friend.createdAt)}</p>
                 </div>
