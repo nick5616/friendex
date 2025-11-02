@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v2025-10-31-1";
+const CACHE_VERSION = "v2025-11-02-1";
 const CACHE_NAME = `friendex-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `friendex-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `friendex-dynamic-${CACHE_VERSION}`;
@@ -10,8 +10,10 @@ const STATIC_ASSETS = [
     "/fonts/gaegu.css",
     "/fonts/gaegu-regular.woff2",
     "/fonts/gaegu-bold.woff2",
+    "/icons/16x16.png",
     "/icons/favicon-32x32.png",
-    "/icons/android-chrome-192x192.png",
+    "/icons/favicon96x96.png",
+    "/icons/android-chrome192x192.png",
     "/icons/android-chrome512x512.png",
     "/browserconfig.xml",
 ];
@@ -105,15 +107,17 @@ self.addEventListener("fetch", (event) => {
 
     event.respondWith(
         (async () => {
-            // Always bypass caching for JS and CSS (avoid hashed filename churn issues)
+            // Always bypass caching for JS, CSS, and icons (avoid hashed filename churn issues and icon cache problems)
             if (
                 request.destination === "script" ||
                 request.destination === "style" ||
                 request.url.includes("/assets/") ||
                 request.url.endsWith(".js") ||
-                request.url.endsWith(".css")
+                request.url.endsWith(".css") ||
+                request.url.includes("/icons/")
             ) {
-                return fetch(request);
+                // Use no-cache to force fresh fetch for icons
+                return fetch(request, { cache: "no-cache" });
             }
 
             // Network-first for HTML documents with no-store; fallback to SPA index.html on 404
@@ -191,7 +195,7 @@ self.addEventListener("push", (event) => {
         const data = event.data.json();
         const options = {
             body: data.body,
-            icon: "/icons/android-chrome-192x192.png",
+            icon: "/icons/android-chrome192x192.png",
             badge: "/icons/favicon-32x32.png",
             vibrate: [100, 50, 100],
             data: {

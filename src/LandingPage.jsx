@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { FileStack, BookOpen, Sparkles } from "lucide-react";
-import transitionImage from "./assets/images/Screenshot_2025-10-20_at_12.55.33_AM-removebg-preview.png";
 import mainFriendexInterfaceImage from "./assets/images/screenshots/mainFriendexInterface.png";
 import friendDetailsTop from "./assets/images/screenshots/friendDetailsTop.png";
 import friendDetailsBottom from "./assets/images/screenshots/friedDetailsBottom.png";
@@ -116,7 +115,7 @@ function LandingPage({ onLaunchApp }) {
                 }}
             >
                 <img
-                    src={transitionImage}
+                    src="/icons/android-chrome512x512.png?v=2"
                     alt=""
                     className={
                         isMobile
