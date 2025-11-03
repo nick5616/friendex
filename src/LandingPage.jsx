@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { FileStack, BookOpen, Sparkles } from "lucide-react";
 import mainFriendexInterfaceImage from "./assets/images/screenshots/mainFriendexInterface.png";
 import friendDetailsTop from "./assets/images/screenshots/friendDetailsTop.png";
 import friendDetailsBottom from "./assets/images/screenshots/friedDetailsBottom.png";
@@ -196,9 +195,10 @@ function LandingPage({ onLaunchApp }) {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-12">
                             <div className="flex flex-col items-center text-center space-y-4">
                                 <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <FileStack
-                                        className="w-[85%] h-[85%] text-sky-400"
-                                        strokeWidth={1.75}
+                                    <img
+                                        src="/graphics/undraw_ideas-flow_lwpa.svg"
+                                        alt="Problem Solving"
+                                        className="object-contain"
                                     />
                                 </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
@@ -213,9 +213,10 @@ function LandingPage({ onLaunchApp }) {
 
                             <div className="flex flex-col items-center text-center space-y-4">
                                 <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <BookOpen
-                                        className="w-[85%] h-[85%] text-stone-500"
-                                        strokeWidth={1.75}
+                                    <img
+                                        src="/graphics/undraw_images_v4j9.svg"
+                                        alt="Ideas Flow"
+                                        className="object-contain"
                                     />
                                 </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
@@ -230,9 +231,10 @@ function LandingPage({ onLaunchApp }) {
 
                             <div className="flex flex-col items-center text-center space-y-4">
                                 <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <Sparkles
-                                        className="w-[85%] h-[85%] text-yellow-500"
-                                        strokeWidth={1.75}
+                                    <img
+                                        src="/graphics/undraw_young-and-happy_ihtu.svg"
+                                        alt="Joyride"
+                                        className="object-contain"
                                     />
                                 </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
