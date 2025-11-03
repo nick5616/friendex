@@ -187,165 +187,9 @@ function LandingPage({ onLaunchApp }) {
                         </p>
                     </section>
 
-                    {/* Features Section */}
-                    <section className="py-16 mb-12">
-                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
-                            Why Friendex?
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-12">
-                            <div className="flex flex-col items-center text-center space-y-4">
-                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <img
-                                        src="/graphics/undraw_ideas-flow_lwpa.svg"
-                                        alt="Problem Solving"
-                                        className="object-contain"
-                                    />
-                                </div>
-                                <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
-                                    Beat Object Permanence
-                                </h3>
-                                <p className="text-lg text-stone-700">
-                                    Friendex acts as your external memory. See
-                                    all your people in one place and never
-                                    forget who you can reach out to.
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col items-center text-center space-y-4">
-                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <img
-                                        src="/graphics/undraw_images_v4j9.svg"
-                                        alt="Ideas Flow"
-                                        className="object-contain"
-                                    />
-                                </div>
-                                <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
-                                    Remember the Details
-                                </h3>
-                                <p className="text-lg text-stone-700">
-                                    Keep track of birthdays, gift ideas, inside
-                                    jokes, and what you last talked about. Show
-                                    them you care.
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col items-center text-center space-y-4">
-                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <img
-                                        src="/graphics/undraw_young-and-happy_ihtu.svg"
-                                        alt="Joyride"
-                                        className="object-contain"
-                                    />
-                                </div>
-                                <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
-                                    A Joy to Use
-                                </h3>
-                                <p className="text-lg text-stone-700">
-                                    A fun, tactile rolodex interface that makes
-                                    browsing your connections feel delightful,
-                                    not like a chore.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* App Preview Section */}
-                    <section className="py-16 mb-12">
-                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-stone-900">
-                            See It In Action (Under Construction 🚧)
-                        </h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                            <div className="aspect-[9/16] md:aspect-video flex items-center justify-center card-hand-drawn bg-amber-50 w-fit py-2 px-0">
-                                <img
-                                    src={mainFriendexInterfaceImage}
-                                    alt="Main Friendex Interface"
-                                    className="w-full h-full object-contain"
-                                />
-                            </div>
-
-                            {/* Screenshot placeholder 2 */}
-                            <div className="card-hand-drawn aspect-[9/16] md:aspect-video flex items-center justify-center bg-stone-100">
-                                <div className="text-center p-8">
-                                    <p className="text-stone-400 text-lg">
-                                        👤 Friend Entry View
-                                    </p>
-                                    <p className="text-stone-400 text-sm mt-2">
-                                        <img
-                                            src={friendDetailsBottom}
-                                            alt="Friend Details Bottom"
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* GIF placeholder */}
-                        <div className="card-hand-drawn aspect-[9/16] md:aspect-video flex items-center justify-center bg-stone-100">
-                            <div className="text-center p-8">
-                                <p className="text-stone-400 text-xl">
-                                    🎬 Interactive Demo
-                                </p>
-                                <img
-                                    src={friendDetailsTop}
-                                    alt="Friend Details Top"
-                                    className="w-full h-full object-contain"
-                                />
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Testimonial Section */}
-                    <section className="py-16 mb-12">
-                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-stone-900">
-                            What People Are Saying
-                        </h2>
-
-                        <div className="max-w-3xl mx-auto space-y-6">
-                            {/* Testimonial 1 - Real user */}
-                            <div className="muted-card-hand-drawn">
-                                <p className="text-lg text-stone-700 italic mb-4">
-                                    "As someone with ADHD, I genuinely forget my
-                                    friends exist sometimes. Friendex helps me
-                                    remember I have people who care about me and
-                                    that I can reach out to."
-                                </p>
-                                <p className="text-stone-600 font-bold">
-                                    — Beta User
-                                </p>
-                            </div>
-
-                            {/* Testimonial placeholder 2 */}
-                            <div className="muted-card-hand-drawn">
-                                <p className="text-lg text-stone-700 italic mb-4">
-                                    "I like this one. The app. Good for
-                                    remember."
-                                </p>
-                                <p className="text-stone-600 font-bold">
-                                    — Beta User
-                                </p>
-                            </div>
-
-                            {/* Testimonial placeholder 3 */}
-                            <div className="muted-card-hand-drawn">
-                                <p className="text-lg text-stone-700 italic mb-4">
-                                    "I can finally be the friend I wan to be!
-                                    With Friendex, I can finally have all my
-                                    friend's likes and dislikes in one place. I
-                                    no longer forget my loved one's allergies,
-                                    or pet peeves."
-                                </p>
-                                <p className="text-stone-600 font-bold">
-                                    — Beta User
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
                     {/* How It Works Section */}
-                    <section className="py-16 mb-12">
-                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-stone-900">
+                    <section className="mt-16 mb-8">
+                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
                             How It Works
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -405,6 +249,162 @@ function LandingPage({ onLaunchApp }) {
                                     Browse your Friendex regularly to remind
                                     yourself who to reach out to and strengthen
                                     your bonds.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Features Section */}
+                    <section className="py-12">
+                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
+                            Why Friendex?
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-12">
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
+                                    <img
+                                        src="/graphics/undraw_ideas-flow_lwpa.svg"
+                                        alt="Problem Solving"
+                                        className="object-contain"
+                                    />
+                                </div>
+                                <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
+                                    Beat Object Permanence
+                                </h3>
+                                <p className="text-lg text-stone-700">
+                                    Friendex acts as your external memory. See
+                                    all your people in one place and never
+                                    forget who you can reach out to.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
+                                    <img
+                                        src="/graphics/undraw_images_v4j9.svg"
+                                        alt="Ideas Flow"
+                                        className="object-contain"
+                                    />
+                                </div>
+                                <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
+                                    Remember the Details
+                                </h3>
+                                <p className="text-lg text-stone-700">
+                                    Keep track of birthdays, gift ideas, inside
+                                    jokes, and what you last talked about. Show
+                                    them you care.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
+                                    <img
+                                        src="/graphics/undraw_young-and-happy_ihtu.svg"
+                                        alt="Joyride"
+                                        className="object-contain"
+                                    />
+                                </div>
+                                <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
+                                    A Joy to Use
+                                </h3>
+                                <p className="text-lg text-stone-700">
+                                    A fun, tactile rolodex interface that makes
+                                    browsing your connections feel delightful,
+                                    not like a chore.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* App Preview Section */}
+                    <section className="py-16">
+                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
+                            See It In Action (Under Construction 🚧)
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                            <div className="aspect-[9/16] md:aspect-video flex items-center justify-center card-hand-drawn bg-amber-50 w-fit py-2 px-0">
+                                <img
+                                    src={mainFriendexInterfaceImage}
+                                    alt="Main Friendex Interface"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
+
+                            {/* Screenshot placeholder 2 */}
+                            <div className="card-hand-drawn aspect-[9/16] md:aspect-video flex items-center justify-center bg-stone-100">
+                                <div className="text-center p-8">
+                                    <p className="text-stone-400 text-lg">
+                                        👤 Friend Entry View
+                                    </p>
+                                    <p className="text-stone-400 text-sm mt-2">
+                                        <img
+                                            src={friendDetailsBottom}
+                                            alt="Friend Details Bottom"
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* GIF placeholder */}
+                        <div className="card-hand-drawn aspect-[9/16] md:aspect-video flex items-center justify-center bg-stone-100">
+                            <div className="text-center p-8">
+                                <p className="text-stone-400 text-xl">
+                                    🎬 Interactive Demo
+                                </p>
+                                <img
+                                    src={friendDetailsTop}
+                                    alt="Friend Details Top"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Testimonial Section */}
+                    <section className="mb-12">
+                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
+                            What People Are Saying
+                        </h2>
+
+                        <div className="max-w-3xl mx-auto space-y-6">
+                            {/* Testimonial 1 - Real user */}
+                            <div className="muted-card-hand-drawn">
+                                <p className="text-lg text-stone-700 italic mb-4">
+                                    "As someone with ADHD, I genuinely forget my
+                                    friends exist sometimes. Friendex helps me
+                                    remember I have people who care about me and
+                                    that I can reach out to."
+                                </p>
+                                <p className="text-stone-600 font-bold">
+                                    — Beta User
+                                </p>
+                            </div>
+
+                            {/* Testimonial placeholder 2 */}
+                            <div className="muted-card-hand-drawn">
+                                <p className="text-lg text-stone-700 italic mb-4">
+                                    "I like this one. The app. Good for
+                                    remember."
+                                </p>
+                                <p className="text-stone-600 font-bold">
+                                    — Beta User
+                                </p>
+                            </div>
+
+                            {/* Testimonial placeholder 3 */}
+                            <div className="muted-card-hand-drawn">
+                                <p className="text-lg text-stone-700 italic mb-4">
+                                    "I can finally be the friend I want to be!
+                                    With Friendex, I can finally have all my
+                                    friend's likes and dislikes in one place. I
+                                    no longer forget my loved one's allergies,
+                                    or pet peeves."
+                                </p>
+                                <p className="text-stone-600 font-bold">
+                                    — Beta User
                                 </p>
                             </div>
                         </div>
