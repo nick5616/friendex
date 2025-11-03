@@ -163,6 +163,24 @@ function LandingPage({ onLaunchApp }) {
                                 connections.
                             </p>
 
+                            <div className="flex flex-wrap justify-center gap-4 mt-6">
+                                <div className="card-hand-drawn bg-green-50 px-4 py-2 border-2 border-green-300">
+                                    <p className="text-sm md:text-base font-bold text-green-800">
+                                        ✓ No account required
+                                    </p>
+                                </div>
+                                <div className="card-hand-drawn bg-blue-50 px-4 py-2 border-2 border-blue-300">
+                                    <p className="text-sm md:text-base font-bold text-blue-800">
+                                        🔒 100% private
+                                    </p>
+                                </div>
+                                <div className="card-hand-drawn bg-amber-50 px-4 py-2 border-2 border-amber-300">
+                                    <p className="text-sm md:text-base font-bold text-amber-800">
+                                        📱 Works offline
+                                    </p>
+                                </div>
+                            </div>
+
                             <button
                                 onClick={onLaunchApp}
                                 className="btn-hand-drawn btn-primary text-2xl md:text-3xl px-10 py-4 mt-8 border-2"
@@ -176,15 +194,19 @@ function LandingPage({ onLaunchApp }) {
                         </div>
                     </section>
 
-                    {/* Social Proof */}
-                    <section className="text-center py-8 mb-12 card-hand-drawn">
-                        <p className="text-stone-600 text-lg">
-                            "Finally, a way to remember my friends exist! My
-                            ADHD brain loves this."
-                            <span className="block mt-2 text-stone-500">
-                                — Early User
-                            </span>
-                        </p>
+                    {/* Social Proof - Prominent ADHD Testimonial */}
+                    <section className="text-center py-8 mb-12">
+                        <div className="card-hand-drawn bg-amber-50 p-6 md:p-8 max-w-3xl mx-auto border-2 border-amber-300">
+                            <p className="text-xl md:text-2xl text-stone-800 font-medium italic mb-4">
+                                "Finally, a way to remember my friends exist! My
+                                ADHD brain loves this. I can actually see who I
+                                can reach out to instead of forgetting they
+                                exist."
+                            </p>
+                            <p className="text-stone-600 font-bold text-lg">
+                                — Beta User with ADHD
+                            </p>
+                        </div>
                     </section>
 
                     {/* How It Works Section */}
@@ -254,6 +276,94 @@ function LandingPage({ onLaunchApp }) {
                         </div>
                     </section>
 
+                    {/* Perfect For Section */}
+                    <section className="py-12 mb-8">
+                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
+                            Perfect For
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100 p-6">
+                                <h3 className="text-2xl font-bold mb-3 text-stone-900">
+                                    🧠 People with ADHD
+                                </h3>
+                                <p className="text-stone-700 text-lg">
+                                    Beat object permanence issues. Friendex acts
+                                    as your external memory, so you never forget
+                                    your friends exist or lose track of who you
+                                    can reach out to.
+                                </p>
+                            </div>
+
+                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100 p-6">
+                                <h3 className="text-2xl font-bold mb-3 text-stone-900">
+                                    😌 Socially Anxious & Introverted
+                                </h3>
+                                <p className="text-stone-700 text-lg">
+                                    Reduce overwhelm and build intentional
+                                    connections. Keep track of conversation
+                                    topics, interests, and meaningful details
+                                    that help you feel more confident reaching
+                                    out.
+                                </p>
+                            </div>
+
+                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100 p-6">
+                                <h3 className="text-2xl font-bold mb-3 text-stone-900">
+                                    💼 Busy Professionals
+                                </h3>
+                                <p className="text-stone-700 text-lg">
+                                    Maintain relationships without guilt. Store
+                                    birthdays, gift ideas, and important dates
+                                    so you can be thoughtful even when life gets
+                                    hectic.
+                                </p>
+                            </div>
+
+                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100 p-6">
+                                <h3 className="text-2xl font-bold mb-3 text-stone-900">
+                                    💝 Anyone Wanting to Be a Better Friend
+                                </h3>
+                                <p className="text-stone-700 text-lg">
+                                    Remember allergies, pet peeves, inside
+                                    jokes, and what you last talked about. Show
+                                    your friends you care by remembering the
+                                    details that matter to them.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Pain Points Section */}
+                    <section className="py-12 mb-8">
+                        <div className="max-w-4xl mx-auto">
+                            <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-stone-900">
+                                Tired of These Problems?
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="card-hand-drawn bg-red-50 p-6 border-2 border-red-200">
+                                    <p className="text-lg text-stone-800 font-medium">
+                                        Forgot someone's birthday again?
+                                    </p>
+                                </div>
+                                <div className="card-hand-drawn bg-red-50 p-6 border-2 border-red-200">
+                                    <p className="text-lg text-stone-800 font-medium">
+                                        Struggling to remember who you can reach
+                                        out to?
+                                    </p>
+                                </div>
+                                <div className="card-hand-drawn bg-red-50 p-6 border-2 border-red-200">
+                                    <p className="text-lg text-stone-800 font-medium">
+                                        Want to be more thoughtful but don't
+                                        know where to start?
+                                    </p>
+                                </div>
+                            </div>
+                            <p className="text-center text-xl text-stone-700 mt-8 font-medium">
+                                Friendex helps you solve all of these.
+                            </p>
+                        </div>
+                    </section>
+
                     {/* Features Section */}
                     <section className="py-12">
                         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
@@ -290,9 +400,10 @@ function LandingPage({ onLaunchApp }) {
                                     Remember the Details
                                 </h3>
                                 <p className="text-lg text-stone-700">
-                                    Keep track of birthdays, gift ideas, inside
-                                    jokes, and what you last talked about. Show
-                                    them you care.
+                                    Keep track of birthdays, gift ideas,
+                                    conversation starters, inside jokes, and
+                                    what you last talked about. Show them you
+                                    care.
                                 </p>
                             </div>
 
@@ -319,7 +430,7 @@ function LandingPage({ onLaunchApp }) {
                     {/* App Preview Section */}
                     <section className="py-16">
                         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
-                            See It In Action (Under Construction 🚧)
+                            See It In Action
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
@@ -370,38 +481,59 @@ function LandingPage({ onLaunchApp }) {
                         </h2>
 
                         <div className="max-w-3xl mx-auto space-y-6">
-                            {/* Testimonial 1 - Real user */}
+                            {/* Testimonial 1 - ADHD */}
                             <div className="muted-card-hand-drawn">
                                 <p className="text-lg text-stone-700 italic mb-4">
                                     "As someone with ADHD, I genuinely forget my
                                     friends exist sometimes. Friendex helps me
                                     remember I have people who care about me and
-                                    that I can reach out to."
+                                    that I can reach out to. It's like having an
+                                    external brain for relationships."
                                 </p>
                                 <p className="text-stone-600 font-bold">
-                                    — Beta User
+                                    — Beta User with ADHD
                                 </p>
                             </div>
 
-                            {/* Testimonial placeholder 2 */}
+                            {/* Testimonial 2 - Social Anxiety */}
                             <div className="muted-card-hand-drawn">
                                 <p className="text-lg text-stone-700 italic mb-4">
-                                    "I like this one. The app. Good for
-                                    remember."
+                                    "As an introvert, I struggle with
+                                    maintaining friendships. Friendex helps me
+                                    remember conversation topics and interests,
+                                    so I actually have something meaningful to
+                                    say when I reach out. No more awkward 'hey,
+                                    how are you?' messages."
                                 </p>
                                 <p className="text-stone-600 font-bold">
                                     — Beta User
                                 </p>
                             </div>
 
-                            {/* Testimonial placeholder 3 */}
+                            {/* Testimonial 3 - Thoughtful Friend */}
                             <div className="muted-card-hand-drawn">
                                 <p className="text-lg text-stone-700 italic mb-4">
                                     "I can finally be the friend I want to be!
-                                    With Friendex, I can finally have all my
-                                    friend's likes and dislikes in one place. I
-                                    no longer forget my loved one's allergies,
-                                    or pet peeves."
+                                    With Friendex, I remember birthdays, gift
+                                    ideas, allergies, and what we last talked
+                                    about. My friends have noticed I'm more
+                                    thoughtful, and I feel better about myself
+                                    too."
+                                </p>
+                                <p className="text-stone-600 font-bold">
+                                    — Beta User
+                                </p>
+                            </div>
+
+                            {/* Testimonial 4 - Busy Professional */}
+                            <div className="muted-card-hand-drawn">
+                                <p className="text-lg text-stone-700 italic mb-4">
+                                    "Between work and life, I kept forgetting to
+                                    reach out to friends. Now I can quickly see
+                                    who I haven't talked to in a while and what
+                                    they're interested in. It's helped me
+                                    maintain friendships I was worried I'd
+                                    lose."
                                 </p>
                                 <p className="text-stone-600 font-bold">
                                     — Beta User
@@ -419,12 +551,43 @@ function LandingPage({ onLaunchApp }) {
                                 You're in Control
                             </h2>
                             <p className="text-xl text-stone-700 max-w-3xl mx-auto leading-relaxed">
-                                We believe you should own your data. The
-                                standard version of Friendex runs entirely on
-                                your device, ensuring your private information
-                                is never uploaded or tracked.
+                                We believe you should own your data. Friendex
+                                runs entirely on your device and works
+                                completely offline. Your private information is
+                                never uploaded, tracked, or shared—your data
+                                never leaves your device.
                             </p>
-                            <p className="text-lg text-stone-600 max-w-3xl mx-auto mt-6 leading-relaxed">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-3xl mx-auto">
+                                <div className="text-center">
+                                    <div className="text-4xl mb-2">🔒</div>
+                                    <p className="font-bold text-stone-900">
+                                        No Tracking
+                                    </p>
+                                    <p className="text-sm text-stone-600">
+                                        We don't track you or your data
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-4xl mb-2">📱</div>
+                                    <p className="font-bold text-stone-900">
+                                        Works Offline
+                                    </p>
+                                    <p className="text-sm text-stone-600">
+                                        All data stored locally on your device
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-4xl mb-2">✉️</div>
+                                    <p className="font-bold text-stone-900">
+                                        No Signup
+                                    </p>
+                                    <p className="text-sm text-stone-600">
+                                        Start using immediately, no account
+                                        needed
+                                    </p>
+                                </div>
+                            </div>
+                            <p className="text-lg text-stone-600 max-w-3xl mx-auto mt-8 leading-relaxed">
                                 Want to access your Friendex across devices?
                                 We're building an optional, secure cloud sync
                                 feature. You choose what's right for you.
@@ -437,10 +600,23 @@ function LandingPage({ onLaunchApp }) {
                         <h2 className="text-4xl md:text-6xl font-bold text-stone-900 mb-4">
                             Ready to connect?
                         </h2>
-                        <p className="text-xl text-stone-600 mb-8 max-w-2xl mx-auto">
+                        <p className="text-xl text-stone-600 mb-6 max-w-2xl mx-auto">
                             Start building your Friendex today. No signup
                             required.
                         </p>
+                        <div className="flex flex-wrap justify-center gap-3 mb-8">
+                            <span className="text-sm text-stone-600 font-medium">
+                                ✓ No account required
+                            </span>
+                            <span className="text-stone-400">•</span>
+                            <span className="text-sm text-stone-600 font-medium">
+                                🔒 100% private
+                            </span>
+                            <span className="text-stone-400">•</span>
+                            <span className="text-sm text-stone-600 font-medium">
+                                📱 Works offline
+                            </span>
+                        </div>
                         <button
                             onClick={onLaunchApp}
                             className="btn-hand-drawn btn-primary text-2xl md:text-3xl px-10 py-4 border-2"
