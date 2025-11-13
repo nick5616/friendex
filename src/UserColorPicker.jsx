@@ -43,7 +43,8 @@ function UserColorPicker({ onCancel, basePath = "" }) {
     const [previewColor, setPreviewColor] = useState(DEFAULT_COLOR); // Preview color (not applied yet)
     const [saturation, setSaturation] = useState(DEFAULT_SATURATION);
     const [colorHistory, setColorHistory] = useState([]); // Memento pattern: array of color states
-    const [historyStartIndex, setHistoryStartIndex] = useState(0); // Start index for showing 4 colors
+    const [selectedHistoryIndex, setSelectedHistoryIndex] = useState(null); // Track which history entry is selected
+    const [selectedSwatchHex, setSelectedSwatchHex] = useState(null); // Track which swatch is selected
     const [useSameColorText, setUseSameColorText] = useState(false);
     const [accessibilityCheck, setAccessibilityCheck] = useState(null);
     const [doItAnyway, setDoItAnyway] = useState(false);
@@ -82,7 +83,16 @@ function UserColorPicker({ onCancel, basePath = "" }) {
         if (savedHistory) {
             try {
                 const history = JSON.parse(savedHistory);
-                setColorHistory(history);
+                // Migrate old format (array of strings) to new format (array of objects)
+                const migratedHistory = history.map((entry) => {
+                    if (typeof entry === "string") {
+                        // Old format: just a color string, use saved scheme as default
+                        return { color: entry, scheme: savedScheme };
+                    }
+                    // New format: already an object with color and scheme
+                    return entry;
+                });
+                setColorHistory(migratedHistory);
             } catch (e) {
                 console.error("Error loading color history:", e);
             }
@@ -212,45 +222,30 @@ function UserColorPicker({ onCancel, basePath = "" }) {
     const handleSwatchClick = (hex) => {
         // Only update preview, don't apply to app
         setPreviewColor(hex);
+        setSelectedSwatchHex(hex); // Track which swatch was selected
+        setSelectedHistoryIndex(null); // Clear history selection when selecting a swatch
     };
 
-    // Memento pattern: Save color state to history
-    const saveColorToHistory = (color) => {
-        const newHistory = [...colorHistory, color];
+    // Memento pattern: Save color state to history with scheme
+    const saveColorToHistory = (color, scheme) => {
+        const historyEntry = { color, scheme };
+        const newHistory = [...colorHistory, historyEntry];
         // Limit history size
         const trimmedHistory = newHistory.slice(-MAX_HISTORY);
         setColorHistory(trimmedHistory);
         localStorage.setItem(COLOR_HISTORY_KEY, JSON.stringify(trimmedHistory));
-        // Update start index to show the end
-        setHistoryStartIndex(
-            Math.max(0, trimmedHistory.length - COLORS_PER_PAGE)
-        );
+        // Select the newly added entry
+        setSelectedHistoryIndex(trimmedHistory.length - 1);
     };
 
-    // Navigation functions for history
-    const handleHistoryLeft = () => {
-        setHistoryStartIndex(Math.max(0, historyStartIndex - COLORS_PER_PAGE));
-    };
-
-    const handleHistoryRight = () => {
-        setHistoryStartIndex(
-            Math.min(
-                Math.max(0, colorHistory.length - COLORS_PER_PAGE),
-                historyStartIndex + COLORS_PER_PAGE
-            )
-        );
-    };
-
-    // Get visible colors from history (4 at a time)
-    const getVisibleHistoryColors = () => {
-        return colorHistory.slice(
-            historyStartIndex,
-            historyStartIndex + COLORS_PER_PAGE
-        );
-    };
-
-    const handleHistoryColorClick = (color) => {
+    const handleHistoryColorClick = (historyEntry, index) => {
+        const color =
+            typeof historyEntry === "string"
+                ? historyEntry
+                : historyEntry.color;
         setPreviewColor(color);
+        setSelectedHistoryIndex(index);
+        setSelectedSwatchHex(null); // Clear swatch selection when selecting from history
         const hsl = hexToHsl(color);
         setSaturation(hsl.s);
     };
@@ -271,8 +266,8 @@ function UserColorPicker({ onCancel, basePath = "" }) {
         setSavedColor(previewColor);
         applyUserColor(previewColor, useSameColorText, colorScheme, mixItUp);
 
-        // Save to history (memento pattern)
-        saveColorToHistory(previewColor);
+        // Save to history (memento pattern) with current scheme
+        saveColorToHistory(previewColor, colorScheme);
 
         // Save current color as last color
         localStorage.setItem(LAST_COLOR_KEY, previewColor);
@@ -305,7 +300,11 @@ function UserColorPicker({ onCancel, basePath = "" }) {
     };
 
     const isSelected = (hex) => {
-        return previewColor.toLowerCase() === hex.toLowerCase();
+        // Only show as selected if this specific swatch was clicked
+        return (
+            selectedSwatchHex !== null &&
+            selectedSwatchHex.toLowerCase() === hex.toLowerCase()
+        );
     };
 
     const schemeColors = calculateColorHarmony(previewColor, colorScheme);
@@ -364,77 +363,101 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                         <label className="block text-xs font-bold mb-2">
                             Last Colors:
                         </label>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={handleHistoryLeft}
-                                disabled={historyStartIndex === 0}
-                                className={`px-2 py-1 border-2 border-stone-800 rounded transition-all ${
-                                    historyStartIndex === 0
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : "hover:bg-stone-100"
-                                }`}
+                        <div className="overflow-x-auto">
+                            <div
+                                className="flex gap-2 p-1 pb-2"
+                                style={{
+                                    minWidth: "max-content",
+                                    minHeight: "max-content",
+                                }}
                             >
-                                ←
-                            </button>
-                            <div className="flex gap-1 flex-1">
-                                {getVisibleHistoryColors().map((color, idx) => {
-                                    const hsl = hexToHsl(color);
-                                    const textColor =
-                                        hsl.l > 50
-                                            ? "text-stone-900"
-                                            : "text-white";
-                                    const globalIndex = historyStartIndex + idx;
+                                {colorHistory.map((historyEntry, idx) => {
+                                    // Handle both old format (string) and new format (object)
+                                    const color =
+                                        typeof historyEntry === "string"
+                                            ? historyEntry
+                                            : historyEntry.color;
+                                    const scheme =
+                                        typeof historyEntry === "string"
+                                            ? colorScheme // Fallback to current scheme for old entries
+                                            : historyEntry.scheme;
+
+                                    // Calculate color scheme for this history color using its stored scheme
+                                    const schemeColors = calculateColorHarmony(
+                                        color,
+                                        scheme
+                                    );
+                                    const isSelected =
+                                        selectedHistoryIndex === idx;
                                     return (
                                         <div
-                                            key={globalIndex}
+                                            key={idx}
                                             onClick={() =>
-                                                handleHistoryColorClick(color)
+                                                handleHistoryColorClick(
+                                                    historyEntry,
+                                                    idx
+                                                )
                                             }
-                                            className="flex-1 flex flex-col items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+                                            className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+                                            style={{ width: "80px" }}
                                         >
                                             <div
-                                                className={`w-full aspect-square border-2 transition-all ${
-                                                    previewColor.toLowerCase() ===
-                                                    color.toLowerCase()
+                                                className={`w-full aspect-square border-2 transition-all overflow-hidden ${
+                                                    isSelected
                                                         ? "border-stone-900 scale-110 shadow-lg"
                                                         : "border-stone-400"
                                                 }`}
                                                 style={{
-                                                    backgroundColor: color,
                                                     borderRadius:
                                                         "255px 15px 225px 15px/15px 225px 15px 255px",
                                                 }}
-                                            />
+                                            >
+                                                {schemeColors.length === 1 ? (
+                                                    <div
+                                                        className="w-full h-full"
+                                                        style={{
+                                                            backgroundColor:
+                                                                schemeColors[0],
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex flex-col">
+                                                        {schemeColors.map(
+                                                            (
+                                                                schemeColor,
+                                                                schemeIdx
+                                                            ) => (
+                                                                <div
+                                                                    key={
+                                                                        schemeIdx
+                                                                    }
+                                                                    className="flex-1"
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            schemeColor,
+                                                                    }}
+                                                                />
+                                                            )
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleHistoryColorClick(
-                                                        color
+                                                        historyEntry,
+                                                        idx
                                                     );
                                                 }}
                                                 className="text-xs bg-transparent border-none px-2 py-1 hover:underline"
                                             >
-                                                Go back to this color
+                                                {color}
                                             </button>
                                         </div>
                                     );
                                 })}
                             </div>
-                            <button
-                                onClick={handleHistoryRight}
-                                disabled={
-                                    historyStartIndex + COLORS_PER_PAGE >=
-                                    colorHistory.length
-                                }
-                                className={`px-2 py-1 border-2 border-stone-800 rounded transition-all ${
-                                    historyStartIndex + COLORS_PER_PAGE >=
-                                    colorHistory.length
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : "hover:bg-stone-100"
-                                }`}
-                            >
-                                →
-                            </button>
                         </div>
                     </div>
                 )}

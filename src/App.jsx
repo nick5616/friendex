@@ -10,7 +10,12 @@ import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
 import FilterAndSort from "./FilterAndSort";
 import PWAInstallPrompt from "./PWAInstallPrompt";
-import { applyUserColor, getUserColor, DEFAULT_COLOR, COLOR_SCHEMES } from "./utils";
+import {
+    applyUserColor,
+    getUserColor,
+    DEFAULT_COLOR,
+    COLOR_SCHEMES,
+} from "./utils";
 
 function FriendexApp() {
     const navigate = useNavigate();
@@ -47,8 +52,10 @@ function FriendexApp() {
     // Load and apply user color on mount (userColor || defaultColor pattern)
     useEffect(() => {
         const colorToUse = getUserColor();
-        const useSameColorText = localStorage.getItem("useSameColorText") === "true";
-        const colorScheme = localStorage.getItem("colorScheme") || COLOR_SCHEMES.MONOCHROME;
+        const useSameColorText =
+            localStorage.getItem("useSameColorText") === "true";
+        const colorScheme =
+            localStorage.getItem("colorScheme") || COLOR_SCHEMES.MONOCHROME;
         const mixItUp = localStorage.getItem("mixItUp") === "true";
         applyUserColor(colorToUse, useSameColorText, colorScheme, mixItUp);
     }, []);
@@ -276,45 +283,70 @@ function FriendexApp() {
 
     return (
         <div className="min-h-screen mx-auto md:p-8 flex flex-col">
-            <header 
+            <header
                 className="text-center mb-6 w-full flex justify-between items-center px-2 relative header-user-bg"
                 style={{
-                    paddingTop: '1rem',
-                    paddingBottom: '1rem',
+                    paddingTop: "1rem",
+                    paddingBottom: "1rem",
                 }}
             >
                 {/* <div className="flex flex-row items-center justify-between w-full"> */}
-                <h1 
+                <h1
                     onClick={() => navigate(`${basePath}/about`)}
                     className="text-6xl font-bold relative z-10 cursor-pointer hover:opacity-80 transition-opacity"
-                    style={{ color: "var(--color-title, var(--color-neutral-900))" }}
+                    style={{
+                        color: "var(--color-title, var(--color-neutral-900))",
+                    }}
                 >
                     Friendex
                 </h1>
                 <div className="flex items-center gap-2 relative z-10">
                     <button
                         onClick={() => navigate(`${basePath}/color-picker`)}
-                        className="card-hand-drawn border-2 border-stone-800 p-2 flex items-center justify-center transition-all bg-white hover:bg-stone-50"
+                        className="card-hand-drawn border-2 border-stone-800 p-1 flex items-center justify-center transition-all bg-white hover:bg-stone-50"
                         title="Choose your color"
                     >
                         <svg
-                            width="40"
-                            height="40"
+                            width="30"
+                            height="30"
                             viewBox="0 0 100 100"
                             xmlns="http://www.w3.org/2000/svg"
-                            className="w-10 h-10"
+                            className="w-8 h-8"
                         >
                             <defs>
-                                <radialGradient id={`paintGradient-${getUserColor().replace("#", "")}`} cx="40%" cy="35%" r="70%">
-                                    <stop offset="0%" stopColor="var(--color-primary-light)" />
-                                    <stop offset="40%" stopColor="var(--color-primary)" />
-                                    <stop offset="70%" stopColor="var(--color-complementary)" />
-                                    <stop offset="100%" stopColor="var(--color-complementary-light)" />
+                                <radialGradient
+                                    id={`paintGradient-${getUserColor().replace(
+                                        "#",
+                                        ""
+                                    )}`}
+                                    cx="40%"
+                                    cy="35%"
+                                    r="70%"
+                                >
+                                    <stop
+                                        offset="0%"
+                                        stopColor="var(--color-primary-light)"
+                                    />
+                                    <stop
+                                        offset="40%"
+                                        stopColor="var(--color-primary)"
+                                    />
+                                    <stop
+                                        offset="70%"
+                                        stopColor="var(--color-complementary)"
+                                    />
+                                    <stop
+                                        offset="100%"
+                                        stopColor="var(--color-complementary-light)"
+                                    />
                                 </radialGradient>
                             </defs>
                             <path
                                 d="M50 15 Q65 12, 75 25 Q80 40, 75 55 Q70 70, 55 75 Q40 78, 25 75 Q15 70, 12 55 Q10 40, 15 25 Q20 15, 35 12 Q42 10, 50 15 Z"
-                                fill={`url(#paintGradient-${getUserColor().replace("#", "")})`}
+                                fill={`url(#paintGradient-${getUserColor().replace(
+                                    "#",
+                                    ""
+                                )})`}
                                 stroke="none"
                             />
                         </svg>
@@ -425,9 +457,17 @@ function FriendexApp() {
                     <button
                         onClick={handleImportClick}
                         className="btn-hand-drawn border-2 border-stone-700 text-black text-sm px-6 py-3 transition-colors font-medium flex items-center gap-2"
-                        style={{ backgroundColor: 'var(--color-primary-light)' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--color-primary)'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--color-primary-light)'}
+                        style={{
+                            backgroundColor: "var(--color-primary-light)",
+                        }}
+                        onMouseEnter={(e) =>
+                            (e.target.style.backgroundColor =
+                                "var(--color-primary)")
+                        }
+                        onMouseLeave={(e) =>
+                            (e.target.style.backgroundColor =
+                                "var(--color-primary-light)")
+                        }
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -455,9 +495,17 @@ function FriendexApp() {
                     <button
                         onClick={handleExportFriends}
                         className="btn-hand-drawn border-2 border-stone-700 text-sm text-black px-6 py-3 transition-colors font-medium flex items-center gap-2"
-                        style={{ backgroundColor: 'var(--color-primary-light)' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--color-primary)'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--color-primary-light)'}
+                        style={{
+                            backgroundColor: "var(--color-primary-light)",
+                        }}
+                        onMouseEnter={(e) =>
+                            (e.target.style.backgroundColor =
+                                "var(--color-primary)")
+                        }
+                        onMouseLeave={(e) =>
+                            (e.target.style.backgroundColor =
+                                "var(--color-primary-light)")
+                        }
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
