@@ -3,9 +3,101 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Color Scheme: Monochromatic with User Color (defaults to amber) */
+:root {
+    /* Default amber color - used when userColor is not set */
+    /* All colors will be dynamically set via JavaScript to use userColor || default amber */
+    --color-primary: hsl(45, 85%, 50%);
+    --color-primary-light: hsl(45, 85%, 95%);
+    --color-primary-lighter: hsl(45, 85%, 98%);
+    --color-primary-dark: hsl(45, 85%, 40%);
+    --color-primary-darker: hsl(45, 85%, 30%);
+    --color-primary-darkest: hsl(45, 85%, 20%);
+
+    --color-secondary: hsl(45, 85%, 50%);
+    --color-secondary-light: hsl(45, 85%, 95%);
+    --color-secondary-lighter: hsl(45, 85%, 98%);
+    --color-secondary-dark: hsl(45, 85%, 40%);
+    --color-secondary-darker: hsl(45, 85%, 30%);
+    --color-secondary-darkest: hsl(45, 85%, 20%);
+
+    --color-accent: hsl(45, 85%, 50%);
+    --color-accent-light: hsl(45, 85%, 95%);
+    --color-accent-dark: hsl(45, 85%, 40%);
+
+    /* Neutral colors (stone/gray) - always neutral */
+    --color-neutral-50: hsl(0, 0%, 98%);
+    --color-neutral-100: hsl(0, 0%, 95%);
+    --color-neutral-200: hsl(0, 0%, 90%);
+    --color-neutral-300: hsl(0, 0%, 80%);
+    --color-neutral-400: hsl(0, 0%, 60%);
+    --color-neutral-500: hsl(0, 0%, 40%);
+    --color-neutral-600: hsl(0, 0%, 30%);
+    --color-neutral-700: hsl(0, 0%, 20%);
+    --color-neutral-800: hsl(0, 0%, 15%);
+    --color-neutral-900: hsl(0, 0%, 10%);
+
+    /* Semantic colors - will be set to user color via JavaScript */
+    --color-success: hsl(45, 85%, 50%);
+    --color-success-light: hsl(45, 85%, 95%);
+    --color-success-dark: hsl(45, 85%, 40%);
+
+    --color-info: hsl(45, 85%, 50%);
+    --color-info-light: hsl(45, 85%, 95%);
+    --color-info-dark: hsl(45, 85%, 40%);
+
+    --color-warning: hsl(45, 85%, 50%);
+    --color-warning-light: hsl(45, 85%, 95%);
+    --color-warning-dark: hsl(45, 85%, 40%);
+
+    /* Red for error/pain points - keep red for semantic clarity */
+    --color-error: hsl(0, 85%, 60%);
+    --color-error-light: hsl(0, 85%, 95%);
+    --color-error-dark: hsl(0, 85%, 50%);
+
+    --color-action-verb: hsl(45, 85%, 50%);
+
+    /* User color variables - set dynamically, default to amber */
+    --color-user: hsl(45, 85%, 50%);
+    --color-user-light: hsl(45, 85%, 90%);
+    --color-user-lighter: hsl(45, 85%, 98%);
+    --color-user-dark: hsl(45, 85%, 25%);
+    --color-user-darker: hsl(45, 85%, 30%);
+    --color-user-darkest: hsl(45, 85%, 20%);
+    --color-user-text-light: hsl(0, 0%, 15%);
+    --color-user-text-dark: hsl(0, 0%, 95%);
+
+    /* Complementary color - set dynamically, default to complementary of amber */
+    --color-complementary: hsl(225, 85%, 50%);
+    --color-complementary-light: hsl(225, 85%, 95%);
+    --color-complementary-dark: hsl(225, 85%, 50%);
+
+    /* Theme colors for color harmony schemes - set dynamically */
+    --color-theme-1: hsl(45, 85%, 50%);
+    --color-theme-2: hsl(225, 85%, 50%);
+    --color-theme-3: hsl(165, 85%, 50%);
+    --color-theme-4: hsl(315, 85%, 50%);
+
+    /* Semantic element color variables - set dynamically by createElementColorMapping */
+    --color-bg-app: hsl(45, 85%, 98%);
+    --color-title: hsl(45, 85%, 20%);
+    --color-btn-bg: hsl(45, 85%, 50%);
+    --color-btn-text: hsl(0, 0%, 10%);
+    --color-tag-bg: hsl(45, 85%, 90%);
+    --color-tag-text: hsl(0, 0%, 15%);
+    --color-pill-bg: hsl(45, 85%, 25%);
+    --color-pill-text: hsl(0, 0%, 95%);
+    --color-info-bg: hsl(45, 85%, 95%);
+    --color-info-text: hsl(0, 0%, 15%);
+    --color-text-dark: hsl(0, 0%, 15%);
+    --color-text-light: hsl(0, 0%, 95%);
+}
+
 /* 1. Set the base font and background color for the whole app */
 body {
-    @apply bg-amber-50 text-stone-800 antialiased;
+    background-color: var(--color-bg-app, var(--color-primary-lighter));
+    color: var(--color-neutral-800);
+    @apply antialiased;
 }
 
 /* Force Gaegu font on everything - this overrides Tailwind */
@@ -61,24 +153,197 @@ select {
 
     /* Color variants for the button */
     .btn-primary {
-        @apply bg-amber-300 text-stone-900 hover:bg-amber-400;
+        background-color: var(--color-btn-bg, var(--color-primary));
+        color: var(--color-btn-text, var(--color-neutral-900));
+    }
+    .btn-primary:hover {
+        background-color: var(--color-primary-dark);
     }
 
     .btn-danger {
-        @apply bg-red-400 text-white hover:bg-red-500;
+        background-color: var(--color-complementary);
+        color: white;
+    }
+    .btn-danger:hover {
+        background-color: var(--color-complementary-dark);
+    }
+
+    .btn-secondary {
+        background-color: var(--color-info-bg, var(--color-primary-light));
+        color: var(--color-info-text, var(--color-neutral-900));
+        border-color: var(--color-primary-dark);
+    }
+    .btn-secondary:hover {
+        background-color: var(--color-primary);
+    }
+
+    /* Badge styles using color scheme */
+    .badge-success {
+        background-color: var(--color-success-light);
+        border-color: var(--color-success-dark);
+        color: var(--color-success-dark);
+    }
+
+    .badge-info {
+        background-color: var(--color-info-light);
+        border-color: var(--color-info-dark);
+        color: var(--color-info-dark);
+    }
+
+    .badge-warning {
+        background-color: var(--color-warning-light);
+        border-color: var(--color-warning-dark);
+        color: var(--color-warning-dark);
+    }
+
+    /* Card background variants */
+    .card-primary-bg {
+        background-color: var(--color-primary-light);
+    }
+
+    .card-secondary-bg {
+        background-color: var(--color-secondary-light);
+    }
+
+    .card-accent-bg {
+        background-color: var(--color-accent-light);
+    }
+
+    .card-error-bg {
+        background-color: var(--color-error-light);
+        border-color: var(--color-error-dark);
+    }
+
+    /* Landing page specific styles */
+    .word-measure-temp {
+        visibility: hidden;
+        position: absolute;
+        font-weight: bold;
+        white-space: nowrap;
+        font-family: inherit;
+        font-size: 2rem;
+    }
+
+    @media (min-width: 768px) {
+        .word-measure-temp {
+            font-size: 4rem;
+        }
+    }
+
+    .particle-float {
+        position: absolute;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        opacity: 0.2;
+    }
+
+    .pokeball-container {
+        position: fixed;
+        pointer-events: none;
+        z-index: 0;
+        transition: all 0.1s;
+    }
+
+    .sticky-cta-banner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        transform: translateY(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .sticky-cta-banner.visible {
+        transform: translateY(0);
+    }
+
+    .word-width-container {
+        display: inline-block;
+        overflow: hidden;
+        transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .action-verb-color {
+        color: var(--color-action-verb);
+    }
+
+    .pwa-install-button-group {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (min-width: 768px) {
+        .pwa-install-button-group {
+            flex-direction: row;
+            justify-content: center;
+        }
     }
 
     .tag-hand-drawn {
-        @apply bg-stone-200 text-stone-800 text-sm font-bold px-3 py-1 border border-stone-400;
+        background-color: var(--color-tag-bg, var(--color-user-light));
+        color: var(--color-tag-text, var(--color-user-text-light));
+        @apply text-sm font-bold px-3 py-1 border border-stone-400;
         border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
     }
     .pill-tag-hand-drawn {
-        @apply bg-stone-200 text-stone-800 text-sm font-bold px-3 py-1 border border-stone-400;
+        background-color: var(--color-pill-bg, var(--color-user-dark));
+        color: var(--color-pill-text, var(--color-user-text-dark));
+        @apply text-sm font-bold px-3 py-1 border border-stone-400;
         border-radius: 50px 20px 50px 20px/20px 50px 20px 50px;
     }
 
     .anchor-top {
         /*no border top*/
         border-top: none;
+    }
+
+    /* Utility classes for complementary color scheme */
+    .bg-primary-light {
+        background-color: var(--color-primary-light);
+    }
+
+    .bg-secondary-light {
+        background-color: var(--color-secondary-light);
+    }
+
+    .bg-accent-light {
+        background-color: var(--color-accent-light);
+    }
+
+    .text-primary-dark {
+        color: var(--color-primary-dark);
+    }
+
+    .text-secondary-dark {
+        color: var(--color-secondary-dark);
+    }
+
+    .border-primary-dark {
+        border-color: var(--color-primary-dark);
+    }
+
+    .border-secondary-dark {
+        border-color: var(--color-secondary-dark);
+    }
+
+    /* Header background with user color */
+    .header-user-bg {
+        position: relative;
+    }
+
+    .header-user-bg::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--color-user), transparent);
+        opacity: 0.15;
+        pointer-events: none;
+        border-radius: 0 0 20px 20px;
     }
 }

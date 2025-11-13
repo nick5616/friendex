@@ -7,15 +7,22 @@ function FriendList({ friends, selectedId, onSelect }) {
                     <li key={friend.id}>
                         <button
                             onClick={() => onSelect(friend.id)}
-                            className={`w-full text-left text-xl font-bold p-2 transition-colors duration-150
-                  ${
-                      selectedId === friend.id
-                          ? "bg-amber-300 text-stone-900"
-                          : "hover:bg-amber-100"
-                  }`}
+                            className={`w-full text-left text-xl font-bold p-2 transition-colors duration-150`}
                             style={{
-                                borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
+                                backgroundColor: selectedId === friend.id 
+                                    ? 'var(--color-primary)' 
+                                    : 'transparent',
+                                borderRadius: "255px 15px 225px 15px/15px 225px 15px 255px",
+                            }}
+                            onMouseEnter={(e) => {
+                                if (selectedId !== friend.id) {
+                                    e.target.style.backgroundColor = 'var(--color-primary-light)';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (selectedId !== friend.id) {
+                                    e.target.style.backgroundColor = 'transparent';
+                                }
                             }}
                         >
                             {friend.name}

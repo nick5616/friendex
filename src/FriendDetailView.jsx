@@ -112,7 +112,7 @@ function FriendDetailView({
                 {/* New note button */}
                 <button
                     onClick={() => setShowAddNoteTextField(true)}
-                    className="bg-amber-200 pill-tag-hand-drawn text-sm flex items-center gap-2"
+                    className="pill-tag-hand-drawn text-sm flex items-center gap-2"
                 >
                     <svg
                         className="w-4 h-4"
@@ -131,7 +131,7 @@ function FriendDetailView({
                 </button>
                 <button
                     onClick={() => navigate(`${basePath}/modify/${friend.id}`)}
-                    className="bg-amber-200 pill-tag-hand-drawn text-sm flex items-center gap-2"
+                    className="pill-tag-hand-drawn text-sm flex items-center gap-2"
                 >
                     <svg
                         className="w-4 h-4"
@@ -150,7 +150,7 @@ function FriendDetailView({
                 </button>
                 <button
                     onClick={() => setShowDeleteModal(true)}
-                    className="bg-red-200 pill-tag-hand-drawn text-sm flex items-center gap-2"
+                    className="pill-tag-hand-drawn text-sm flex items-center gap-2 btn-danger"
                     title="Delete friend"
                 >
                     <svg
@@ -173,13 +173,18 @@ function FriendDetailView({
             <div className="flex items-start gap-6">
                 {/* Name and Modify Button */}
                 <div className="flex-1 flex items-start justify-between">
-                    <div className="my-8">
-                        <h2 className="text-5xl font-bold text-amber-600">
+                    <div className="mt-10">
+                        <h2
+                            className="text-5xl font-bold"
+                            style={{
+                                color: "var(--color-title, var(--color-primary-dark))",
+                            }}
+                        >
                             {friend.name}
                         </h2>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 mt-1">
                             {friend.pronouns && (
-                                <div className="pill-tag-hand-drawn w-[fit-content] mb-2 bg-amber-100">
+                                <div className="pill-tag-hand-drawn w-[fit-content] mb-2">
                                     {friend.pronouns}
                                 </div>
                             )}
@@ -187,7 +192,7 @@ function FriendDetailView({
 
                         {friend.keyInfo?.relationships &&
                             friend.keyInfo.relationships.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
+                                <div className="flex flex-wrap gap-1 mt-1">
                                     {friend.keyInfo.relationships.map(
                                         (relationship, index) => (
                                             <span
@@ -206,10 +211,8 @@ function FriendDetailView({
 
             {/* Tags Section */}
             {friend.tags && friend.tags.length > 0 && (
-                <section className="mb-4">
-                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-1 mb-2">
-                        Tags
-                    </h3>
+                <section className="mb-8 mt-4">
+                    <h3 className="text-2xl font-bold pb-1">Tags</h3>
                     <div className="flex flex-wrap gap-2">
                         {friend.tags.map((tag) => (
                             <span key={tag} className="tag-hand-drawn">
@@ -222,10 +225,8 @@ function FriendDetailView({
 
             {/* About Section */}
             {friend.about?.description && (
-                <section className="mb-4">
-                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-1 mb-2">
-                        About
-                    </h3>
+                <section className="mb-8 mt-4">
+                    <h3 className="text-2xl font-bold pb-1">About</h3>
                     <p className="text-lg text-stone-700 leading-relaxed">
                         {friend.about.description}
                     </p>
@@ -234,10 +235,8 @@ function FriendDetailView({
 
             {/* Interests Section */}
             {friend.about?.interests && friend.about.interests.length > 0 && (
-                <section className="mb-4">
-                    <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-1 mb-2">
-                        Interests
-                    </h3>
+                <section className="mb-8 mt-4">
+                    <h3 className="text-2xl font-bold pb-1">Interests</h3>
                     <div className="flex flex-wrap gap-2">
                         {friend.about.interests.map((interest) => (
                             <span key={interest} className="tag-hand-drawn">
@@ -249,19 +248,19 @@ function FriendDetailView({
             )}
 
             {/* Key Info Section */}
-            <section className="mb-4">
-                <h3 className="text-2xl font-bold border-b-2 border-dashed border-stone-400 pb-1 mb-2">
-                    Key Info
-                </h3>
+            <section className="mb-8 mt-4">
+                <h3 className="text-2xl font-bold pb-1">Key Info</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {friend.keyInfo?.birthday && (
                         <div
-                            className="bg-amber-50 p-3"
-                            style={{ borderRadius: "15px" }}
+                            className="p-3"
+                            style={{
+                                borderRadius: "15px",
+                                backgroundColor:
+                                    "var(--color-info-bg, var(--color-primary-light))",
+                            }}
                         >
-                            <strong className="text-stone-800">
-                                Birthday:
-                            </strong>
+                            <strong className="text-stone-800">Birthday</strong>
                             <p className="text-stone-700">
                                 {formatDate(friend.keyInfo.birthday)}
                             </p>
@@ -270,11 +269,15 @@ function FriendDetailView({
 
                     {friend.keyInfo?.howWeMet && (
                         <div
-                            className="bg-amber-50 p-3"
-                            style={{ borderRadius: "15px" }}
+                            className="p-3"
+                            style={{
+                                borderRadius: "15px",
+                                backgroundColor:
+                                    "var(--color-info-bg, var(--color-primary-light))",
+                            }}
                         >
                             <strong className="text-stone-800">
-                                How We Met:
+                                How We Met
                             </strong>
                             <p className="text-stone-700">
                                 {friend.keyInfo.howWeMet}
@@ -287,7 +290,7 @@ function FriendDetailView({
             {/* Notes Section */}
             {friend.notes && friend.notes.length > 0 ? (
                 <section className="mb-2">
-                    <div className="flex items-center justify-between border-b-2 border-dashed border-stone-400 mb-2 pb-1">
+                    <div className="flex items-center justify-between mb-2">
                         <h3 className="text-2xl font-bold border-stone-400">
                             Notes
                         </h3>
@@ -357,8 +360,12 @@ function FriendDetailView({
                         </div>
                     )}
                     <div
-                        className="text-lg text-stone-700 bg-amber-100 p-4 leading-relaxed"
-                        style={{ borderRadius: "15px" }}
+                        className="text-lg text-stone-700 p-4 leading-relaxed"
+                        style={{
+                            borderRadius: "15px",
+                            backgroundColor:
+                                "var(--color-info-bg, var(--color-primary-light))",
+                        }}
                     >
                         {(() => {
                             if (Array.isArray(friend.notes)) {
@@ -431,7 +438,12 @@ function FriendDetailView({
             {showDeleteModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="card-hand-drawn p-6 max-w-md mx-4">
-                        <h3 className="text-2xl font-bold text-amber-600 mb-4">
+                        <h3
+                            className="text-2xl font-bold mb-4"
+                            style={{
+                                color: "var(--color-title, var(--color-primary-dark))",
+                            }}
+                        >
                             Confirm Delete
                         </h3>
                         <p className="text-lg text-stone-700 mb-6">
@@ -447,7 +459,7 @@ function FriendDetailView({
                             </button>
                             <button
                                 onClick={handleDeleteConfirm}
-                                className="btn-hand-drawn bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+                                className="btn-hand-drawn btn-danger px-4 py-2"
                             >
                                 Yes
                             </button>

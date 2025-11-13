@@ -53,11 +53,11 @@ export function RolodexItem({ friend, scrollY, index, onClick, isSelected }) {
         >
             <button
                 onClick={onClick}
-                className={`w-full text-left text-xl leading-[1.2rem] font-bold p-2 h-full transition-colors duration-150 ${
-                    isSelected && "bg-amber-300"
-                }`}
+                className={`w-full text-left text-xl leading-[1.2rem] font-bold p-2 h-full transition-colors duration-150`}
                 style={{
                     borderRadius: "255px 15px 225px 15px/15px 225px 15px 255px",
+                    backgroundColor: isSelected ? "var(--color-btn-bg, var(--color-primary))" : "transparent",
+                    color: isSelected ? "var(--color-btn-text, var(--color-neutral-900))" : "var(--color-neutral-800)",
                 }}
             >
                 {friend.name}

@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import mainFriendexInterfaceImage from "./assets/images/screenshots/mainFriendexInterface.png";
 import friendDetailsTop from "./assets/images/screenshots/friendDetailsTop.png";
 import friendDetailsBottom from "./assets/images/screenshots/friedDetailsBottom.png";
 import useIsMobile from "./hooks/useIsMobile";
+import { applyUserColor, getUserColor, COLOR_SCHEMES } from "./utils";
 
-function LandingPage({ onLaunchApp }) {
+function About() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const isDemoMode = location.pathname.startsWith("/demo");
+    const basePath = isDemoMode ? "/demo" : "";
     const isMobile = useIsMobile();
     const [scrollY, setScrollY] = useState(0);
     const [currentWord, setCurrentWord] = useState(0);
     const [particles, setParticles] = useState([]);
     const [isAnimating, setIsAnimating] = useState(false);
     const [wordWidth, setWordWidth] = useState(0);
+    const [showStickyBanner, setShowStickyBanner] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+    const [isInstalled, setIsInstalled] = useState(false);
+    const [dismissedInstall, setDismissedInstall] = useState(false);
 
     const words = [
         "Remember",
@@ -22,11 +33,86 @@ function LandingPage({ onLaunchApp }) {
         "Catch",
     ];
 
+    // Load and apply user color on mount (userColor || defaultColor pattern)
     useEffect(() => {
-        const handleScroll = () => setScrollY(window.scrollY);
+        const colorToUse = getUserColor();
+        const useSameColorText =
+            localStorage.getItem("useSameColorText") === "true";
+        const colorScheme =
+            localStorage.getItem("colorScheme") || COLOR_SCHEMES.MONOCHROME;
+        const mixItUp = localStorage.getItem("mixItUp") === "true";
+        applyUserColor(colorToUse, useSameColorText, colorScheme, mixItUp);
+    }, []);
+
+    // PWA Install Logic
+    useEffect(() => {
+        const checkInstalled = () => {
+            if (window.matchMedia("(display-mode: standalone)").matches) {
+                setIsInstalled(true);
+                return;
+            }
+            if ((window.navigator as any).standalone === true) {
+                setIsInstalled(true);
+                return;
+            }
+        };
+
+        checkInstalled();
+
+        const handleBeforeInstallPrompt = (e: any) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+            setShowInstallPrompt(true);
+        };
+
+        const handleAppInstalled = () => {
+            setIsInstalled(true);
+            setShowInstallPrompt(false);
+            setDeferredPrompt(null);
+        };
+
+        window.addEventListener(
+            "beforeinstallprompt",
+            handleBeforeInstallPrompt
+        );
+        window.addEventListener("appinstalled", handleAppInstalled);
+
+        return () => {
+            window.removeEventListener(
+                "beforeinstallprompt",
+                handleBeforeInstallPrompt
+            );
+            window.removeEventListener("appinstalled", handleAppInstalled);
+        };
+    }, []);
+
+    // Scroll tracking for pokeball and sticky banner
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            setScrollY(currentScrollY);
+            console.log(currentScrollY);
+            // Show sticky banner when pokeball is fully scaled/disappeared (around scrollY > 600)
+            // Pokeball reaches max scale around scrollY 300-400, then starts fading
+            if (
+                currentScrollY > 500 &&
+                currentScrollY < 9700 &&
+                !showStickyBanner
+            ) {
+                console.log("showing sticky banner");
+                setShowStickyBanner(true);
+            } else if (currentScrollY <= 500 && showStickyBanner) {
+                console.log("hiding sticky banner");
+                setShowStickyBanner(false);
+            } else if (currentScrollY > 9700) {
+                console.log("hiding sticky banner");
+                setShowStickyBanner(false);
+            }
+        };
+
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    }, [showStickyBanner]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -40,25 +126,43 @@ function LandingPage({ onLaunchApp }) {
     useEffect(() => {
         const measureWord = () => {
             const tempElement = document.createElement("span");
-            tempElement.style.visibility = "hidden";
-            tempElement.style.position = "absolute";
-            tempElement.style.fontSize = isMobile ? "2rem" : "4rem";
-            tempElement.style.fontWeight = "bold";
-            tempElement.style.whiteSpace = "nowrap";
-            tempElement.style.fontFamily = "inherit";
+            tempElement.className = "word-measure-temp";
             tempElement.textContent = words[currentWord];
             document.body.appendChild(tempElement);
 
             const width = tempElement.offsetWidth;
             document.body.removeChild(tempElement);
 
-            // Use exact width to prevent wrapping
             setWordWidth(width);
             setIsAnimating(false);
         };
 
         measureWord();
-    }, [currentWord, isMobile]);
+    }, [currentWord, isMobile, words]);
+
+    // PWA Install Handlers
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+
+        if (outcome === "accepted") {
+            console.log("User accepted the install prompt");
+        }
+
+        setDeferredPrompt(null);
+        setShowInstallPrompt(false);
+    };
+
+    const handleDismissInstall = () => {
+        setDismissedInstall(true);
+        setShowInstallPrompt(false);
+    };
+
+    const handleLaunchApp = () => {
+        navigate(basePath || "/");
+    };
 
     // Generate subtle floating particles
     useEffect(() => {
@@ -70,8 +174,6 @@ function LandingPage({ onLaunchApp }) {
             size: Math.random() * 3 + 1,
             duration: Math.random() * 20 + 15,
             delay: Math.random() * 5,
-            color: Math.random() > 0.5 ? "bg-amber-300" : "bg-amber-600",
-            className: "absolute rounded-full opacity-20",
         }));
         setParticles(newParticles);
     }, []);
@@ -79,9 +181,14 @@ function LandingPage({ onLaunchApp }) {
     // Calculate Pokéball transformation based on scroll
     const pokeballScale = 1 + scrollY / 300;
     const pokeballOpacity = Math.max(0.2, 0.2 + scrollY / 400 - 0.2);
-    const pokeballTransform = `scale(${pokeballScale}) translateY(${
-        scrollY * 0.3
-    }px)`;
+    const pokeballTranslateY = scrollY * 0.3;
+
+    // Check if install prompt should be shown
+    const shouldShowInstall =
+        showInstallPrompt &&
+        !isInstalled &&
+        !dismissedInstall &&
+        deferredPrompt;
 
     return (
         <div className="min-h-screen relative overflow-hidden">
@@ -90,7 +197,7 @@ function LandingPage({ onLaunchApp }) {
                 {particles.map((particle) => (
                     <div
                         key={particle.id}
-                        className="absolute rounded-full bg-amber-300 opacity-20"
+                        className="particle-float"
                         style={{
                             left: `${particle.x}%`,
                             top: `${particle.y}%`,
@@ -105,11 +212,11 @@ function LandingPage({ onLaunchApp }) {
 
             {/* Animated Pokéball */}
             <div
-                className="fixed pointer-events-none z-0 transition-all duration-100"
+                className="pokeball-container"
                 style={{
                     top: isMobile ? "60vh" : "50vh",
                     left: "50%",
-                    transform: `translate(-50%, -50%) ${pokeballTransform}`,
+                    transform: `translate(-50%, -50%) scale(${pokeballScale}) translateY(${pokeballTranslateY}px)`,
                     opacity: pokeballOpacity,
                 }}
             >
@@ -139,11 +246,9 @@ function LandingPage({ onLaunchApp }) {
                             <div className="text-2xl md:text-4xl font-bold h-12 flex items-center justify-center cursor-default card-hand-drawn">
                                 <span className="inline-block">Gotta</span>
                                 <div
-                                    className="inline-block text-red-500 overflow-hidden"
+                                    className="word-width-container inline-block action-verb-color"
                                     style={{
                                         width: `${wordWidth}px`,
-                                        transition:
-                                            "width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)",
                                         opacity: isAnimating ? 0.7 : 1,
                                     }}
                                 >
@@ -162,31 +267,34 @@ function LandingPage({ onLaunchApp }) {
                                 details that matter and strengthen your
                                 connections.
                             </p>
+                            <div>
+                                <div className="flex flex-wrap justify-center mt-6 h-24 w-full">
+                                    <img
+                                        src="/graphics/download_point.png"
+                                        alt="Download in one click"
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
 
-                            <div className="flex flex-wrap justify-center gap-4 mt-6">
-                                <div className="card-hand-drawn bg-green-50 px-4 py-2 border-2 border-green-300">
-                                    <p className="text-sm md:text-base font-bold text-green-800">
-                                        ✓ No account required
-                                    </p>
-                                </div>
-                                <div className="card-hand-drawn bg-blue-50 px-4 py-2 border-2 border-blue-300">
-                                    <p className="text-sm md:text-base font-bold text-blue-800">
-                                        🔒 100% private
-                                    </p>
-                                </div>
-                                <div className="card-hand-drawn bg-amber-50 px-4 py-2 border-2 border-amber-300">
-                                    <p className="text-sm md:text-base font-bold text-amber-800">
-                                        📱 Works offline
-                                    </p>
+                                <div className="pwa-install-button-group">
+                                    <button
+                                        onClick={
+                                            shouldShowInstall
+                                                ? handleInstallClick
+                                                : handleLaunchApp
+                                        }
+                                        className="btn-hand-drawn btn-primary text-xl md:text-2xl px-8 py-4 border-2"
+                                    >
+                                        Install Friendex
+                                    </button>
+                                    <button
+                                        onClick={handleLaunchApp}
+                                        className="btn-hand-drawn text-stone-800 hover:bg-stone-100 text-lg md:text-xl px-6 py-3"
+                                    >
+                                        Continue to Website
+                                    </button>
                                 </div>
                             </div>
-
-                            <button
-                                onClick={onLaunchApp}
-                                className="btn-hand-drawn btn-primary text-2xl md:text-3xl px-10 py-4 mt-8 border-2"
-                            >
-                                Open Your Friendex
-                            </button>
 
                             <p className="text-stone-500 mt-3 text-lg">
                                 Free to start, private by default.
@@ -196,7 +304,7 @@ function LandingPage({ onLaunchApp }) {
 
                     {/* Social Proof - Prominent ADHD Testimonial */}
                     <section className="text-center py-8 mb-12">
-                        <div className="card-hand-drawn bg-amber-50 p-6 md:p-8 max-w-3xl mx-auto border-2 border-amber-300">
+                        <div className="card-hand-drawn card-primary-bg p-6 md:p-8 max-w-3xl mx-auto border-2">
                             <p className="text-xl md:text-2xl text-stone-800 font-medium italic mb-4">
                                 "Finally, a way to remember my friends exist! My
                                 ADHD brain loves this. I can actually see who I
@@ -215,7 +323,7 @@ function LandingPage({ onLaunchApp }) {
                             How It Works
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100">
+                            <div className="card-hand-drawn overflow-hidden relative card-primary-bg">
                                 <div className="flex flex-col justify-center text-8xl opacity-30 absolute right-[-20px] top-[35px]">
                                     📇
                                 </div>
@@ -229,7 +337,7 @@ function LandingPage({ onLaunchApp }) {
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100">
+                            <div className="card-hand-drawn overflow-hidden relative card-accent-bg">
                                 <div
                                     className="flex flex-col justify-center text-8xl opacity-40 absolute right-[-20px] top-[35px]"
                                     style={{ transform: "scaleX(-1)" }}
@@ -260,7 +368,7 @@ function LandingPage({ onLaunchApp }) {
                                 </p>
                             </div> */}
 
-                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100">
+                            <div className="card-hand-drawn overflow-hidden relative card-accent-bg">
                                 <div className="flex flex-col justify-center text-8xl opacity-30 absolute right-[-20px] top-[35px]">
                                     💝
                                 </div>
@@ -282,9 +390,16 @@ function LandingPage({ onLaunchApp }) {
                             Perfect For
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100 p-6">
+                            <div className="card-hand-drawn overflow-hidden relative card-primary-bg p-6">
+                                <div className="flex flex-col justify-center mb-4">
+                                    <img
+                                        src="/graphics/undraw_playing-fetch_eij7.svg"
+                                        alt=""
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
-                                    🧠 People with ADHD
+                                    People with ADHD
                                 </h3>
                                 <p className="text-stone-700 text-lg">
                                     Beat object permanence issues. Friendex acts
@@ -294,9 +409,16 @@ function LandingPage({ onLaunchApp }) {
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100 p-6">
+                            <div className="card-hand-drawn overflow-hidden relative card-accent-bg p-6">
+                                <div className="flex flex-col justify-center mb-4">
+                                    <img
+                                        src="/graphics/undraw_mobile-user_qc9c.svg"
+                                        alt=""
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
-                                    😌 Socially Anxious & Introverted
+                                    Socially Anxious & Introverted
                                 </h3>
                                 <p className="text-stone-700 text-lg">
                                     Reduce overwhelm and build intentional
@@ -307,9 +429,16 @@ function LandingPage({ onLaunchApp }) {
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100 p-6">
+                            <div className="card-hand-drawn overflow-hidden relative card-accent-bg p-6">
+                                <div className="flex flex-col justify-center mb-4">
+                                    <img
+                                        src="/graphics/undraw_businesswoman_8lrc.svg"
+                                        alt=""
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
-                                    💼 Busy Professionals
+                                    Busy Professionals
                                 </h3>
                                 <p className="text-stone-700 text-lg">
                                     Maintain relationships without guilt. Store
@@ -319,9 +448,16 @@ function LandingPage({ onLaunchApp }) {
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn overflow-hidden relative bg-amber-100 p-6">
+                            <div className="card-hand-drawn overflow-hidden relative card-primary-bg p-6">
+                                <div className="flex flex-col justify-center mb-4">
+                                    <img
+                                        src="/graphics/undraw_true-friends_1h3v (1).svg"
+                                        alt=""
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
-                                    💝 Anyone Wanting to Be a Better Friend
+                                    Anyone Wanting to Be a Better Friend
                                 </h3>
                                 <p className="text-stone-700 text-lg">
                                     Remember allergies, pet peeves, inside
@@ -340,18 +476,18 @@ function LandingPage({ onLaunchApp }) {
                                 Tired of These Problems?
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="card-hand-drawn bg-red-50 p-6 border-2 border-red-200">
+                                <div className="card-hand-drawn card-error-bg p-6 border-2">
                                     <p className="text-lg text-stone-800 font-medium">
                                         Forgot someone's birthday again?
                                     </p>
                                 </div>
-                                <div className="card-hand-drawn bg-red-50 p-6 border-2 border-red-200">
+                                <div className="card-hand-drawn card-error-bg p-6 border-2">
                                     <p className="text-lg text-stone-800 font-medium">
                                         Struggling to remember who you can reach
                                         out to?
                                     </p>
                                 </div>
-                                <div className="card-hand-drawn bg-red-50 p-6 border-2 border-red-200">
+                                <div className="card-hand-drawn card-error-bg p-6 border-2">
                                     <p className="text-lg text-stone-800 font-medium">
                                         Want to be more thoughtful but don't
                                         know where to start?
@@ -423,53 +559,6 @@ function LandingPage({ onLaunchApp }) {
                                     browsing your connections feel delightful,
                                     not like a chore.
                                 </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* App Preview Section */}
-                    <section className="py-16">
-                        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-stone-900">
-                            See It In Action
-                        </h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                            <div className="aspect-[9/16] md:aspect-video flex items-center justify-center card-hand-drawn bg-amber-50 w-fit py-2 px-0">
-                                <img
-                                    src={mainFriendexInterfaceImage}
-                                    alt="Main Friendex Interface"
-                                    className="w-full h-full object-contain"
-                                />
-                            </div>
-
-                            {/* Screenshot placeholder 2 */}
-                            <div className="card-hand-drawn aspect-[9/16] md:aspect-video flex items-center justify-center bg-stone-100">
-                                <div className="text-center p-8">
-                                    <p className="text-stone-400 text-lg">
-                                        👤 Friend Entry View
-                                    </p>
-                                    <p className="text-stone-400 text-sm mt-2">
-                                        <img
-                                            src={friendDetailsBottom}
-                                            alt="Friend Details Bottom"
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* GIF placeholder */}
-                        <div className="card-hand-drawn aspect-[9/16] md:aspect-video flex items-center justify-center bg-stone-100">
-                            <div className="text-center p-8">
-                                <p className="text-stone-400 text-xl">
-                                    🎬 Interactive Demo
-                                </p>
-                                <img
-                                    src={friendDetailsTop}
-                                    alt="Friend Details Top"
-                                    className="w-full h-full object-contain"
-                                />
                             </div>
                         </div>
                     </section>
@@ -558,27 +647,45 @@ function LandingPage({ onLaunchApp }) {
                                 never leaves your device.
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-3xl mx-auto">
-                                <div className="text-center">
-                                    <div className="text-4xl mb-2">🔒</div>
-                                    <p className="font-bold text-stone-900">
+                                <div className="text-center relative p-6">
+                                    <div className="flex flex-col justify-center mb-4">
+                                        <img
+                                            src="/graphics/undraw_surveillance_k6wl.svg"
+                                            alt=""
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </div>
+                                    <p className="font-bold text-stone-900 text-lg">
                                         No Tracking
                                     </p>
                                     <p className="text-sm text-stone-600">
                                         We don't track you or your data
                                     </p>
                                 </div>
-                                <div className="text-center">
-                                    <div className="text-4xl mb-2">📱</div>
-                                    <p className="font-bold text-stone-900">
+                                <div className="text-center relative p-6">
+                                    <div className="flex flex-col justify-center mb-4">
+                                        <img
+                                            src="/graphics/undraw_in-real-life_8znn.svg"
+                                            alt=""
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </div>
+                                    <p className="font-bold text-stone-900 text-lg">
                                         Works Offline
                                     </p>
                                     <p className="text-sm text-stone-600">
                                         All data stored locally on your device
                                     </p>
                                 </div>
-                                <div className="text-center">
-                                    <div className="text-4xl mb-2">✉️</div>
-                                    <p className="font-bold text-stone-900">
+                                <div className="text-center relative p-6">
+                                    <div className="flex flex-col justify-center mb-4">
+                                        <img
+                                            src="/graphics/undraw_skateboarding_i2pz.svg"
+                                            alt=""
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </div>
+                                    <p className="font-bold text-stone-900 text-lg">
                                         No Signup
                                     </p>
                                     <p className="text-sm text-stone-600">
@@ -604,25 +711,22 @@ function LandingPage({ onLaunchApp }) {
                             Start building your Friendex today. No signup
                             required.
                         </p>
-                        <div className="flex flex-wrap justify-center gap-3 mb-8">
-                            <span className="text-sm text-stone-600 font-medium">
-                                ✓ No account required
-                            </span>
-                            <span className="text-stone-400">•</span>
-                            <span className="text-sm text-stone-600 font-medium">
-                                🔒 100% private
-                            </span>
-                            <span className="text-stone-400">•</span>
-                            <span className="text-sm text-stone-600 font-medium">
-                                📱 Works offline
-                            </span>
+
+                        <div className="flex justify-center">
+                            {/* download the app */}
+                            <button
+                                onClick={handleInstallClick}
+                                className="btn-hand-drawn btn-primary text-xl md:text-3xl px-8 py-4 border-2"
+                            >
+                                Install Friendex
+                            </button>
+                            <button
+                                onClick={handleLaunchApp}
+                                className="btn-hand-drawn btn-secondary text-xl md:text-3xl px-8 py-4"
+                            >
+                                Continue to Website
+                            </button>
                         </div>
-                        <button
-                            onClick={onLaunchApp}
-                            className="btn-hand-drawn btn-primary text-2xl md:text-3xl px-10 py-4 border-2"
-                        >
-                            Launch Friendex
-                        </button>
                     </section>
                 </main>
 
@@ -632,6 +736,36 @@ function LandingPage({ onLaunchApp }) {
                     </p>
                 </footer>
             </div>
+
+            {/* Sticky CTA Banner */}
+            {showStickyBanner && (
+                <div
+                    className={`sticky-cta-banner ${
+                        showStickyBanner ? "visible" : ""
+                    }`}
+                >
+                    <div className="card-hand-drawn card-primary-bg p-2 md:p-6 mx-2 mb-2 border-2 shadow-lg">
+                        <div className="pwa-install-button-group ">
+                            <button
+                                onClick={
+                                    shouldShowInstall
+                                        ? handleInstallClick
+                                        : handleLaunchApp
+                                }
+                                className="btn-hand-drawn btn-primary text-lg md:text-xl px-4 py-2 border-2"
+                            >
+                                Install Friendex
+                            </button>
+                            <button
+                                onClick={handleLaunchApp}
+                                className="btn-hand-drawn btn-secondary text-base md:text-lg px-4 py-2"
+                            >
+                                Continue to Website
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style jsx="true">{`
                 @keyframes fadeIn {
@@ -665,4 +799,5 @@ function LandingPage({ onLaunchApp }) {
     );
 }
 
-export default LandingPage;
+export default About;
+

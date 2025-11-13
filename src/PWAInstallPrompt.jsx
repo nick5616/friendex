@@ -96,11 +96,11 @@ const PWAInstallPrompt = () => {
 
     return (
         <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-sm">
-            <div className="card-hand-drawn bg-amber-100 border-amber-300 p-4 shadow-lg">
+            <div className="card-hand-drawn bg-user-100 border-user-300 p-4 shadow-lg">
                 <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm font-bold">
+                        <div className="w-8 h-8 bg-user-300 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-bold">
                                 <svg
                                     className="w-4 h-4"
                                     fill="none"

@@ -12,7 +12,7 @@ function FilterAndSort({
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
-        <section className="p-4 mx-2 mb-4 bg-amber-100 card-hand-drawn">
+        <section className="p-4 mx-2 mb-4 card-hand-drawn" style={{ backgroundColor: 'var(--color-info-bg, var(--color-primary-light))' }}>
             {/* Header - always visible */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
