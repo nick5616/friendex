@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import mainFriendexInterfaceImage from "./assets/images/screenshots/mainFriendexInterface.png";
-import friendDetailsTop from "./assets/images/screenshots/friendDetailsTop.png";
-import friendDetailsBottom from "./assets/images/screenshots/friedDetailsBottom.png";
 import useIsMobile from "./hooks/useIsMobile";
 import { applyUserColor, getUserColor, COLOR_SCHEMES } from "./utils";
 
@@ -18,7 +15,7 @@ function About() {
     const [isAnimating, setIsAnimating] = useState(false);
     const [wordWidth, setWordWidth] = useState(0);
     const [showStickyBanner, setShowStickyBanner] = useState(false);
-    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
     const [dismissedInstall, setDismissedInstall] = useState(false);
@@ -51,7 +48,7 @@ function About() {
                 setIsInstalled(true);
                 return;
             }
-            if ((window.navigator as any).standalone === true) {
+            if (window.navigator.standalone === true) {
                 setIsInstalled(true);
                 return;
             }
@@ -59,7 +56,7 @@ function About() {
 
         checkInstalled();
 
-        const handleBeforeInstallPrompt = (e: any) => {
+        const handleBeforeInstallPrompt = (e) => {
             e.preventDefault();
             setDeferredPrompt(e);
             setShowInstallPrompt(true);
@@ -147,10 +144,6 @@ function About() {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
 
-        if (outcome === "accepted") {
-            console.log("User accepted the install prompt");
-        }
-
         setDeferredPrompt(null);
         setShowInstallPrompt(false);
     };
@@ -163,20 +156,6 @@ function About() {
     const handleLaunchApp = () => {
         navigate(basePath || "/");
     };
-
-    // Generate subtle floating particles
-    useEffect(() => {
-        const particleCount = isMobile ? 15 : 25;
-        const newParticles = Array.from({ length: particleCount }, (_, i) => ({
-            id: i,
-            x: Math.random() * 100,
-            y: Math.random() * 100,
-            size: Math.random() * 3 + 1,
-            duration: Math.random() * 20 + 15,
-            delay: Math.random() * 5,
-        }));
-        setParticles(newParticles);
-    }, []);
 
     // Calculate Pokéball transformation based on scroll
     const pokeballScale = 1 + scrollY / 300;
@@ -192,24 +171,6 @@ function About() {
 
     return (
         <div className="min-h-screen relative overflow-hidden">
-            {/* Subtle floating particles */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                {particles.map((particle) => (
-                    <div
-                        key={particle.id}
-                        className="particle-float"
-                        style={{
-                            left: `${particle.x}%`,
-                            top: `${particle.y}%`,
-                            width: `${particle.size}px`,
-                            height: `${particle.size}px`,
-                            animation: `float ${particle.duration}s ease-in-out infinite`,
-                            animationDelay: `${particle.delay}s`,
-                        }}
-                    />
-                ))}
-            </div>
-
             {/* Animated Pokéball */}
             <div
                 className="pokeball-container"
@@ -800,4 +761,3 @@ function About() {
 }
 
 export default About;
-

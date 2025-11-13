@@ -24,6 +24,8 @@ function FriendexApp() {
     // Determine if we're in demo mode based on the URL
     const isDemoMode = location.pathname.startsWith("/demo");
     const currentDb = isDemoMode ? demoDb : db;
+    console.log("isDemoMode", isDemoMode);
+    console.log("currentDb", currentDb);
     const basePath = isDemoMode ? "/demo" : "";
 
     const friends = useLiveQuery(() => currentDb.friends.toArray());
@@ -42,7 +44,7 @@ function FriendexApp() {
 
             // Then seed demo database if needed
             if (isDemoMode) {
-                seedDemoDatabase();
+                await seedDemoDatabase();
             }
         };
 
@@ -69,7 +71,7 @@ function FriendexApp() {
         }
     }, [location, navigate]);
 
-    if (friends && friends.length === 0) {
+    if (friends && friends.length === 0 && !isDemoMode) {
         navigate("/add");
     }
 

@@ -389,9 +389,9 @@ const mockFriends = [
         createdAt: new Date("2023-01-12"),
     },
     {
-        name: "Fuckass",
+        name: "Skate",
         pronouns: "they/them",
-        profilePicture: generateAvatar("Fuckass"),
+        profilePicture: generateAvatar("Skate"),
         tags: ["Neighborhood", "Skate Crew", "Pranks"],
         about: {
             description:
@@ -409,13 +409,13 @@ const mockFriends = [
             howWeMet:
                 "You spotted their kickflip over the park bench and applauded.",
         },
-        notes: "Despite the name, incredibly polite to baristas. Carries band-aids for everyone.",
+        notes: "Incredibly polite to baristas. Carries band-aids for everyone.",
         createdAt: new Date("2023-02-01"),
     },
     {
-        name: "Dickhead",
+        name: "Court",
         pronouns: "he/him",
-        profilePicture: generateAvatar("Dickhead"),
+        profilePicture: generateAvatar("Court"),
         tags: ["Gym", "Rival-turned-friend", "Competitive"],
         about: {
             description:
@@ -599,9 +599,25 @@ const mockFriends = [
 ];
 
 // This function always clears and reseeds the demo database
+let isSeeding = false;
 export const seedDemoDatabase = async () => {
-    console.log("Clearing and seeding demo database...");
-    await demoDb.friends.clear();
-    await demoDb.friends.bulkAdd(mockFriends);
-    console.log("Demo database seeded with", mockFriends.length, "friends!");
+    // Prevent concurrent seeding calls
+    if (isSeeding) {
+        console.log("Seeding already in progress, skipping...");
+        return;
+    }
+
+    isSeeding = true;
+    try {
+        console.log("Clearing and seeding demo database...");
+        await demoDb.friends.clear();
+        await demoDb.friends.bulkAdd(mockFriends);
+        console.log(
+            "Demo database seeded with",
+            mockFriends.length,
+            "friends!"
+        );
+    } finally {
+        isSeeding = false;
+    }
 };

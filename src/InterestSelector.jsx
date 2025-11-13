@@ -7,7 +7,6 @@ import {
 } from "./utils";
 
 function InterestSelector({ value = [], onChange, pronouns }) {
-    console.log("pronouns passed in", pronouns);
     const input = fromCommaStringToArray(value);
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -38,7 +37,6 @@ function InterestSelector({ value = [], onChange, pronouns }) {
 
                 setIsLoading(false);
             } catch (error) {
-                console.error("Failed to load interests from database:", error);
                 setIsLoading(false);
             }
         };
@@ -117,11 +115,8 @@ function InterestSelector({ value = [], onChange, pronouns }) {
         }
     };
 
-    console.log("spronouns", pronouns);
     const nonpossessivePronoun =
         pronouns && pronouns.length > 0 ? pronouns[0].split("/")[0] : "they";
-
-    console.log("nonpossessivePronoun", nonpossessivePronoun);
 
     return (
         <div>

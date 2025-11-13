@@ -1,8 +1,6 @@
 import { useRef } from "react";
 import { fromCommaStringToArray } from "./utils";
 function PronounSelector({ value = [], onChange }) {
-    console.log("PronounSelector got value", value);
-    console.log(" API got pronouns", value);
     // Available pronoun options
     const pronounOptions = ["he/him", "she/her", "they/them", "it/its"];
     const input = fromCommaStringToArray(value);
@@ -21,7 +19,6 @@ function PronounSelector({ value = [], onChange }) {
     const formatPronounsDisplay = (pronouns) => {
         if (pronouns.length === 0) return "";
         if (pronouns.length === 1) return pronouns[0];
-        console.log("got pronouns in formatPronounsDisplay", pronouns);
         const multiPronounString = pronouns
             .map((pronoun) => {
                 return pronoun.split("/")[0];

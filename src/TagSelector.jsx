@@ -113,7 +113,6 @@ function TagSelector({ value = [], onChange, pronouns }) {
         }
     };
 
-    console.log("spronouns", pronouns);
     const possessivePronoun =
         pronouns && pronouns.length > 0 ? pronouns[0].split("/")[1] : "them";
 

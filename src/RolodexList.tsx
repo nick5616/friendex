@@ -20,14 +20,6 @@ function RolodexList({ friends, selectedId, onSelect }) {
 
     const selectedIndex = friends.findIndex((f) => f.id === selectedId);
 
-    console.log("RolodexList Debug - friends length:", friends.length);
-    console.log("RolodexList Debug - selectedId:", selectedId);
-    console.log("RolodexList Debug - selectedIndex:", selectedIndex);
-    console.log(
-        "RolodexList Debug - friends names:",
-        friends.map((f) => f.name)
-    );
-
     useEffect(() => {
         if (selectedIndex !== -1 && !isDragging && !isScrolling) {
             // The target position needs to place the selected item in the center.

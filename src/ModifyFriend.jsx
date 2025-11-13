@@ -27,8 +27,6 @@ function ModifyFriend() {
     const [loading, setLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState(null);
     const [originalProfilePicture, setOriginalProfilePicture] = useState(null);
-    console.log("originalProfilePicture", originalProfilePicture);
-    console.log("profilePicture", profilePicture);
     const [draftRestored, setDraftRestored] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
@@ -49,7 +47,6 @@ function ModifyFriend() {
         }
         return null;
     }, [id, currentDb]);
-    console.log("got friend", friend);
 
     // Load the friend's current data
     useEffect(() => {

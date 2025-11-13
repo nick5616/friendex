@@ -5,7 +5,7 @@ import App from "./App.jsx";
 import AddFriend from "./AddFriend.jsx";
 import ModifyFriend from "./ModifyFriend.jsx";
 import ColorPickerPage from "./ColorPickerPage.jsx";
-import About from "./About.tsx";
+import About from "./About.jsx";
 import "./index.css"; // <-- Make sure this is imported
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -23,7 +23,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <Route path="/demo" element={<App />} />
                 <Route path="/demo/add" element={<AddFriend />} />
                 <Route path="/demo/modify/:id" element={<ModifyFriend />} />
-                <Route path="/demo/color-picker" element={<ColorPickerPage />} />
+                <Route
+                    path="/demo/color-picker"
+                    element={<ColorPickerPage />}
+                />
                 <Route path="/demo/about" element={<About />} />
             </Routes>
         </Router>
