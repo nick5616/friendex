@@ -70,7 +70,7 @@ const mockFriends = [
         tags: ["Hiking Group", "Tech"],
         about: {
             description:
-                "The most organized person I know. Her hiking backpack has a pocket for everything. Writes incredibly clean code.",
+                "The most organized person I know. Her hiking backpack has a pocket for everything. ",
             interests: ["Mountaineering", "Mechanical Keyboards", "Origami"],
             loveLanguages: ["Quality Time"],
         },
