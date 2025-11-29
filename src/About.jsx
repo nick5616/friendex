@@ -352,13 +352,6 @@ function About() {
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                             <div className="card-hand-drawn overflow-hidden relative card-primary-bg p-6">
-                                <div className="flex flex-col justify-center mb-4">
-                                    <img
-                                        src="/graphics/undraw_playing-fetch_eij7.svg"
-                                        alt=""
-                                        className="w-full h-full object-contain"
-                                    />
-                                </div>
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
                                     People with ADHD
                                 </h3>
@@ -371,13 +364,6 @@ function About() {
                             </div>
 
                             <div className="card-hand-drawn overflow-hidden relative card-accent-bg p-6">
-                                <div className="flex flex-col justify-center mb-4">
-                                    <img
-                                        src="/graphics/undraw_mobile-user_qc9c.svg"
-                                        alt=""
-                                        className="w-full h-full object-contain"
-                                    />
-                                </div>
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
                                     Socially Anxious & Introverted
                                 </h3>
@@ -391,13 +377,6 @@ function About() {
                             </div>
 
                             <div className="card-hand-drawn overflow-hidden relative card-accent-bg p-6">
-                                <div className="flex flex-col justify-center mb-4">
-                                    <img
-                                        src="/graphics/undraw_businesswoman_8lrc.svg"
-                                        alt=""
-                                        className="w-full h-full object-contain"
-                                    />
-                                </div>
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
                                     Busy Professionals
                                 </h3>
@@ -410,13 +389,6 @@ function About() {
                             </div>
 
                             <div className="card-hand-drawn overflow-hidden relative card-primary-bg p-6">
-                                <div className="flex flex-col justify-center mb-4">
-                                    <img
-                                        src="/graphics/undraw_true-friends_1h3v (1).svg"
-                                        alt=""
-                                        className="w-full h-full object-contain"
-                                    />
-                                </div>
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
                                     Anyone Wanting to Be a Better Friend
                                 </h3>
@@ -468,13 +440,6 @@ function About() {
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-12">
                             <div className="flex flex-col items-center text-center">
-                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <img
-                                        src="/graphics/undraw_ideas-flow_lwpa.svg"
-                                        alt="Problem Solving"
-                                        className="object-contain"
-                                    />
-                                </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
                                     Beat Object Permanence
                                 </h3>
@@ -486,13 +451,6 @@ function About() {
                             </div>
 
                             <div className="flex flex-col items-center text-center">
-                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <img
-                                        src="/graphics/undraw_images_v4j9.svg"
-                                        alt="Ideas Flow"
-                                        className="object-contain"
-                                    />
-                                </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
                                     Remember the Details
                                 </h3>
@@ -505,13 +463,6 @@ function About() {
                             </div>
 
                             <div className="flex flex-col items-center text-center">
-                                <div className="w-full aspect-square max-w-xs card-hand-drawn flex items-center justify-center bg-stone-100 mb-4">
-                                    <img
-                                        src="/graphics/undraw_young-and-happy_ihtu.svg"
-                                        alt="Joyride"
-                                        className="object-contain"
-                                    />
-                                </div>
                                 <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
                                     A Joy to Use
                                 </h3>
@@ -609,13 +560,6 @@ function About() {
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-3xl mx-auto">
                                 <div className="text-center relative p-6">
-                                    <div className="flex flex-col justify-center mb-4">
-                                        <img
-                                            src="/graphics/undraw_surveillance_k6wl.svg"
-                                            alt=""
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </div>
                                     <p className="font-bold text-stone-900 text-lg">
                                         No Tracking
                                     </p>
@@ -624,13 +568,6 @@ function About() {
                                     </p>
                                 </div>
                                 <div className="text-center relative p-6">
-                                    <div className="flex flex-col justify-center mb-4">
-                                        <img
-                                            src="/graphics/undraw_in-real-life_8znn.svg"
-                                            alt=""
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </div>
                                     <p className="font-bold text-stone-900 text-lg">
                                         Works Offline
                                     </p>
@@ -639,13 +576,6 @@ function About() {
                                     </p>
                                 </div>
                                 <div className="text-center relative p-6">
-                                    <div className="flex flex-col justify-center mb-4">
-                                        <img
-                                            src="/graphics/undraw_skateboarding_i2pz.svg"
-                                            alt=""
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </div>
                                     <p className="font-bold text-stone-900 text-lg">
                                         No Signup
                                     </p>
