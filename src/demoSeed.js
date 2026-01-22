@@ -173,9 +173,9 @@ const mockFriends = [
         createdAt: new Date("2023-01-03"),
     },
     {
-        name: "Dighead",
+        name: "Fred",
         pronouns: "he/him",
-        profilePicture: generateAvatar("Dighead"),
+        profilePicture: generateAvatar("Fred"),
         tags: ["Archaeology", "Adventure", "Academic"],
         about: {
             description:
@@ -197,7 +197,7 @@ const mockFriends = [
         createdAt: new Date("2023-01-04"),
     },
     {
-        name: "Swampass",
+        name: "Almond",
         pronouns: "they/them",
         profilePicture: generateAvatar("Swampass"),
         tags: ["Nature", "Environmental", "Adventure"],
@@ -502,9 +502,9 @@ const mockFriends = [
         createdAt: new Date("2023-02-05"),
     },
     {
-        name: "Loser",
+        name: "Sailor",
         pronouns: "she/her",
-        profilePicture: generateAvatar("Loser"),
+        profilePicture: generateAvatar("Sailor"),
         tags: ["Punk Band", "Tour Van", "DIY"],
         about: {
             description:
@@ -526,9 +526,9 @@ const mockFriends = [
         createdAt: new Date("2023-02-06"),
     },
     {
-        name: "Big Nerd",
+        name: "Billy",
         pronouns: "he/him",
-        profilePicture: generateAvatar("Big Nerd"),
+        profilePicture: generateAvatar("Billy"),
         tags: ["Board Games", "History Buff", "Gentle Giant"],
         about: {
             description:
