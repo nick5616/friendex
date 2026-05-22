@@ -5,6 +5,9 @@ import { db } from "./db";
 import { demoDb } from "./demoDb";
 import { seedDemoDatabase } from "./demoSeed";
 import { runMigration } from "./migration";
+import { useAuth } from "./hooks/useAuth";
+import { useFirestoreSync } from "./hooks/useFirestoreSync";
+import LoginScreen from "./LoginScreen";
 import FriendList from "./FriendList";
 import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
@@ -21,11 +24,11 @@ function FriendexApp() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const { user, signIn, signOut } = useAuth();
+
     // Determine if we're in demo mode based on the URL
     const isDemoMode = location.pathname.startsWith("/demo");
     const currentDb = isDemoMode ? demoDb : db;
-    console.log("isDemoMode", isDemoMode);
-    console.log("currentDb", currentDb);
     const basePath = isDemoMode ? "/demo" : "";
 
     const friends = useLiveQuery(() => currentDb.friends.toArray());
@@ -36,13 +39,17 @@ function FriendexApp() {
     const [filterText, setFilterText] = useState("");
     const [filterField, setFilterField] = useState("name");
 
+    // Firestore sync for non-demo authenticated users
+    const { initialSyncDone } = useFirestoreSync(
+        isDemoMode ? null : user,
+        friends,
+        isDemoMode
+    );
+
     // Seed the appropriate database on initial mount and run migration
     useEffect(() => {
         const initializeApp = async () => {
-            // Run migration first (works on both databases)
             await runMigration();
-
-            // Then seed demo database if needed
             if (isDemoMode) {
                 await seedDemoDatabase();
             }
@@ -51,7 +58,7 @@ function FriendexApp() {
         initializeApp();
     }, [isDemoMode]);
 
-    // Load and apply user color on mount (userColor || defaultColor pattern)
+    // Load and apply user color on mount
     useEffect(() => {
         const colorToUse = getUserColor();
         const useSameColorText =
@@ -66,12 +73,26 @@ function FriendexApp() {
     useEffect(() => {
         if (location.state?.newFriendId) {
             setSelectedFriendId(location.state.newFriendId);
-            // Clear the location state
             navigate(location.pathname, { replace: true });
         }
     }, [location, navigate]);
 
-    if (friends && friends.length === 0 && !isDemoMode) {
+    // Auth gate — only applies to non-demo routes
+    if (!isDemoMode) {
+        if (user === undefined) {
+            return (
+                <div className="min-h-screen flex items-center justify-center">
+                    <p className="text-stone-500 text-sm">Loading…</p>
+                </div>
+            );
+        }
+        if (!user) {
+            return <LoginScreen onSignIn={signIn} />;
+        }
+    }
+
+    // Wait for initial cloud sync before redirecting to /add (avoids false-empty state)
+    if (friends !== undefined && friends.length === 0 && !isDemoMode && initialSyncDone) {
         navigate("/add");
     }
 
@@ -81,7 +102,6 @@ function FriendexApp() {
 
         let filtered = [...friends];
 
-        // Apply filter
         if (filterText.trim()) {
             filtered = filtered.filter((friend) => {
                 const searchText = filterText.toLowerCase();
@@ -105,7 +125,6 @@ function FriendexApp() {
             });
         }
 
-        // Apply sorting
         switch (sortBy) {
             case "name":
                 filtered.sort(
@@ -120,11 +139,10 @@ function FriendexApp() {
                     const dateB = b.keyInfo?.birthday
                         ? new Date(b.keyInfo.birthday)
                         : new Date();
-                    return dateA - dateB; // Oldest first
+                    return dateA - dateB;
                 });
                 break;
             default:
-                // No sorting, keep original order
                 break;
         }
 
@@ -133,7 +151,6 @@ function FriendexApp() {
 
     const filteredAndSortedFriends = getFilteredAndSortedFriends();
 
-    // Always ensure the selected friend is in the RolodexList if there's a selectedFriendId
     let friendsForRolodex = filteredAndSortedFriends;
     if (selectedFriendId) {
         const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
@@ -142,28 +159,22 @@ function FriendexApp() {
         );
 
         if (selectedFriend && !isInFiltered) {
-            // Add the selected friend to the beginning of the list if it's not in the filtered results
             friendsForRolodex = [selectedFriend, ...filteredAndSortedFriends];
         }
     }
 
-    // Find the selected friend from the full friends list, not just filtered
     const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
 
-    // Effect to select the first friend when the list loads or changes
     useEffect(() => {
         const currentList = filteredAndSortedFriends;
 
-        // If we have a newFriendId from navigation state, prioritize that
         if (location.state?.newFriendId) {
-            return; // Don't override the newFriendId selection
+            return;
         }
 
         if (currentList && currentList.length > 0 && !selectedFriendId) {
             setSelectedFriendId(currentList[0].id);
         }
-        // If the currently selected friend is deleted or filtered out, select the first one
-        // But only if we're not in the middle of processing a newFriendId
         if (
             currentList &&
             selectedFriendId &&
@@ -186,46 +197,30 @@ function FriendexApp() {
         const file = e.target.files?.[0];
         if (!file || !selectedFriend) return;
 
-        // Convert file to base64 data URL
         const reader = new FileReader();
         reader.onload = async (event) => {
             const dataUrl = event.target.result;
-            // Update the friend's profile picture in the database
             await currentDb.friends.update(selectedFriend.id, {
                 profilePicture: dataUrl,
             });
         };
         reader.readAsDataURL(file);
 
-        // Reset the input so the same file can be selected again
         e.target.value = "";
     };
 
     const handleExportFriends = async () => {
-        // Get all friends from the database
         const allFriends = await currentDb.friends.toArray();
-
-        // Convert to JSON with pretty formatting
         const jsonString = JSON.stringify(allFriends, null, 2);
-
-        // Create a blob from the JSON string
         const blob = new Blob([jsonString], { type: "application/json" });
-
-        // Create a download link
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-
-        // Generate filename with current date
         const date = new Date().toISOString().split("T")[0];
         const prefix = isDemoMode ? "friendex-demo-export" : "friendex-export";
         link.download = `${prefix}-${date}.json`;
-
-        // Trigger download
         document.body.appendChild(link);
         link.click();
-
-        // Cleanup
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     };
@@ -247,18 +242,14 @@ function FriendexApp() {
                 return;
             }
 
-            // Remove the id field from imported friends to let Dexie generate new ones
             const friendsToImport = importedFriends.map((friend) => {
                 const { id, ...friendWithoutId } = friend;
                 return friendWithoutId;
             });
 
-            // Add all friends to the database
             await currentDb.friends.bulkAdd(friendsToImport);
 
             alert(`Successfully imported ${friendsToImport.length} friend(s)!`);
-
-            // Reset the input
             e.target.value = "";
         } catch (error) {
             console.error("Import error:", error);
@@ -292,7 +283,6 @@ function FriendexApp() {
                     paddingBottom: "1rem",
                 }}
             >
-                {/* <div className="flex flex-row items-center justify-between w-full"> */}
                 <h1
                     onClick={() => navigate(`${basePath}/about`)}
                     className="text-6xl font-bold relative z-10 cursor-pointer hover:opacity-80 transition-opacity"
@@ -359,10 +349,27 @@ function FriendexApp() {
                     >
                         New Friend
                     </button>
+                    {!isDemoMode && user && (
+                        <button
+                            onClick={signOut}
+                            title={`Signed in as ${user.displayName || user.email}\nClick to sign out`}
+                            className="flex-shrink-0 rounded-full overflow-hidden border-2 border-stone-400 hover:border-stone-700 transition-colors w-10 h-10"
+                        >
+                            {user.photoURL ? (
+                                <img
+                                    src={user.photoURL}
+                                    alt={user.displayName || "Account"}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-stone-200 flex items-center justify-center text-stone-600 text-sm font-bold">
+                                    {(user.displayName || user.email || "?")[0].toUpperCase()}
+                                </div>
+                            )}
+                        </button>
+                    )}
                 </div>
-                {/* </div> */}
             </header>
-            {/* Filter and Sort Controls */}
             <FilterAndSort
                 sortBy={sortBy}
                 setSortBy={setSortBy}
@@ -453,7 +460,7 @@ function FriendexApp() {
                 </section>
             )}
 
-            {/* Export/Import/Reset Buttons */}
+            {/* Export/Import Buttons */}
             {!isDemoMode && (
                 <section className="px-2 pb-4 mt-6 flex justify-center gap-4">
                     <button
