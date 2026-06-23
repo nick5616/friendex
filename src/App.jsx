@@ -8,6 +8,7 @@ import { runMigration } from "./migration";
 import { useAuth } from "./hooks/useAuth";
 import { useFirestoreSync } from "./hooks/useFirestoreSync";
 import LoginScreen from "./LoginScreen";
+import Toast from "./Toast";
 import FriendList from "./FriendList";
 import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
@@ -38,6 +39,7 @@ function FriendexApp() {
     const [sortBy, setSortBy] = useState("name");
     const [filterText, setFilterText] = useState("");
     const [filterField, setFilterField] = useState("name");
+    const [toast, setToast] = useState(null);
 
     // Firestore sync for non-demo authenticated users
     const { initialSyncDone } = useFirestoreSync(
@@ -77,26 +79,8 @@ function FriendexApp() {
         }
     }, [location, navigate]);
 
-    // Auth gate — only applies to non-demo routes
-    if (!isDemoMode) {
-        if (user === undefined) {
-            return (
-                <div className="min-h-screen flex items-center justify-center">
-                    <p className="text-stone-500 text-sm">Loading…</p>
-                </div>
-            );
-        }
-        if (!user) {
-            return <LoginScreen onSignIn={signIn} />;
-        }
-    }
-
-    // Wait for initial cloud sync before redirecting to /add (avoids false-empty state)
-    if (friends !== undefined && friends.length === 0 && !isDemoMode && initialSyncDone) {
-        navigate("/add");
-    }
-
-    // Apply filtering and sorting
+    // Apply filtering and sorting — computed before auth gate so the useEffect below
+    // can also live before the gate (hooks must not be called after conditional returns)
     const getFilteredAndSortedFriends = () => {
         if (!friends) return [];
 
@@ -151,20 +135,7 @@ function FriendexApp() {
 
     const filteredAndSortedFriends = getFilteredAndSortedFriends();
 
-    let friendsForRolodex = filteredAndSortedFriends;
-    if (selectedFriendId) {
-        const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
-        const isInFiltered = filteredAndSortedFriends.some(
-            (f) => f.id === selectedFriendId
-        );
-
-        if (selectedFriend && !isInFiltered) {
-            friendsForRolodex = [selectedFriend, ...filteredAndSortedFriends];
-        }
-    }
-
-    const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
-
+    // Auto-select first friend when list loads or selected friend is removed
     useEffect(() => {
         const currentList = filteredAndSortedFriends;
 
@@ -186,6 +157,42 @@ function FriendexApp() {
             );
         }
     }, [filteredAndSortedFriends, selectedFriendId, location.state]);
+
+    // Redirect to /add when there are genuinely no friends — must be a useEffect, not
+    // inline render code, so it only fires after all state has settled.
+    useEffect(() => {
+        if (friends !== undefined && friends.length === 0 && !isDemoMode && initialSyncDone) {
+            navigate("/add");
+        }
+    }, [friends, isDemoMode, initialSyncDone, navigate]);
+
+    // Auth gate — only applies to non-demo routes (must be after all hooks above)
+    if (!isDemoMode) {
+        if (user === undefined) {
+            return (
+                <div className="min-h-screen flex items-center justify-center">
+                    <p className="text-stone-500 text-sm">Loading…</p>
+                </div>
+            );
+        }
+        if (!user) {
+            return <LoginScreen onSignIn={signIn} />;
+        }
+    }
+
+    let friendsForRolodex = filteredAndSortedFriends;
+    if (selectedFriendId) {
+        const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
+        const isInFiltered = filteredAndSortedFriends.some(
+            (f) => f.id === selectedFriendId
+        );
+
+        if (selectedFriend && !isInFiltered) {
+            friendsForRolodex = [selectedFriend, ...filteredAndSortedFriends];
+        }
+    }
+
+    const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
 
     const handleProfilePictureClick = () => {
         if (selectedFriend && fileInputRef.current) {
@@ -249,13 +256,11 @@ function FriendexApp() {
 
             await currentDb.friends.bulkAdd(friendsToImport);
 
-            alert(`Successfully imported ${friendsToImport.length} friend(s)!`);
+            setToast({ message: `Imported ${friendsToImport.length} friend${friendsToImport.length !== 1 ? "s" : ""}`, type: "success" });
             e.target.value = "";
         } catch (error) {
             console.error("Import error:", error);
-            alert(
-                "Error importing friends. Please check the JSON file format."
-            );
+            setToast({ message: "Import failed — check the JSON file format", type: "error" });
         }
     };
 
@@ -295,15 +300,15 @@ function FriendexApp() {
                 <div className="flex items-center gap-2 relative z-10">
                     <button
                         onClick={() => navigate(`${basePath}/color-picker`)}
-                        className="card-hand-drawn border-2 border-stone-800 p-1 flex items-center justify-center transition-all bg-white hover:bg-stone-50"
+                        className="card-hand-drawn border-2 border-stone-800 w-10 h-10 flex items-center justify-center transition-all bg-white hover:bg-stone-50 flex-shrink-0"
                         title="Choose your color"
                     >
                         <svg
-                            width="30"
-                            height="30"
+                            width="26"
+                            height="26"
                             viewBox="0 0 100 100"
                             xmlns="http://www.w3.org/2000/svg"
-                            className="w-8 h-8"
+                            className="w-6 h-6"
                         >
                             <defs>
                                 <radialGradient
@@ -345,7 +350,7 @@ function FriendexApp() {
                     </button>
                     <button
                         onClick={() => navigate(`${basePath}/add`)}
-                        className="btn-hand-drawn btn-primary px-3 py-3 transition-colors font-bold text-sm flex items-center gap-2 border-2 border-stone-800"
+                        className="btn-hand-drawn btn-primary h-10 px-4 transition-colors font-bold text-sm whitespace-nowrap border-2 border-stone-800"
                     >
                         New Friend
                     </button>
@@ -353,7 +358,7 @@ function FriendexApp() {
                         <button
                             onClick={signOut}
                             title={`Signed in as ${user.displayName || user.email}\nClick to sign out`}
-                            className="flex-shrink-0 rounded-full overflow-hidden border-2 border-stone-400 hover:border-stone-700 transition-colors w-10 h-10"
+                            className="flex-shrink-0 rounded-full overflow-hidden border-2 border-stone-800 hover:opacity-80 transition-opacity w-10 h-10"
                         >
                             {user.photoURL ? (
                                 <img
@@ -535,6 +540,13 @@ function FriendexApp() {
                 </section>
             )}
             <PWAInstallPrompt />
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onDone={() => setToast(null)}
+                />
+            )}
         </div>
     );
 }

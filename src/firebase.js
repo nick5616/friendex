@@ -3,12 +3,12 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    apiKey: "AIzaSyDuzZDZ655VWDE4ldL63F4azTyanXjCZx4",
+    authDomain: "friendex-a9a71.firebaseapp.com",
+    projectId: "friendex-a9a71",
+    storageBucket: "friendex-a9a71.firebasestorage.app",
+    messagingSenderId: "1000444798111",
+    appId: "1:1000444798111:web:650f984ab10efcb4e6eeaa",
 };
 
 const app = initializeApp(firebaseConfig);

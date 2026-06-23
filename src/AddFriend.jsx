@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Toast from "./Toast";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
 import PronounSelector from "./PronounSelector";
@@ -23,6 +24,31 @@ function AddFriend(friend) {
     // Determine if we're in demo mode based on the URL
     const currentDb = isDemoMode ? demoDb : db;
     const basePath = isDemoMode ? "/demo" : "";
+
+    const importFileInputRef = useRef(null);
+    const [toast, setToast] = useState(null);
+
+    const handleImportFile = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            const text = await file.text();
+            const importedFriends = JSON.parse(text);
+            if (!Array.isArray(importedFriends)) {
+                setToast({ message: "Invalid format — expected an array of friends", type: "error" });
+                e.target.value = "";
+                return;
+            }
+            const friendsToImport = importedFriends.map(({ id, ...f }) => f);
+            await currentDb.friends.bulkAdd(friendsToImport);
+            sessionStorage.removeItem("addFriendDraft");
+            navigate(basePath || "/");
+        } catch (err) {
+            console.error("Import error:", err);
+            setToast({ message: "Import failed — check the JSON file format", type: "error" });
+        }
+        e.target.value = "";
+    };
 
     const [profilePicture, setProfilePicture] = useState(null);
     const [formData, setFormData] = useState({
@@ -291,6 +317,34 @@ function AddFriend(friend) {
                 )}
             </div>
 
+            {/* Import option */}
+            {!isDemoMode && (
+                <div className="card-hand-drawn border-2 border-stone-800 px-6 py-5 flex flex-col sm:flex-row items-center gap-4 mb-6">
+                    <div className="flex-1">
+                        <p className="font-semibold text-stone-800">Import friends list</p>
+                        <p className="text-sm text-stone-500 mt-0.5">Load a previously exported JSON file to add multiple friends at once.</p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => importFileInputRef.current?.click()}
+                        className="btn-hand-drawn border-2 border-stone-700 text-black text-sm px-5 py-2.5 font-medium flex items-center gap-2 whitespace-nowrap"
+                        style={{ backgroundColor: "var(--color-primary-light)" }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                        Choose file
+                    </button>
+                    <input ref={importFileInputRef} type="file" accept="application/json" onChange={handleImportFile} className="hidden" />
+                </div>
+            )}
+
+            <div className="flex items-center gap-3 text-stone-400 text-sm my-6">
+                <div className="flex-1 h-px bg-stone-200" />
+                <span>or add one friend</span>
+                <div className="flex-1 h-px bg-stone-200" />
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Profile Picture Upload */}
                 <div className="card-hand-drawn px-4 py-6 space-y-4">
@@ -494,6 +548,9 @@ function AddFriend(friend) {
                     </button>
                 </div>
             </form>
+            {toast && (
+                <Toast message={toast.message} type={toast.type} onDone={() => setToast(null)} />
+            )}
         </div>
     );
 }
