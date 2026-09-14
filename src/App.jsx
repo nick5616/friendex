@@ -283,13 +283,14 @@ function FriendexApp() {
     return (
         <div className="min-h-screen mx-auto md:p-8 flex flex-col">
             <header
-                className="text-center mb-6 w-full flex justify-between items-center px-2 relative header-user-bg"
+                className="text-center mb-6 w-full  px-2 relative header-user-bg"
                 style={{
                     paddingTop: "1rem",
                     paddingBottom: "1rem",
                 }}
             >
-                <h1
+                <div className="flex items-center justify-between gap-2 relative z-10 w-full">
+                    <h1
                     onClick={() => navigate(`${basePath}/about`)}
                     className="text-6xl font-bold relative z-10 cursor-pointer hover:opacity-80 transition-opacity"
                     style={{
@@ -299,62 +300,8 @@ function FriendexApp() {
                     Friendex
                 </h1>
                 <div className="flex items-center gap-2 relative z-10">
-                    <button
-                        onClick={() => navigate(`${basePath}/color-picker`)}
-                        className="card-hand-drawn border-2 border-stone-800 w-10 h-10 flex items-center justify-center transition-all bg-white hover:bg-stone-50 flex-shrink-0"
-                        title="Choose your color"
-                    >
-                        <svg
-                            width="26"
-                            height="26"
-                            viewBox="0 0 100 100"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-6 h-6"
-                        >
-                            <defs>
-                                <radialGradient
-                                    id={`paintGradient-${getUserColor().replace(
-                                        "#",
-                                        ""
-                                    )}`}
-                                    cx="40%"
-                                    cy="35%"
-                                    r="70%"
-                                >
-                                    <stop
-                                        offset="0%"
-                                        stopColor="var(--color-primary-light)"
-                                    />
-                                    <stop
-                                        offset="40%"
-                                        stopColor="var(--color-primary)"
-                                    />
-                                    <stop
-                                        offset="70%"
-                                        stopColor="var(--color-complementary)"
-                                    />
-                                    <stop
-                                        offset="100%"
-                                        stopColor="var(--color-complementary-light)"
-                                    />
-                                </radialGradient>
-                            </defs>
-                            <path
-                                d="M50 15 Q65 12, 75 25 Q80 40, 75 55 Q70 70, 55 75 Q40 78, 25 75 Q15 70, 12 55 Q10 40, 15 25 Q20 15, 35 12 Q42 10, 50 15 Z"
-                                fill={`url(#paintGradient-${getUserColor().replace(
-                                    "#",
-                                    ""
-                                )})`}
-                                stroke="none"
-                            />
-                        </svg>
-                    </button>
-                    <button
-                        onClick={() => navigate(`${basePath}/add`)}
-                        className="btn-hand-drawn btn-primary h-10 px-4 transition-colors font-bold text-sm whitespace-nowrap border-2 border-stone-800"
-                    >
-                        New Friend
-                    </button>
+                    
+                    
                     {!isDemoMode && user && (
                         <button
                             onClick={signOut}
@@ -375,7 +322,21 @@ function FriendexApp() {
                         </button>
                     )}
                 </div>
+                </div>
+                <div className="flex items-center justify-end gap-2 relative z-10 w-full">
+                    
+                    <button
+                        onClick={() => navigate(`${basePath}/add`)}
+                        className="btn-hand-drawn btn-primary h-10 px-4 transition-colors font-bold text-sm whitespace-nowrap border-2 border-stone-800"
+                    >
+                        New Friend
+                    </button>
+                    
+                </div>
+                
+                
             </header>
+            
             <FilterAndSort
                 sortBy={sortBy}
                 setSortBy={setSortBy}
@@ -538,8 +499,63 @@ function FriendexApp() {
                         </svg>
                         Export Friends
                     </button>
+                    
                 </section>
+                
             )}
+            <section className="px-2 pb-4 mt-2 flex justify-center gap-4">
+                <button
+                    onClick={() => navigate(`${basePath}/color-picker`)}
+                    className="card-hand-drawn border-2 border-stone-800 h-10 flex items-center justify-center transition-all bg-white hover:bg-stone-50 flex-shrink-0"
+                    title="Choose your color"
+                >
+                    <svg
+                        width="26"
+                        height="26"
+                        viewBox="0 0 100 100"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-6 h-6"
+                    >
+                        <defs>
+                            <radialGradient
+                                id={`paintGradient-${getUserColor().replace(
+                                    "#",
+                                    ""
+                                )}`}
+                                cx="40%"
+                                cy="35%"
+                                r="70%"
+                            >
+                                <stop
+                                    offset="0%"
+                                    stopColor="var(--color-primary-light)"
+                                />
+                                <stop
+                                    offset="40%"
+                                    stopColor="var(--color-primary)"
+                                />
+                                <stop
+                                    offset="70%"
+                                    stopColor="var(--color-complementary)"
+                                />
+                                <stop
+                                    offset="100%"
+                                    stopColor="var(--color-complementary-light)"
+                                />
+                            </radialGradient>
+                        </defs>
+                        <path
+                            d="M50 15 Q65 12, 75 25 Q80 40, 75 55 Q70 70, 55 75 Q40 78, 25 75 Q15 70, 12 55 Q10 40, 15 25 Q20 15, 35 12 Q42 10, 50 15 Z"
+                            fill={`url(#paintGradient-${getUserColor().replace(
+                                "#",
+                                ""
+                            )})`}
+                            stroke="none"
+                        />
+                    </svg>
+                    <div>Change theme</div>
+                </button>
+            </section>
             <PWAInstallPrompt />
             {toast && (
                 <Toast
