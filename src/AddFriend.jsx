@@ -14,6 +14,7 @@ import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
 import { seedTagsAndInterests } from "./seed";
 import useIsDemoMode from "./hooks/useIsDemoMode";
+import { generateAvatar } from "./utils";
 
 function AddFriend(friend) {
     const navigate = useNavigate();
@@ -71,7 +72,8 @@ function AddFriend(friend) {
     useEffect(() => {
         // Always seed tags and interests if they're empty, even in production
         seedTagsAndInterests();
-        nameInputRef.current?.focus();
+        // preventScroll keeps the import/bulk add options visible on phones
+        nameInputRef.current?.focus({ preventScroll: true });
     }, []);
 
     // Restore form data from session storage on component mount
@@ -109,31 +111,6 @@ function AddFriend(friend) {
         const timeoutId = setTimeout(saveFormData, 1000); // Debounced save
         return () => clearTimeout(timeoutId);
     }, [formData]);
-
-    // Generate a simple avatar based on name
-    const generateAvatar = (name) => {
-        const hash = name
-            .split("")
-            .reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-        const colors = [
-            "#f59e0b",
-            "#ef4444",
-            "#10b981",
-            "#3b82f6",
-            "#8b5cf6",
-            "#ec4899",
-        ];
-        const color = colors[Math.abs(hash) % colors.length];
-        const initial = name.charAt(0).toUpperCase();
-
-        const svg = `
-    <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100" height="100" fill="${color}" />
-      <text x="50" y="50" font-family="Arial" font-size="50" fill="#fff" text-anchor="middle" dy=".3em">${initial}</text>
-    </svg>
-  `;
-        return `data:image/svg+xml;base64,${btoa(svg)}`;
-    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -292,10 +269,10 @@ function AddFriend(friend) {
 
     return (
         <div className="min-h-screen mx-auto px-4 py-6 max-w-3xl">
-            <div className="mb-8">
+            <div className="mb-4 sm:mb-8">
                 <button
                     onClick={() => navigate(basePath || "/")}
-                    className="text-stone-600 hover:text-stone-900 mb-4 flex items-center"
+                    className="text-stone-600 hover:text-stone-900 mb-2 sm:mb-4 flex items-center"
                 >
                     ← Back to Friendex{isDemoMode && " Demo"}
                 </button>
@@ -317,29 +294,56 @@ function AddFriend(friend) {
                 )}
             </div>
 
-            {/* Import option */}
+            {/* Import option — kept compact so the single-friend form stays in view on phones */}
             {!isDemoMode && (
-                <div className="card-hand-drawn border-2 border-stone-800 px-6 py-5 flex flex-col sm:flex-row items-center gap-4 mb-6">
-                    <div className="flex-1">
-                        <p className="font-semibold text-stone-800">Import friends list</p>
-                        <p className="text-sm text-stone-500 mt-0.5">Load a previously exported JSON file to add multiple friends at once.</p>
+                <>
+                    <div className="card-hand-drawn border-2 border-stone-800 px-4 py-3 sm:px-6 sm:py-5 flex flex-row items-center gap-3 sm:gap-4">
+                        <div className="flex-1">
+                            <p className="font-semibold text-stone-800">Import friends list</p>
+                            <p className="text-sm text-stone-500 mt-0.5">Load a previously exported JSON file to add multiple friends at once.</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => importFileInputRef.current?.click()}
+                            className="btn-hand-drawn border-2 border-stone-700 text-black text-sm px-4 py-2 sm:px-5 sm:py-2.5 font-medium flex items-center gap-2 whitespace-nowrap"
+                            style={{ backgroundColor: "var(--color-primary-light)" }}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                            Choose file
+                        </button>
+                        <input ref={importFileInputRef} type="file" accept="application/json" onChange={handleImportFile} className="hidden" />
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => importFileInputRef.current?.click()}
-                        className="btn-hand-drawn border-2 border-stone-700 text-black text-sm px-5 py-2.5 font-medium flex items-center gap-2 whitespace-nowrap"
-                        style={{ backgroundColor: "var(--color-primary-light)" }}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                        </svg>
-                        Choose file
-                    </button>
-                    <input ref={importFileInputRef} type="file" accept="application/json" onChange={handleImportFile} className="hidden" />
-                </div>
+
+                    <div className="flex items-center gap-3 text-stone-400 text-sm my-3 sm:my-6">
+                        <div className="flex-1 h-px bg-stone-200" />
+                        <span>or add a bunch at once</span>
+                        <div className="flex-1 h-px bg-stone-200" />
+                    </div>
+                </>
             )}
 
-            <div className="flex items-center gap-3 text-stone-400 text-sm my-6">
+            {/* Bulk add option */}
+            <div className="card-hand-drawn border-2 border-stone-800 px-4 py-3 sm:px-6 sm:py-5 flex flex-row items-center gap-3 sm:gap-4">
+                <div className="flex-1">
+                    <p className="font-semibold text-stone-800">Bulk add friends</p>
+                    <p className="text-sm text-stone-500 mt-0.5">Just names and pronouns — fill in the details later.</p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => navigate(`${basePath}/add/bulk`)}
+                    className="btn-hand-drawn border-2 border-stone-700 text-black text-sm px-4 py-2 sm:px-5 sm:py-2.5 font-medium flex items-center gap-2 whitespace-nowrap"
+                    style={{ backgroundColor: "var(--color-primary-light)" }}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                    </svg>
+                    Bulk add
+                </button>
+            </div>
+
+            <div className="flex items-center gap-3 text-stone-400 text-sm my-3 sm:my-6">
                 <div className="flex-1 h-px bg-stone-200" />
                 <span>or add one friend</span>
                 <div className="flex-1 h-px bg-stone-200" />

@@ -22,6 +22,39 @@ export const fromArrayToCommaString = (value) => {
     return value || "";
 };
 
+// Generate a simple avatar based on name
+export const generateAvatar = (name) => {
+    const hash = name
+        .split("")
+        .reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+    const colors = [
+        "#f59e0b",
+        "#ef4444",
+        "#10b981",
+        "#3b82f6",
+        "#8b5cf6",
+        "#ec4899",
+    ];
+    const color = colors[Math.abs(hash) % colors.length];
+    const initial = Array.from(name)[0]?.toUpperCase() ?? "";
+    const escapedInitial = initial
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    const svg = `
+    <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="${color}" />
+      <text x="50" y="50" font-family="Arial" font-size="50" fill="#fff" text-anchor="middle" dy=".3em">${escapedInitial}</text>
+    </svg>
+  `;
+    // btoa only accepts Latin-1, so encode as UTF-8 bytes first (e.g. names starting with "Ł" or an emoji)
+    const binary = Array.from(new TextEncoder().encode(svg), (byte) =>
+        String.fromCharCode(byte)
+    ).join("");
+    return `data:image/svg+xml;base64,${btoa(binary)}`;
+};
+
 /**
  * Convert hex color to HSL
  * @param {string} hex - Hex color (e.g., "#ff0000" or "ff0000")

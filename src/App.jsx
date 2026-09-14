@@ -75,6 +75,7 @@ function FriendexApp() {
     useEffect(() => {
         if (location.state?.newFriendId) {
             setSelectedFriendId(location.state.newFriendId);
+            if (location.state.toast) setToast(location.state.toast);
             navigate(location.pathname, { replace: true });
         }
     }, [location, navigate]);

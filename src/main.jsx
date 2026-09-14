@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 import AddFriend from "./AddFriend.jsx";
+import BulkAddFriends from "./BulkAddFriends.jsx";
 import ModifyFriend from "./ModifyFriend.jsx";
 import ColorPickerPage from "./ColorPickerPage.jsx";
 import About from "./About.jsx";
@@ -15,6 +16,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 {/* Regular routes */}
                 <Route path="/" element={<App />} />
                 <Route path="/add" element={<AddFriend />} />
+                <Route path="/add/bulk" element={<BulkAddFriends />} />
                 <Route path="/modify/:id" element={<ModifyFriend />} />
                 <Route path="/color-picker" element={<ColorPickerPage />} />
                 <Route path="/about" element={<About />} />
@@ -22,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 {/* Demo routes - same components, detect mode via URL */}
                 <Route path="/demo" element={<App />} />
                 <Route path="/demo/add" element={<AddFriend />} />
+                <Route path="/demo/add/bulk" element={<BulkAddFriends />} />
                 <Route path="/demo/modify/:id" element={<ModifyFriend />} />
                 <Route
                     path="/demo/color-picker"
