@@ -162,10 +162,15 @@ function FriendexApp() {
     // Redirect to /add when there are genuinely no friends — must be a useEffect, not
     // inline render code, so it only fires after all state has settled.
     useEffect(() => {
-        if (friends !== undefined && friends.length === 0 && !isDemoMode && initialSyncDone) {
+        if (
+            friends !== undefined &&
+            friends.length === 0 &&
+            (isDemoMode || user) &&
+            initialSyncDone
+        ) {
             navigate("/add");
         }
-    }, [friends, isDemoMode, initialSyncDone, navigate]);
+    }, [friends, isDemoMode, user, initialSyncDone, navigate]);
 
     // Auth gate — only applies to non-demo routes (must be after all hooks above)
     if (!isDemoMode) {
