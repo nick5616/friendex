@@ -231,11 +231,20 @@ function FriendexApp() {
 
     // Redirect to /add when there are genuinely no friends — must be a useEffect, not
     // inline render code, so it only fires after all state has settled.
+    // Signed-out users must stay here to see the login screen: sync reports "done"
+    // immediately when there's no user, so the user check is what holds this back.
     useEffect(() => {
-        if (friends !== undefined && friends.length === 0 && !isDemoMode && initialSyncDone && !encounter) {
+        if (
+            friends !== undefined &&
+            friends.length === 0 &&
+            !isDemoMode &&
+            user &&
+            initialSyncDone &&
+            !encounter
+        ) {
             navigate("/add");
         }
-    }, [friends, isDemoMode, initialSyncDone, navigate, encounter]);
+    }, [friends, isDemoMode, user, initialSyncDone, navigate, encounter]);
 
     const handleCatchDone = useCallback(() => setCatchInfo(null), []);
     // Stable so the toast's auto-dismiss timer isn't reset on every re-render

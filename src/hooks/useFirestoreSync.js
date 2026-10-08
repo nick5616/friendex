@@ -43,25 +43,21 @@ const stripForCloud = (friends) =>
 // Syncs Dexie friends to Firestore for authenticated non-demo users.
 export function useFirestoreSync(user, friends, isDemoMode) {
     const saveTimerRef = useRef(null);
-    const [initialSyncDone, setInitialSyncDone] = useState(false);
+    // Which account the initial sync finished for, so a stale "done" from the
+    // signed-out state can't leak into the first render after signing in
+    const syncKey = !user || isDemoMode ? "none" : user.uid;
+    const [syncedFor, setSyncedFor] = useState(null);
+    const initialSyncDone = syncedFor === syncKey;
 
     // On first mount per session: Firestore is the source of truth when it has data.
     // If Firestore has friends → replace local Dexie (keeping/fetching photos).
     // If Firestore is empty → push local data up to Firestore.
     // Skipped on subsequent mounts (navigation) so imported data isn't wiped before it can push.
     useEffect(() => {
-        if (!user || isDemoMode) {
-            setInitialSyncDone(true);
+        if (!user || isDemoMode || syncedUsers.has(user.uid)) {
+            setSyncedFor(syncKey);
             return;
         }
-
-        if (syncedUsers.has(user.uid)) {
-            setInitialSyncDone(true);
-            return;
-        }
-
-        // Reset to false so the redirect in App can't fire while Dexie is being cleared/reloaded
-        setInitialSyncDone(false);
 
         const syncOnLogin = async () => {
             try {
@@ -118,7 +114,7 @@ export function useFirestoreSync(user, friends, isDemoMode) {
                 console.error("Failed to sync with Firestore on login:", err);
             }
             syncedUsers.add(user.uid);
-            setInitialSyncDone(true);
+            setSyncedFor(user.uid);
         };
 
         syncOnLogin();
