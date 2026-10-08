@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, LayoutGrid, GalleryVerticalEnd, PartyPopper, Undo2, Cake, ScanLine, UserPlus } from "lucide-react";
+import { Search, LayoutGrid, GalleryVerticalEnd, Undo2, Cake, ScanLine, UserPlus } from "lucide-react";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
 import { seedDemoDatabase } from "./demoSeed";
@@ -27,6 +27,7 @@ import {
     applyUserColor,
     getUserColor,
     COLOR_SCHEMES,
+    parsePronouns,
 } from "./utils";
 import {
     getDexNumbers,
@@ -156,8 +157,8 @@ function FriendexApp() {
                             tag.toLowerCase().includes(searchText)
                         );
                     case "pronouns":
-                        return friend.pronouns
-                            ?.toLowerCase()
+                        return parsePronouns(friend.pronouns)
+                            .join("/")
                             .includes(searchText);
                     case "notes":
                         return [].concat(friend.notes || [])
@@ -253,7 +254,10 @@ function FriendexApp() {
         setView("dex");
     }, []);
 
-    
+    const handleRun = useCallback(() => {
+        clearPendingCatch();
+        setEncounter(null);
+    }, []);
 
     // Auth gate — only applies to non-demo routes (must be after all hooks above)
     if (!isDemoMode) {
@@ -509,7 +513,7 @@ function FriendexApp() {
                     </section>
                 ) : friendsForRolodex.length > 0 ? (
                     <>
-                        <section className="flex items-center gap-3 px-3 mt-6">
+                        <section className="flex items-center gap-3 pl-3 mt-6">
                             <DexScreen
                                 friend={selectedFriend}
                                 tier={selectedTier}
@@ -566,10 +570,7 @@ function FriendexApp() {
                                             Hung out today · tap to undo
                                         </>
                                     ) : (
-                                        <>
-                                            <PartyPopper className="w-6 h-6" />
-                                            We just hung out!
-                                        </>
+                                        "We just hung out!"
                                     )}
                                     <Burst burstKey={hangoutBurstKey} />
                                 </button>

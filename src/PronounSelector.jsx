@@ -1,9 +1,8 @@
 import { useRef } from "react";
-import { fromCommaStringToArray } from "./utils";
+import { PRONOUN_OPTIONS, parsePronouns, formatPronouns } from "./utils";
+
 function PronounSelector({ value = [], onChange }) {
-    // Available pronoun options
-    const pronounOptions = ["he/him", "she/her", "they/them", "it/its"];
-    const input = fromCommaStringToArray(value);
+    const input = parsePronouns(value);
     // Handle pronoun selection
     const handlePronounToggle = (pronoun) => {
         if (input.includes(pronoun)) {
@@ -13,18 +12,6 @@ function PronounSelector({ value = [], onChange }) {
             // Add pronoun in the order they were selected
             onChange([...input, pronoun]);
         }
-    };
-
-    // Format pronouns for display
-    const formatPronounsDisplay = (pronouns) => {
-        if (pronouns.length === 0) return "";
-        if (pronouns.length === 1) return pronouns[0];
-        const multiPronounString = pronouns
-            .map((pronoun) => {
-                return pronoun.split("/")[0];
-            })
-            .join("/");
-        return multiPronounString;
     };
 
     const containerRef = useRef(null);
@@ -55,7 +42,7 @@ function PronounSelector({ value = [], onChange }) {
             <div className="mb-3 p-3 bg-stone-50 border border-stone-200 dex-card-muted">
                 <div className="text-lg font-medium text-stone-800">
                     {input.length > 0
-                        ? formatPronounsDisplay(input)
+                        ? formatPronouns(input)
                         : "No pronouns selected"}
                 </div>
             </div>
@@ -66,20 +53,32 @@ function PronounSelector({ value = [], onChange }) {
                     Select pronouns (click to add/remove):
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {pronounOptions.map((pronoun) => (
-                        <button
-                            key={pronoun}
-                            type="button"
-                            onClick={() => handlePronounToggle(pronoun)}
-                            className={`dex-tag transition-all duration-200 hover:scale-105 ${
-                                input.includes(pronoun)
-                                    ? "bg-amber-300 text-stone-900 border-stone-800"
-                                    : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"
-                            }`}
-                        >
-                            {pronoun}
-                        </button>
-                    ))}
+                    {PRONOUN_OPTIONS.map((pronoun) => {
+                        const selected = input.includes(pronoun);
+                        return (
+                            <button
+                                key={pronoun}
+                                type="button"
+                                aria-pressed={selected}
+                                onClick={() => handlePronounToggle(pronoun)}
+                                className={`dex-tag transition-all duration-200 hover:scale-105 ${
+                                    selected
+                                        ? "border-stone-800"
+                                        : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"
+                                }`}
+                                style={
+                                    selected
+                                        ? {
+                                              backgroundColor: "var(--color-btn-bg)",
+                                              color: "var(--color-btn-text)",
+                                          }
+                                        : undefined
+                                }
+                            >
+                                {pronoun}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
         </div>

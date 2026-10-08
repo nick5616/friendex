@@ -237,9 +237,17 @@ function BulkAddFriends() {
                                         onClick={() => togglePronoun(row, pronoun)}
                                         className={`dex-tag px-2.5 sm:px-3 transition-all duration-200 hover:scale-105 ${
                                             selected
-                                                ? "bg-amber-300 text-stone-900 border-stone-800"
+                                                ? "border-stone-800"
                                                 : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"
                                         }`}
+                                        style={
+                                            selected
+                                                ? {
+                                                      backgroundColor: "var(--color-btn-bg)",
+                                                      color: "var(--color-btn-text)",
+                                                  }
+                                                : undefined
+                                        }
                                     >
                                         {pronoun}
                                     </button>

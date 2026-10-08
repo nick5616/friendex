@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
@@ -12,6 +12,7 @@ import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
 import NameSelector from "./NameSelector";
 import { compressImage } from "./dex";
+import { parsePronouns } from "./utils";
 
 function ModifyFriend() {
     const navigate = useNavigate();
@@ -31,7 +32,7 @@ function ModifyFriend() {
     const [draftRestored, setDraftRestored] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
-        pronouns: "",
+        pronouns: [],
         tags: "",
         description: "",
         interests: "",
@@ -42,13 +43,6 @@ function ModifyFriend() {
         notes: "",
     });
 
-    const friend = useMemo(() => {
-        if (currentDb) {
-            return currentDb.friends.get(parseInt(id));
-        }
-        return null;
-    }, [id, currentDb]);
-
     // Load the friend's current data
     useEffect(() => {
         const loadFriend = async () => {
@@ -57,7 +51,10 @@ function ModifyFriend() {
             if (savedData) {
                 try {
                     const parsedData = JSON.parse(savedData);
-                    setFormData(parsedData.formData);
+                    setFormData({
+                        ...parsedData.formData,
+                        pronouns: parsePronouns(parsedData.formData.pronouns),
+                    });
                     if (parsedData.profilePicture) {
                         setProfilePicture(parsedData.profilePicture);
                     }
@@ -80,7 +77,7 @@ function ModifyFriend() {
                 if (!savedData) {
                     setFormData({
                         name: friend.name || "",
-                        pronouns: friend.pronouns || "",
+                        pronouns: parsePronouns(friend.pronouns),
                         tags: friend.tags ? friend.tags.join(", ") : "",
                         description: friend.about?.description || "",
                         interests: friend.about?.interests
@@ -177,7 +174,7 @@ function ModifyFriend() {
         // Update the friend in the database
         const updateData = {
             name: formData.name,
-            pronouns: formData.pronouns,
+            pronouns: parsePronouns(formData.pronouns).join("/"),
             tags: formData.tags
                 ? formData.tags.split(", ").filter((tag) => tag.trim())
                 : [],
@@ -229,15 +226,18 @@ function ModifyFriend() {
                         sessionStorage.removeItem(`modifyFriendDraft_${id}`);
                         navigate(basePath || "/");
                     }}
-                    className="text-stone-600 hover:text-stone-900 mb-4 flex items-center"
+                    className="text-stone-600 hover:text-stone-900 mb-4 flex items-center font-bold"
                 >
                     ← Back to Friendex{isDemoMode && " Demo"}
                 </button>
-                <h1 className="text-4xl font-bold text-stone-900 flex items-center">
+                <h1
+                    className="text-4xl font-bold flex items-center"
+                    style={{
+                        color: "var(--color-title, var(--color-primary-dark))",
+                    }}
+                >
                     Edit
-                    <span className="text-4xl font-bold text-stone-600 ml-2">
-                        {formData.name}
-                    </span>
+                    <span className="ml-2 opacity-70">{formData.name}</span>
                 </h1>
                 {draftRestored && (
                     <div className="dex-card-muted mt-4 p-3 bg-green-200 border border-green-600 transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-top-2 delay-500">
@@ -251,13 +251,17 @@ function ModifyFriend() {
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Profile Picture Upload */}
                 <div className="dex-card p-6 space-y-4">
-                    <h2 className="text-2xl font-bold text-stone-800 mb-4">
+                    <h2
+                        className="text-2xl font-bold mb-4"
+                        style={{ color: "var(--color-title)" }}
+                    >
                         Profile Picture
                     </h2>
                     <div className="flex flex-col items-center gap-4">
                         <div
-                            className="w-32 h-32 rounded-full bg-stone-200 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-75 transition-opacity relative group"
+                            className="w-32 h-32 bg-stone-200 border-2 border-stone-800 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-75 transition-opacity relative group"
                             onClick={handleProfilePictureClick}
+                            style={{ borderRadius: "var(--radius-dex)" }}
                         >
                             {profilePicture || originalProfilePicture ? (
                                 <img
@@ -299,20 +303,23 @@ function ModifyFriend() {
                     />
 
                     <PronounSelector
-                        value={formData.pronouns || friend.pronouns}
+                        value={formData.pronouns}
                         onChange={handlePronounChange}
                     />
 
                     <TagSelector
-                        value={formData.tags || friend.tags}
-                        pronouns={formData.pronouns || friend.pronouns}
+                        value={formData.tags}
+                        pronouns={formData.pronouns}
                         onChange={handleTagChange}
                     />
                 </div>
 
                 {/* About Section */}
                 <div className="dex-card p-6 space-y-4">
-                    <h2 className="text-2xl font-bold text-stone-800 mb-4">
+                    <h2
+                        className="text-2xl font-bold mb-4"
+                        style={{ color: "var(--color-title)" }}
+                    >
                         About
                     </h2>
 
@@ -323,15 +330,18 @@ function ModifyFriend() {
                         />
                     </div>
                     <InterestSelector
-                        value={formData.interests || friend.interests}
-                        pronouns={formData.pronouns || friend.pronouns}
+                        value={formData.interests}
+                        pronouns={formData.pronouns}
                         onChange={handleInterestChange}
                     />
                 </div>
 
                 {/* Key Info */}
                 <div className="dex-card p-6 space-y-4">
-                    <h2 className="text-2xl font-bold text-stone-800 mb-4">
+                    <h2
+                        className="text-2xl font-bold mb-4"
+                        style={{ color: "var(--color-title)" }}
+                    >
                         Key Info
                     </h2>
 
@@ -359,7 +369,10 @@ function ModifyFriend() {
 
                 {/* Notes */}
                 <div className="dex-card p-6 space-y-4">
-                    <h2 className="text-2xl font-bold text-stone-800 mb-4">
+                    <h2
+                        className="text-2xl font-bold mb-4"
+                        style={{ color: "var(--color-title)" }}
+                    >
                         Notes
                     </h2>
 
@@ -375,7 +388,7 @@ function ModifyFriend() {
                 <div className="flex gap-4">
                     <button
                         type="submit"
-                        className="flex-1 bg-amber-600 text-white px-6 py-3 rounded-md hover:bg-amber-700 transition-colors font-medium flex items-center justify-center gap-2"
+                        className="flex-1 dex-btn btn-primary border-2 border-stone-800 shadow-[3px_3px_0_#1c1917] flex items-center justify-center gap-2"
                     >
                         <svg
                             className="w-4 h-4"
@@ -401,7 +414,7 @@ function ModifyFriend() {
                             );
                             navigate(basePath || "/");
                         }}
-                        className="px-6 py-3 rounded-md border border-stone-300 hover:bg-stone-100 transition-colors font-medium flex items-center gap-2"
+                        className="dex-btn bg-white border-2 border-stone-800 text-stone-800 shadow-[3px_3px_0_#1c1917] hover:bg-stone-100 flex items-center gap-2"
                     >
                         <svg
                             className="w-4 h-4"

@@ -22,6 +22,40 @@ export const fromArrayToCommaString = (value) => {
     return value || "";
 };
 
+export const PRONOUN_OPTIONS = ["he/him", "she/her", "they/them", "it/its"];
+
+// Pronouns have been stored as an array, as "she/her/they/them" and as the
+// short "she/they" — normalize any of those to a list like ["she/her", "they/them"]
+export const parsePronouns = (value) => {
+    const raw = Array.isArray(value) ? value.join("/") : value || "";
+    const parts = raw
+        .split(/[/,]/)
+        .map((part) => part.trim().toLowerCase())
+        .filter(Boolean);
+    const result = [];
+    for (let i = 0; i < parts.length; i++) {
+        const pair = `${parts[i]}/${parts[i + 1]}`;
+        let pronoun;
+        if (PRONOUN_OPTIONS.includes(pair)) {
+            pronoun = pair;
+            i++;
+        } else {
+            pronoun =
+                PRONOUN_OPTIONS.find((o) => o.split("/")[0] === parts[i]) ||
+                parts[i];
+        }
+        if (!result.includes(pronoun)) result.push(pronoun);
+    }
+    return result;
+};
+
+// "she/her" for one set, "she/they" for several
+export const formatPronouns = (value) => {
+    const pronouns = parsePronouns(value);
+    if (pronouns.length === 1) return pronouns[0];
+    return pronouns.map((pronoun) => pronoun.split("/")[0]).join("/");
+};
+
 // Generate a simple avatar based on name
 export const generateAvatar = (name) => {
     const hash = name

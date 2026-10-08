@@ -10,6 +10,7 @@ import {
     getLastHangout,
     formatHangoutAgo,
 } from "./dex";
+import { formatPronouns } from "./utils";
 
 function FriendDetailView({
     friend,
@@ -198,10 +199,10 @@ function FriendDetailView({
                     {friend.name}
                 </h2>
                 {/* Pronouns share the type-badge capsule so the row reads as one set */}
-                {(friend.pronouns ||
+                {(formatPronouns(friend.pronouns) ||
                     friend.keyInfo?.relationships?.length > 0) && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                        {friend.pronouns && (
+                        {formatPronouns(friend.pronouns) && (
                             <span className="dex-pill !pl-1">
                                 <span className="type-badge-icon">
                                     <MessageCircle
@@ -210,7 +211,7 @@ function FriendDetailView({
                                         strokeWidth={2.75}
                                     />
                                 </span>
-                                {friend.pronouns}
+                                {formatPronouns(friend.pronouns)}
                             </span>
                         )}
                         <TypeBadges

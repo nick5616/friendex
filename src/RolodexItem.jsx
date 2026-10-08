@@ -65,24 +65,26 @@ export function RolodexItem({
                 onClick={onClick}
                 className="w-full text-left font-bold pl-3 pr-2 h-[calc(100%-6px)] mt-[3px] transition-colors duration-150 flex flex-col justify-center border-2"
                 style={{
-                    borderRadius: "var(--radius-dex)",
+                    // Selected tab runs off the right edge of the page
+                    borderRadius: "var(--radius-dex) 0 0 var(--radius-dex)",
+                    borderRightWidth: 0,
                     backgroundColor: isSelected ? "var(--color-shell)" : "transparent",
                     borderColor: isSelected ? "#1c1917" : "transparent",
-                    boxShadow: isSelected ? "3px 3px 0 #1c1917" : "none",
+                    boxShadow: isSelected ? "0 3px 0 #1c1917" : "none",
                     color: isSelected ? "#fff" : "var(--color-neutral-800)",
                 }}
             >
                 <span
-                    className={`font-pixel text-[10px] leading-none flex items-center gap-1 ${
+                    className={`font-pixel text-[10px] leading-none flex items-center gap-1.5 ${
                         isSelected ? "text-white/80" : "text-stone-500"
                     }`}
                 >
                     {formatDexNumber(dexNumber)}
-                    {tier?.icon && (
-                        <tier.icon
-                            className="w-3 h-3"
-                            style={{ color: isSelected ? "#fff" : tier.ring }}
-                            strokeWidth={3}
+                    {tier && (
+                        <span
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: isSelected ? "#fff" : tier.ring }}
+                            role="img"
                             aria-label={tier.label}
                         />
                     )}
