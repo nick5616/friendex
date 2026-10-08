@@ -2,13 +2,14 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { RolodexItem } from "./RolodexItem";
+import { getFriendshipTier } from "./dex";
 import React from "react";
 
 const ITEM_HEIGHT = 56;
 const VISIBLE_ITEMS = 5;
 const LIST_HEIGHT = VISIBLE_ITEMS * ITEM_HEIGHT;
 
-function RolodexList({ friends, selectedId, onSelect }) {
+function RolodexList({ friends, selectedId, onSelect, dexNumbers = new Map() }) {
     const [isDragging, setIsDragging] = useState(false);
     const [isScrolling, setIsScrolling] = useState(false);
     const scrollY = useMotionValue(0);
@@ -139,7 +140,7 @@ function RolodexList({ friends, selectedId, onSelect }) {
 
     if (!friends.length) {
         return (
-            <div className="flex-1 card-hand-drawn flex items-center justify-center text-stone-500">
+            <div className="flex-1 dex-card flex items-center justify-center text-stone-500">
                 No friends yet!
             </div>
         );
@@ -179,6 +180,8 @@ function RolodexList({ friends, selectedId, onSelect }) {
                         scrollY={scrollY}
                         isSelected={friend.id === selectedId}
                         onClick={() => onSelect(friend.id)}
+                        dexNumber={dexNumbers.get(friend.id)}
+                        tier={getFriendshipTier(friend)}
                     />
                 ))}
             </motion.ul>

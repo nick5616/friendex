@@ -133,6 +133,7 @@ function BulkAddFriends() {
             navigate(basePath || "/", {
                 state: {
                     newFriendId: newIds[0],
+                    caught: newFriends.length,
                     toast: {
                         message: `Added ${newFriends.length} friend${newFriends.length !== 1 ? "s" : ""}`,
                         type: "success",
@@ -174,7 +175,7 @@ function BulkAddFriends() {
                 {rows.map((row, index) => (
                     <div
                         key={row.key}
-                        className="card-hand-drawn px-3 py-3 sm:px-4 space-y-2"
+                        className="dex-card px-3 py-3 sm:px-4 space-y-2"
                     >
                         <div className="flex items-center gap-2">
                             <input
@@ -196,7 +197,7 @@ function BulkAddFriends() {
                                 className="flex-1 min-w-0 px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
                                 style={{
                                     borderRadius:
-                                        "255px 15px 225px 15px/15px 225px 15px 255px",
+                                        "var(--radius-dex)",
                                 }}
                             />
                             <button
@@ -234,7 +235,7 @@ function BulkAddFriends() {
                                         type="button"
                                         aria-pressed={selected}
                                         onClick={() => togglePronoun(row, pronoun)}
-                                        className={`tag-hand-drawn px-2.5 sm:px-3 transition-all duration-200 hover:scale-105 ${
+                                        className={`dex-tag px-2.5 sm:px-3 transition-all duration-200 hover:scale-105 ${
                                             selected
                                                 ? "bg-amber-300 text-stone-900 border-stone-800"
                                                 : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"
@@ -254,7 +255,7 @@ function BulkAddFriends() {
                     className="w-full py-3 border-2 border-dashed border-stone-400 text-stone-600 hover:border-stone-700 hover:text-stone-900 transition-colors font-medium flex items-center justify-center gap-2"
                     style={{
                         borderRadius:
-                            "255px 15px 225px 15px/15px 225px 15px 255px",
+                            "var(--radius-dex)",
                     }}
                 >
                     <svg

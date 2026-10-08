@@ -14,7 +14,7 @@ export default function Toast({ message, type = "success", onDone }) {
 
     return (
         <div
-            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 card-hand-drawn border-2 px-5 py-3 text-sm font-medium flex items-center gap-2 whitespace-nowrap ${colors}`}
+            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 dex-card border-2 px-5 py-3 text-sm font-medium flex items-center gap-2 whitespace-nowrap ${colors}`}
             style={{ boxShadow: "3px 3px 0 rgba(0,0,0,0.15)" }}
         >
             <span className="font-bold">{icon}</span>

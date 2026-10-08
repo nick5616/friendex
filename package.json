@@ -14,7 +14,9 @@
         "dexie-react-hooks": "^4.2.0",
         "firebase": "^12.15.0",
         "framer-motion": "^12.23.22",
+        "jsqr": "^1.4.0",
         "lucide-react": "^0.552.0",
+        "qrcode": "^1.5.4",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
         "react-router-dom": "^7.9.4"

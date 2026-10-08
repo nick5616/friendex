@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v2025-11-02-1";
+const CACHE_VERSION = "v2026-10-06-1";
 const CACHE_NAME = `friendex-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `friendex-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `friendex-dynamic-${CACHE_VERSION}`;
@@ -23,6 +23,7 @@ const FONT_ASSETS = [
     "/fonts/gaegu.css",
     "/fonts/gaegu-regular.ttf",
     "/fonts/gaegu-bold.ttf",
+    "/fonts/silkscreen-regular.ttf",
 ];
 
 // Install event - cache static assets
@@ -102,6 +103,11 @@ self.addEventListener("fetch", (event) => {
 
     // Skip chrome-extension and other non-http requests
     if (!url.protocol.startsWith("http")) {
+        return;
+    }
+
+    // Version checks must always hit the network (see src/updateChecker.js)
+    if (url.pathname === "/version.json") {
         return;
     }
 

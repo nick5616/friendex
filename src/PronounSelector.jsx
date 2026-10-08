@@ -52,7 +52,7 @@ function PronounSelector({ value = [], onChange }) {
                 Pronouns
             </label>
             {/* Real-time display of selected pronouns */}
-            <div className="mb-3 p-3 bg-stone-50 border border-stone-200 muted-card-hand-drawn">
+            <div className="mb-3 p-3 bg-stone-50 border border-stone-200 dex-card-muted">
                 <div className="text-lg font-medium text-stone-800">
                     {input.length > 0
                         ? formatPronounsDisplay(input)
@@ -71,7 +71,7 @@ function PronounSelector({ value = [], onChange }) {
                             key={pronoun}
                             type="button"
                             onClick={() => handlePronounToggle(pronoun)}
-                            className={`tag-hand-drawn transition-all duration-200 hover:scale-105 ${
+                            className={`dex-tag transition-all duration-200 hover:scale-105 ${
                                 input.includes(pronoun)
                                     ? "bg-amber-300 text-stone-900 border-stone-800"
                                     : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"

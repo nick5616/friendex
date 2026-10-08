@@ -141,7 +141,7 @@ function TagSelector({ value = [], onChange, pronouns }) {
                     className="w-full px-3 py-2 border-2 border-stone-400 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
                     style={{
                         borderRadius:
-                            "255px 15px 225px 15px/15px 225px 15px 255px",
+                            "var(--radius-dex)",
                     }}
                 />
             </div>
@@ -156,7 +156,7 @@ function TagSelector({ value = [], onChange, pronouns }) {
                         {input.map((tag) => (
                             <span
                                 key={tag}
-                                className="tag-hand-drawn bg-amber-300 text-stone-900 border-stone-800"
+                                className="dex-tag bg-amber-300 text-stone-900 border-stone-800"
                                 onClick={() => handleTagToggle(tag)}
                             >
                                 {tag}
@@ -185,7 +185,7 @@ function TagSelector({ value = [], onChange, pronouns }) {
                             <button
                                 type="button"
                                 onClick={handleAddNewTag}
-                                className="tag-hand-drawn bg-green-200 text-green-800 border-green-400 hover:bg-green-300 transition-colors"
+                                className="dex-tag bg-green-200 text-green-800 border-green-400 hover:bg-green-300 transition-colors"
                             >
                                 + Add "{capitalizeEachFirstLetter(searchTerm)}"
                             </button>
@@ -198,7 +198,7 @@ function TagSelector({ value = [], onChange, pronouns }) {
                                     key={tag}
                                     type="button"
                                     onClick={() => handleTagToggle(tag)}
-                                    className={`tag-hand-drawn transition-all duration-200 hover:scale-105 ${
+                                    className={`dex-tag transition-all duration-200 hover:scale-105 ${
                                         input.includes(tag)
                                             ? "bg-amber-300 text-stone-900 border-stone-800"
                                             : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"

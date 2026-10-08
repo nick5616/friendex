@@ -33,7 +33,7 @@ function LoveLanguageSelector({ value = [], onChange }) {
                             onClick={() =>
                                 handleLoveLanguageToggle(loveLanguage)
                             }
-                            className={`tag-hand-drawn transition-all duration-200 hover:scale-105 ${
+                            className={`dex-tag transition-all duration-200 hover:scale-105 ${
                                 value.includes(loveLanguage)
                                     ? "bg-amber-300 text-stone-900 border-stone-800"
                                     : "bg-stone-200 text-stone-800 border-stone-400 hover:bg-stone-300"

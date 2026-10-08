@@ -1,7 +1,7 @@
 // src/FriendList.jsx
 function FriendList({ friends, selectedId, onSelect }) {
     return (
-        <div className="h-48 md:h-64 flex-1 border-2 border-stone-800 p-2 card-hand-drawn overflow-y-auto">
+        <div className="h-48 md:h-64 flex-1 border-2 border-stone-800 p-2 dex-card overflow-y-auto">
             <ul className="space-y-2">
                 {friends.map((friend) => (
                     <li key={friend.id}>
@@ -12,7 +12,7 @@ function FriendList({ friends, selectedId, onSelect }) {
                                 backgroundColor: selectedId === friend.id 
                                     ? 'var(--color-primary)' 
                                     : 'transparent',
-                                borderRadius: "255px 15px 225px 15px/15px 225px 15px 255px",
+                                borderRadius: "var(--radius-dex)",
                             }}
                             onMouseEnter={(e) => {
                                 if (selectedId !== friend.id) {

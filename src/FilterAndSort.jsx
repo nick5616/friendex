@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Search, X } from "lucide-react";
 
 function FilterAndSort({
     sortBy,
@@ -8,100 +8,68 @@ function FilterAndSort({
     filterField,
     setFilterField,
     filteredCount,
+    onClose,
 }) {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const selectClass =
+        "px-2 py-1.5 border-2 border-stone-800 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 text-base";
 
     return (
-        <section className="p-4 mx-2 mb-4 card-hand-drawn" style={{ backgroundColor: 'var(--color-info-bg, var(--color-primary-light))' }}>
-            {/* Header - always visible */}
-            <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between text-stone-900 hover:text-stone-700 transition-colors"
-            >
-                <h2 className="text-lg font-semibold">Filter and Sort</h2>
-
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2.5}
-                    stroke="currentColor"
-                    className={`w-5 h-5 transition-transform ${
-                        isExpanded ? "rotate-180" : ""
-                    }`}
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+        <section className="mx-3 mt-4 p-3 dex-card !p-3 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+                <div className="flex-1 relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+                    <input
+                        type="search"
+                        autoFocus
+                        value={filterText}
+                        onChange={(e) => setFilterText(e.target.value)}
+                        placeholder={`Search ${filterField}...`}
+                        className="w-full pl-8 pr-3 py-1.5 border-2 border-stone-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500 text-base"
                     />
-                </svg>
-            </button>
-
-            {/* Collapsible Content */}
-            {isExpanded && (
-                <div className="flex flex-col gap-2 mt-2">
-                    <div className="flex flex-row justify-between">
-                        <div className="flex items-center gap-2">
-                            <label className="text-sm font-medium text-stone-700">
-                                Sort:
-                            </label>
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className="px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
-                            >
-                                <option value="none">
-                                    Date added (Oldest First)
-                                </option>
-                                <option value="name">Name (A-Z)</option>
-                                <option value="age">Age (Oldest First)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-row gap-2">
-                        <div className="flex items-center gap-2">
-                            <select
-                                value={filterField}
-                                onChange={(e) => setFilterField(e.target.value)}
-                                className="px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
-                            >
-                                <option value="name">Name</option>
-                                <option value="tags">Tags</option>
-                                <option value="pronouns">Pronouns</option>
-                                <option value="notes">Notes</option>
-                            </select>
-                        </div>
-                        <div className="flex-1 min-w-[200px] relative">
-                            <input
-                                type="text"
-                                value={filterText}
-                                onChange={(e) => setFilterText(e.target.value)}
-                                placeholder={`Search ${filterField}...`}
-                                className="w-full px-3 py-2 pl-8 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-stone-500 text-sm"
-                            />
-                            <svg
-                                className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-stone-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                    <div className="text-sm text-stone-600">
-                        {filteredCount} friend{filteredCount !== 1 ? "s" : ""}
-                    </div>
                 </div>
-            )}
+                <button
+                    onClick={() => {
+                        setFilterText("");
+                        onClose();
+                    }}
+                    aria-label="Close search"
+                    className="p-1.5"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+                <label className="flex items-center gap-1">
+                    in
+                    <select
+                        value={filterField}
+                        onChange={(e) => setFilterField(e.target.value)}
+                        className={selectClass}
+                    >
+                        <option value="name">Name</option>
+                        <option value="tags">Tags</option>
+                        <option value="pronouns">Pronouns</option>
+                        <option value="notes">Notes</option>
+                    </select>
+                </label>
+                <label className="flex items-center gap-1">
+                    sort
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className={selectClass}
+                    >
+                        <option value="name">Name (A-Z)</option>
+                        <option value="dex">Dex number</option>
+                        <option value="hangout">Recently hung out</option>
+                        <option value="age">Age (oldest first)</option>
+                    </select>
+                </label>
+                <span className="ml-auto font-pixel text-[10px] text-stone-500">
+                    {filteredCount} FOUND
+                </span>
+            </div>
         </section>
     );
 }

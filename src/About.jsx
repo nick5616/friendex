@@ -204,7 +204,7 @@ function About() {
                                 your friends.
                             </h1>
 
-                            <div className="text-2xl md:text-4xl font-bold h-12 flex items-center justify-center cursor-default card-hand-drawn">
+                            <div className="text-2xl md:text-4xl font-bold h-12 flex items-center justify-center cursor-default dex-card">
                                 <span className="inline-block">Gotta</span>
                                 <div
                                     className="word-width-container inline-block action-verb-color"
@@ -244,13 +244,13 @@ function About() {
                                                 ? handleInstallClick
                                                 : handleLaunchApp
                                         }
-                                        className="btn-hand-drawn btn-primary text-xl md:text-2xl px-8 py-4 border-2"
+                                        className="dex-btn btn-primary text-xl md:text-2xl px-8 py-4 border-2"
                                     >
                                         Install Friendex
                                     </button>
                                     <button
                                         onClick={handleLaunchApp}
-                                        className="btn-hand-drawn text-stone-800 hover:bg-stone-100 text-lg md:text-xl px-6 py-3"
+                                        className="dex-btn text-stone-800 hover:bg-stone-100 text-lg md:text-xl px-6 py-3"
                                     >
                                         Continue to Website
                                     </button>
@@ -265,7 +265,7 @@ function About() {
 
                     {/* Social Proof - Prominent ADHD Testimonial */}
                     <section className="text-center py-8 mb-12">
-                        <div className="card-hand-drawn card-primary-bg p-6 md:p-8 max-w-3xl mx-auto border-2">
+                        <div className="dex-card card-primary-bg p-6 md:p-8 max-w-3xl mx-auto border-2">
                             <p className="text-xl md:text-2xl text-stone-800 font-medium italic mb-4">
                                 "Finally, a way to remember my friends exist! My
                                 ADHD brain loves this. I can actually see who I
@@ -284,7 +284,7 @@ function About() {
                             How It Works
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                            <div className="card-hand-drawn overflow-hidden relative card-primary-bg">
+                            <div className="dex-card overflow-hidden relative card-primary-bg">
                                 <div className="flex flex-col justify-center text-8xl opacity-30 absolute right-[-20px] top-[35px]">
                                     📇
                                 </div>
@@ -298,7 +298,7 @@ function About() {
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn overflow-hidden relative card-accent-bg">
+                            <div className="dex-card overflow-hidden relative card-accent-bg">
                                 <div
                                     className="flex flex-col justify-center text-8xl opacity-40 absolute right-[-20px] top-[35px]"
                                     style={{ transform: "scaleX(-1)" }}
@@ -315,7 +315,7 @@ function About() {
                                 </p>
                             </div>
                             {/* TODO: Add share profiles feature */}
-                            {/* <div className="card-hand-drawn overflow-hidden relative">
+                            {/* <div className="dex-card overflow-hidden relative">
                                 <div className="flex flex-col justify-center text-8xl opacity-40 absolute right-[-20px] top-[35px]">
                                     📱
                                 </div>
@@ -329,7 +329,7 @@ function About() {
                                 </p>
                             </div> */}
 
-                            <div className="card-hand-drawn overflow-hidden relative card-accent-bg">
+                            <div className="dex-card overflow-hidden relative card-accent-bg">
                                 <div className="flex flex-col justify-center text-8xl opacity-30 absolute right-[-20px] top-[35px]">
                                     💝
                                 </div>
@@ -351,7 +351,7 @@ function About() {
                             Perfect For
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                            <div className="card-hand-drawn overflow-hidden relative card-primary-bg p-6">
+                            <div className="dex-card overflow-hidden relative card-primary-bg p-6">
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
                                     People with ADHD
                                 </h3>
@@ -363,7 +363,7 @@ function About() {
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn overflow-hidden relative card-accent-bg p-6">
+                            <div className="dex-card overflow-hidden relative card-accent-bg p-6">
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
                                     Socially Anxious & Introverted
                                 </h3>
@@ -376,7 +376,7 @@ function About() {
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn overflow-hidden relative card-accent-bg p-6">
+                            <div className="dex-card overflow-hidden relative card-accent-bg p-6">
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
                                     Busy Professionals
                                 </h3>
@@ -388,7 +388,7 @@ function About() {
                                 </p>
                             </div>
 
-                            <div className="card-hand-drawn overflow-hidden relative card-primary-bg p-6">
+                            <div className="dex-card overflow-hidden relative card-primary-bg p-6">
                                 <h3 className="text-2xl font-bold mb-3 text-stone-900">
                                     Anyone Wanting to Be a Better Friend
                                 </h3>
@@ -409,18 +409,18 @@ function About() {
                                 Tired of These Problems?
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="card-hand-drawn card-error-bg p-6 border-2">
+                                <div className="dex-card card-error-bg p-6 border-2">
                                     <p className="text-lg text-stone-800 font-medium">
                                         Forgot someone's birthday again?
                                     </p>
                                 </div>
-                                <div className="card-hand-drawn card-error-bg p-6 border-2">
+                                <div className="dex-card card-error-bg p-6 border-2">
                                     <p className="text-lg text-stone-800 font-medium">
                                         Struggling to remember who you can reach
                                         out to?
                                     </p>
                                 </div>
-                                <div className="card-hand-drawn card-error-bg p-6 border-2">
+                                <div className="dex-card card-error-bg p-6 border-2">
                                     <p className="text-lg text-stone-800 font-medium">
                                         Want to be more thoughtful but don't
                                         know where to start?
@@ -483,7 +483,7 @@ function About() {
 
                         <div className="max-w-3xl mx-auto space-y-6">
                             {/* Testimonial 1 - ADHD */}
-                            <div className="muted-card-hand-drawn">
+                            <div className="dex-card-muted">
                                 <p className="text-lg text-stone-700 italic mb-4">
                                     "As someone with ADHD, I genuinely forget my
                                     friends exist sometimes. Friendex helps me
@@ -497,7 +497,7 @@ function About() {
                             </div>
 
                             {/* Testimonial 2 - Social Anxiety */}
-                            <div className="muted-card-hand-drawn">
+                            <div className="dex-card-muted">
                                 <p className="text-lg text-stone-700 italic mb-4">
                                     "As an introvert, I struggle with
                                     maintaining friendships. Friendex helps me
@@ -512,7 +512,7 @@ function About() {
                             </div>
 
                             {/* Testimonial 3 - Thoughtful Friend */}
-                            <div className="muted-card-hand-drawn">
+                            <div className="dex-card-muted">
                                 <p className="text-lg text-stone-700 italic mb-4">
                                     "I can finally be the friend I want to be!
                                     With Friendex, I remember birthdays, gift
@@ -527,7 +527,7 @@ function About() {
                             </div>
 
                             {/* Testimonial 4 - Busy Professional */}
-                            <div className="muted-card-hand-drawn">
+                            <div className="dex-card-muted">
                                 <p className="text-lg text-stone-700 italic mb-4">
                                     "Between work and life, I kept forgetting to
                                     reach out to friends. Now I can quickly see
@@ -545,7 +545,7 @@ function About() {
 
                     {/* Privacy Section */}
                     <section className="py-16 mb-12">
-                        <div className="card-hand-drawn p-8 md:p-12 text-center">
+                        <div className="dex-card p-8 md:p-12 text-center">
                             <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6">
                                 Private by Default
                                 <br />
@@ -607,13 +607,13 @@ function About() {
                             {/* download the app */}
                             <button
                                 onClick={handleInstallClick}
-                                className="btn-hand-drawn btn-primary text-xl md:text-3xl px-8 py-4 border-2"
+                                className="dex-btn btn-primary text-xl md:text-3xl px-8 py-4 border-2"
                             >
                                 Install Friendex
                             </button>
                             <button
                                 onClick={handleLaunchApp}
-                                className="btn-hand-drawn btn-secondary text-xl md:text-3xl px-8 py-4"
+                                className="dex-btn btn-secondary text-xl md:text-3xl px-8 py-4"
                             >
                                 Continue to Website
                             </button>
@@ -635,7 +635,7 @@ function About() {
                         showStickyBanner ? "visible" : ""
                     }`}
                 >
-                    <div className="card-hand-drawn card-primary-bg p-2 md:p-6 mx-2 mb-2 border-2 shadow-lg">
+                    <div className="dex-card card-primary-bg p-2 md:p-6 mx-2 mb-2 border-2 shadow-lg">
                         <div className="pwa-install-button-group ">
                             <button
                                 onClick={
@@ -643,13 +643,13 @@ function About() {
                                         ? handleInstallClick
                                         : handleLaunchApp
                                 }
-                                className="btn-hand-drawn btn-primary text-lg md:text-xl px-4 py-2 border-2"
+                                className="dex-btn btn-primary text-lg md:text-xl px-4 py-2 border-2"
                             >
                                 Install Friendex
                             </button>
                             <button
                                 onClick={handleLaunchApp}
-                                className="btn-hand-drawn btn-secondary text-base md:text-lg px-4 py-2"
+                                className="dex-btn btn-secondary text-base md:text-lg px-4 py-2"
                             >
                                 Continue to Website
                             </button>

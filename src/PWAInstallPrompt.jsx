@@ -90,7 +90,7 @@ const PWAInstallPrompt = () => {
 
     return (
         <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-sm">
-            <div className="card-hand-drawn bg-user-100 border-user-300 p-4 shadow-lg">
+            <div className="dex-card bg-user-100 border-user-300 p-4 shadow-lg">
                 <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                         <div className="w-8 h-8 bg-user-300 rounded-full flex items-center justify-center">
@@ -122,13 +122,13 @@ const PWAInstallPrompt = () => {
                         <div className="flex gap-2">
                             <button
                                 onClick={handleInstallClick}
-                                className="btn-hand-drawn btn-primary text-xs px-3 py-1"
+                                className="dex-btn btn-primary text-xs px-3 py-1"
                             >
                                 Install
                             </button>
                             <button
                                 onClick={handleDismiss}
-                                className="btn-hand-drawn bg-stone-200 text-stone-700 hover:bg-stone-300 text-xs px-3 py-1"
+                                className="dex-btn bg-stone-200 text-stone-700 hover:bg-stone-300 text-xs px-3 py-1"
                             >
                                 Later
                             </button>

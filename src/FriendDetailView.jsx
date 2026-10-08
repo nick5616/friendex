@@ -1,15 +1,26 @@
 // src/FriendDetailView.jsx
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Plus, Ellipsis, Pencil, Trash2, MessageCircle } from "lucide-react";
+import { TypeBadges } from "./TypeBadge";
+import {
+    formatDexNumber,
+    parseBirthday,
+    toDate,
+    getLastHangout,
+    formatHangoutAgo,
+} from "./dex";
 
 function FriendDetailView({
     friend,
+    dexNumber,
     basePath = "",
     onDeleteFriend,
     currentDb,
 }) {
     const navigate = useNavigate();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
     const [showAddNoteTextField, setShowAddNoteTextField] = useState(false);
     const [newNote, setNewNote] = useState("");
 
@@ -19,7 +30,13 @@ function FriendDetailView({
         }
     }, [showAddNoteTextField, setNewNote]);
 
+    // Close the actions menu when switching friends
+    useEffect(() => {
+        setShowMenu(false);
+    }, [friend?.id]);
+
     async function handleAddNote() {
+        if (!newNote.trim()) return;
         try {
             // Handle both string and array formats for notes
             let existingNotes = [];
@@ -64,7 +81,7 @@ function FriendDetailView({
 
     if (!friend) {
         return (
-            <div className="card-hand-drawn text-center p-8">
+            <div className="dex-card text-center p-8">
                 <p className="text-2xl text-stone-500">
                     Select a friend from the list above!
                 </p>
@@ -75,7 +92,8 @@ function FriendDetailView({
     // Helper function to format date
     const formatDate = (dateString) => {
         if (!dateString) return "Not specified";
-        const date = new Date(dateString);
+        const date = parseBirthday(dateString);
+        if (!date) return "Not specified";
         return date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
@@ -85,8 +103,8 @@ function FriendDetailView({
 
     // Helper function to format creation date
     const formatCreatedDate = (dateString) => {
-        if (!dateString) return "Unknown";
-        const date = new Date(dateString);
+        const date = toDate(dateString);
+        if (!date) return "Unknown";
         return date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
@@ -107,106 +125,99 @@ function FriendDetailView({
     };
 
     return (
-        <div className="card-hand-drawn p-6 relative">
-            <div className="absolute top-0 right-0 flex gap-2 mr-5 mt-4">
-                {/* New note button */}
-                <button
-                    onClick={() => setShowAddNoteTextField(true)}
-                    className="pill-tag-hand-drawn text-sm flex items-center gap-2"
-                >
-                    <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+        <div className="dex-card p-5 relative">
+            {/* Top row: dex number + actions */}
+            <div className="flex items-center justify-between gap-2">
+                <span className="font-pixel text-sm text-stone-500">
+                    FRIENDEX {formatDexNumber(dexNumber)}
+                </span>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowAddNoteTextField(true)}
+                        className="dex-pill text-sm flex items-center gap-1.5"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 4v16m8-8H4"
-                        />
-                    </svg>
-                    Note
-                </button>
-                <button
-                    onClick={() => navigate(`${basePath}/modify/${friend.id}`)}
-                    className="pill-tag-hand-drawn text-sm flex items-center gap-2"
-                >
-                    <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                    </svg>
-                    Modify
-                </button>
-                <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="pill-tag-hand-drawn text-sm flex items-center gap-2 btn-danger"
-                    title="Delete friend"
-                >
-                    <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                    </svg>
-                    Delete
-                </button>
-            </div>
-            {/* Header with Profile Picture and Name */}
-            <div className="flex items-start gap-6">
-                {/* Name and Modify Button */}
-                <div className="flex-1 flex items-start justify-between">
-                    <div className="mt-10">
-                        <h2
-                            className="text-5xl font-bold"
-                            style={{
-                                color: "var(--color-title, var(--color-primary-dark))",
-                            }}
+                        <Plus className="w-4 h-4" strokeWidth={2.5} />
+                        Note
+                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowMenu((v) => !v)}
+                            className="w-9 h-9 flex items-center justify-center rounded-full border-2 border-stone-800 bg-white"
+                            aria-label="More actions"
+                            aria-expanded={showMenu}
                         >
-                            {friend.name}
-                        </h2>
-                        <div className="flex items-center gap-2 mt-1">
-                            {friend.pronouns && (
-                                <div className="pill-tag-hand-drawn w-[fit-content] mb-2">
-                                    {friend.pronouns}
+                            <Ellipsis className="w-5 h-5" />
+                        </button>
+                        {showMenu && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-20"
+                                    onClick={() => setShowMenu(false)}
+                                />
+                                <div
+                                    className="absolute right-0 top-11 z-30 w-40 bg-white border-2 border-stone-800 py-1 flex flex-col"
+                                    style={{
+                                        borderRadius: "var(--radius-dex)",
+                                        boxShadow: "3px 3px 0 #1c1917",
+                                    }}
+                                >
+                                    <button
+                                        onClick={() =>
+                                            navigate(
+                                                `${basePath}/modify/${friend.id}`
+                                            )
+                                        }
+                                        className="flex items-center gap-2 px-4 py-2 text-left hover:bg-stone-100"
+                                    >
+                                        <Pencil className="w-4 h-4" /> Edit
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowMenu(false);
+                                            setShowDeleteModal(true);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 text-left text-red-700 hover:bg-red-50"
+                                    >
+                                        <Trash2 className="w-4 h-4" /> Release
+                                    </button>
                                 </div>
-                            )}
-                        </div>
-
-                        {friend.keyInfo?.relationships &&
-                            friend.keyInfo.relationships.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                    {friend.keyInfo.relationships.map(
-                                        (relationship, index) => (
-                                            <span
-                                                key={index}
-                                                className="tag-hand-drawn text-sm"
-                                            >
-                                                {relationship}
-                                            </span>
-                                        )
-                                    )}
-                                </div>
-                            )}
+                            </>
+                        )}
                     </div>
                 </div>
+            </div>
+
+            {/* Name, pronouns and relationship types */}
+            <div className="mt-2">
+                <h2
+                    className="text-5xl font-bold leading-none break-words"
+                    style={{
+                        color: "var(--color-title, var(--color-primary-dark))",
+                    }}
+                >
+                    {friend.name}
+                </h2>
+                {/* Pronouns share the type-badge capsule so the row reads as one set */}
+                {(friend.pronouns ||
+                    friend.keyInfo?.relationships?.length > 0) && (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                        {friend.pronouns && (
+                            <span className="dex-pill !pl-1">
+                                <span className="type-badge-icon">
+                                    <MessageCircle
+                                        className="w-3.5 h-3.5"
+                                        style={{ color: "var(--color-pill-bg)" }}
+                                        strokeWidth={2.75}
+                                    />
+                                </span>
+                                {friend.pronouns}
+                            </span>
+                        )}
+                        <TypeBadges
+                            relationships={friend.keyInfo?.relationships}
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Tags Section */}
@@ -215,7 +226,7 @@ function FriendDetailView({
                     <h3 className="text-2xl font-bold pb-1">Tags</h3>
                     <div className="flex flex-wrap gap-2">
                         {friend.tags.map((tag) => (
-                            <span key={tag} className="tag-hand-drawn">
+                            <span key={tag} className="dex-tag">
                                 {tag}
                             </span>
                         ))}
@@ -239,7 +250,7 @@ function FriendDetailView({
                     <h3 className="text-2xl font-bold pb-1">Interests</h3>
                     <div className="flex flex-wrap gap-2">
                         {friend.about.interests.map((interest) => (
-                            <span key={interest} className="tag-hand-drawn">
+                            <span key={interest} className="dex-tag">
                                 {interest}
                             </span>
                         ))}
@@ -255,7 +266,7 @@ function FriendDetailView({
                         <div
                             className="p-3"
                             style={{
-                                borderRadius: "15px",
+                                borderRadius: "var(--radius-dex)",
                                 backgroundColor:
                                     "var(--color-info-bg, var(--color-primary-light))",
                             }}
@@ -267,11 +278,28 @@ function FriendDetailView({
                         </div>
                     )}
 
+                    {friend.hangouts?.length > 0 && (
+                        <div
+                            className="p-3"
+                            style={{
+                                borderRadius: "var(--radius-dex)",
+                                backgroundColor:
+                                    "var(--color-info-bg, var(--color-primary-light))",
+                            }}
+                        >
+                            <strong className="text-stone-800">Hangouts</strong>
+                            <p className="text-stone-700">
+                                {friend.hangouts.length} logged · last{" "}
+                                {formatHangoutAgo(getLastHangout(friend))}
+                            </p>
+                        </div>
+                    )}
+
                     {friend.keyInfo?.howWeMet && (
                         <div
                             className="p-3"
                             style={{
-                                borderRadius: "15px",
+                                borderRadius: "var(--radius-dex)",
                                 backgroundColor:
                                     "var(--color-info-bg, var(--color-primary-light))",
                             }}
@@ -298,7 +326,7 @@ function FriendDetailView({
                             onClick={() => {
                                 setShowAddNoteTextField(!showAddNoteTextField);
                             }}
-                            className="btn-hand-drawn btn-primary text-sm px-4 py-2"
+                            className="dex-btn btn-primary text-sm px-4 py-2"
                         >
                             {showAddNoteTextField ? "-" : "+"}
                         </button>
@@ -318,7 +346,7 @@ function FriendDetailView({
                                         setShowAddNoteTextField(false);
                                         setNewNote("");
                                     }}
-                                    className="btn-hand-drawn btn-secondary text-sm px-4 py-2 w-fit mt-2 flex items-center gap-2"
+                                    className="dex-btn btn-secondary text-sm px-4 py-2 w-fit mt-2 flex items-center gap-2"
                                 >
                                     <svg
                                         className="w-4 h-4"
@@ -338,7 +366,7 @@ function FriendDetailView({
                                 </button>
                                 <button
                                     onClick={handleAddNote}
-                                    className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit flex items-center gap-2"
+                                    className="dex-btn btn-primary text-sm px-4 py-2 w-fit flex items-center gap-2"
                                 >
                                     <svg
                                         className="w-4 h-4"
@@ -362,7 +390,7 @@ function FriendDetailView({
                     <div
                         className="text-lg text-stone-700 p-4 leading-relaxed"
                         style={{
-                            borderRadius: "15px",
+                            borderRadius: "var(--radius-dex)",
                             backgroundColor:
                                 "var(--color-info-bg, var(--color-primary-light))",
                         }}
@@ -409,7 +437,7 @@ function FriendDetailView({
                             className="w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600"
                             style={{
                                 borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
+                                    "var(--radius-dex)",
                             }}
                             placeholder="Enter your note here..."
                             value={newNote}
@@ -419,7 +447,7 @@ function FriendDetailView({
                     <div className="flex justify-end mb-2">
                         <button
                             onClick={handleAddNote}
-                            className="btn-hand-drawn btn-primary text-sm px-4 py-2 w-fit flex items-center gap-2"
+                            className="dex-btn btn-primary text-sm px-4 py-2 w-fit flex items-center gap-2"
                         >
                             Save
                         </button>
@@ -437,29 +465,29 @@ function FriendDetailView({
             {/* Delete Confirmation Modal */}
             {showDeleteModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="card-hand-drawn p-6 max-w-md mx-4">
+                    <div className="dex-card p-6 max-w-md mx-4">
                         <h3
                             className="text-2xl font-bold mb-4"
                             style={{
                                 color: "var(--color-title, var(--color-primary-dark))",
                             }}
                         >
-                            Confirm Delete
+                            Release {friend.name}?
                         </h3>
                         <p className="text-lg text-stone-700 mb-6">
-                            Are you sure you want to delete{" "}
-                            <strong>{friend.name}</strong>?
+                            This deletes <strong>{friend.name}</strong> and
+                            all their notes from your Friendex.
                         </p>
                         <div className="flex gap-3 justify-end">
                             <button
                                 onClick={handleDeleteCancel}
-                                className="btn-hand-drawn btn-secondary px-4 py-2"
+                                className="dex-btn btn-secondary px-4 py-2"
                             >
                                 No
                             </button>
                             <button
                                 onClick={handleDeleteConfirm}
-                                className="btn-hand-drawn btn-danger px-4 py-2"
+                                className="dex-btn btn-danger px-4 py-2"
                             >
                                 Yes
                             </button>

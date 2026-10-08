@@ -1,10 +1,19 @@
 // src/RolodexItem.jsx (Corrected and Simplified)
 import { motion, useTransform } from "framer-motion";
+import { formatDexNumber } from "./dex";
 
 const ITEM_HEIGHT = 56;
 const LIST_HEIGHT = 5 * ITEM_HEIGHT;
 
-export function RolodexItem({ friend, scrollY, index, onClick, isSelected }) {
+export function RolodexItem({
+    friend,
+    scrollY,
+    index,
+    onClick,
+    isSelected,
+    dexNumber,
+    tier,
+}) {
     // This calculates the item's absolute position relative to the top of the viewport.
     const itemY = useTransform(scrollY, (y) => index * ITEM_HEIGHT + y);
 
@@ -35,7 +44,7 @@ export function RolodexItem({ friend, scrollY, index, onClick, isSelected }) {
     const x = useTransform(
         distanceFromCenter,
         transformationRange,
-        [60, 0, 60],
+        [28, 0, 28],
         { clamp: true }
     );
 
@@ -49,18 +58,38 @@ export function RolodexItem({ friend, scrollY, index, onClick, isSelected }) {
                 scale,
                 opacity,
                 x,
+                originX: 0,
             }}
         >
             <button
                 onClick={onClick}
-                className={`w-full text-left text-xl leading-[1.2rem] font-bold p-2 h-full transition-colors duration-150`}
+                className="w-full text-left font-bold pl-3 pr-2 h-[calc(100%-6px)] mt-[3px] transition-colors duration-150 flex flex-col justify-center border-2"
                 style={{
-                    borderRadius: "255px 15px 225px 15px/15px 225px 15px 255px",
-                    backgroundColor: isSelected ? "var(--color-btn-bg, var(--color-primary))" : "transparent",
-                    color: isSelected ? "var(--color-btn-text, var(--color-neutral-900))" : "var(--color-neutral-800)",
+                    borderRadius: "var(--radius-dex)",
+                    backgroundColor: isSelected ? "var(--color-shell)" : "transparent",
+                    borderColor: isSelected ? "#1c1917" : "transparent",
+                    boxShadow: isSelected ? "3px 3px 0 #1c1917" : "none",
+                    color: isSelected ? "#fff" : "var(--color-neutral-800)",
                 }}
             >
-                {friend.name}
+                <span
+                    className={`font-pixel text-[10px] leading-none flex items-center gap-1 ${
+                        isSelected ? "text-white/80" : "text-stone-500"
+                    }`}
+                >
+                    {formatDexNumber(dexNumber)}
+                    {tier?.icon && (
+                        <tier.icon
+                            className="w-3 h-3"
+                            style={{ color: isSelected ? "#fff" : tier.ring }}
+                            strokeWidth={3}
+                            aria-label={tier.label}
+                        />
+                    )}
+                </span>
+                <span className="text-xl leading-tight truncate w-full">
+                    {friend.name}
+                </span>
             </button>
         </motion.li>
     );

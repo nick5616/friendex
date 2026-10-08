@@ -11,6 +11,7 @@ import DescriptionSelector from "./DescriptionSelector";
 import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
 import NameSelector from "./NameSelector";
+import { compressImage } from "./dex";
 
 function ModifyFriend() {
     const navigate = useNavigate();
@@ -133,16 +134,16 @@ function ModifyFriend() {
         }));
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files?.[0];
+        e.target.value = "";
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            setProfilePicture(event.target.result);
-        };
-        reader.readAsDataURL(file);
-        e.target.value = "";
+        try {
+            setProfilePicture(await compressImage(file));
+        } catch (error) {
+            console.error("Photo error:", error);
+        }
     };
 
     const handleProfilePictureClick = () => {
@@ -199,6 +200,8 @@ function ModifyFriend() {
         // Only update profile picture if a new one was uploaded
         if (profilePicture) {
             updateData.profilePicture = profilePicture;
+            // Clearing photoId tells the cloud sync to upload this as a new photo
+            updateData.photoId = null;
         }
 
         await currentDb.friends.update(parseInt(id), updateData);
@@ -237,7 +240,7 @@ function ModifyFriend() {
                     </span>
                 </h1>
                 {draftRestored && (
-                    <div className="muted-card-hand-drawn mt-4 p-3 bg-green-200 border border-green-600 transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-top-2 delay-500">
+                    <div className="dex-card-muted mt-4 p-3 bg-green-200 border border-green-600 transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-top-2 delay-500">
                         <p className="text-green-800 text-sm">
                             📝 Draft restored from previous session
                         </p>
@@ -247,7 +250,7 @@ function ModifyFriend() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Profile Picture Upload */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="dex-card p-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Profile Picture
                     </h2>
@@ -289,7 +292,7 @@ function ModifyFriend() {
                 </div>
 
                 {/* Basic Info */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="dex-card p-6 space-y-4">
                     <NameSelector
                         value={formData.name}
                         onChange={handleChange}
@@ -308,7 +311,7 @@ function ModifyFriend() {
                 </div>
 
                 {/* About Section */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="dex-card p-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         About
                     </h2>
@@ -327,7 +330,7 @@ function ModifyFriend() {
                 </div>
 
                 {/* Key Info */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="dex-card p-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Key Info
                     </h2>
@@ -355,7 +358,7 @@ function ModifyFriend() {
                 </div>
 
                 {/* Notes */}
-                <div className="card-hand-drawn p-6 space-y-4">
+                <div className="dex-card p-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Notes
                     </h2>

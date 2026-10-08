@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, LayoutGrid, GalleryVerticalEnd, PartyPopper, Undo2, Cake, ScanLine, UserPlus } from "lucide-react";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
 import { seedDemoDatabase } from "./demoSeed";
@@ -9,17 +11,37 @@ import { useAuth } from "./hooks/useAuth";
 import { useFirestoreSync } from "./hooks/useFirestoreSync";
 import LoginScreen from "./LoginScreen";
 import Toast from "./Toast";
-import FriendList from "./FriendList";
 import RolodexList from "./RolodexList.tsx";
 import FriendDetailView from "./FriendDetailView";
 import FilterAndSort from "./FilterAndSort";
 import PWAInstallPrompt from "./PWAInstallPrompt";
+import DexScreen from "./DexScreen";
+import FriendGrid from "./FriendGrid";
+import TrainerCard from "./TrainerCard";
+import CatchCelebration from "./CatchCelebration";
+import Burst from "./Burst";
+import CatchScanner from "./CatchScanner";
+import WildEncounter from "./WildEncounter";
+import { getPendingCatch, clearPendingCatch } from "./trainer";
 import {
     applyUserColor,
     getUserColor,
-    DEFAULT_COLOR,
     COLOR_SCHEMES,
 } from "./utils";
+import {
+    getDexNumbers,
+    getFriendshipTier,
+    getLastHangout,
+    isBirthdayToday,
+    parseBirthday,
+    todayKey,
+    compressImage,
+} from "./dex";
+
+const VIEW_KEY = "friendexView";
+
+const shellButton =
+    "w-10 h-10 rounded-full bg-white border-2 border-stone-800 text-stone-800 flex items-center justify-center shadow-[2px_2px_0_#1c1917] active:translate-y-px active:shadow-none transition-all flex-shrink-0";
 
 function FriendexApp() {
     const navigate = useNavigate();
@@ -32,7 +54,7 @@ function FriendexApp() {
     const currentDb = isDemoMode ? demoDb : db;
     const basePath = isDemoMode ? "/demo" : "";
 
-    const friends = useLiveQuery(() => currentDb.friends.toArray());
+    const friends = useLiveQuery(() => currentDb.friends.toArray(), [currentDb]);
     const [selectedFriendId, setSelectedFriendId] = useState(null);
     const fileInputRef = useRef(null);
     const importFileInputRef = useRef(null);
@@ -40,6 +62,22 @@ function FriendexApp() {
     const [filterText, setFilterText] = useState("");
     const [filterField, setFilterField] = useState("name");
     const [toast, setToast] = useState(null);
+    const [showSearch, setShowSearch] = useState(false);
+    const [showTrainerCard, setShowTrainerCard] = useState(false);
+    const [catchInfo, setCatchInfo] = useState(null);
+    const [stampKey, setStampKey] = useState(null);
+    const [hangoutBurstKey, setHangoutBurstKey] = useState(null);
+    const [showCatchMenu, setShowCatchMenu] = useState(false);
+    const [showScanner, setShowScanner] = useState(false);
+    // A trainer from a scanned QR code or an opened catch link, waiting to be caught
+    const [encounter, setEncounter] = useState(getPendingCatch);
+    const [view, setView] = useState(() => {
+        try {
+            return localStorage.getItem(VIEW_KEY) || "dex";
+        } catch {
+            return "dex";
+        }
+    });
 
     // Firestore sync for non-demo authenticated users
     const { initialSyncDone } = useFirestoreSync(
@@ -71,26 +109,45 @@ function FriendexApp() {
         applyUserColor(colorToUse, useSameColorText, colorScheme, mixItUp);
     }, []);
 
-    // Check if we're returning from adding a new friend
+    useEffect(() => {
+        try {
+            localStorage.setItem(VIEW_KEY, view);
+        } catch {
+            // Storage unavailable (private mode) - view just won't be remembered
+        }
+    }, [view]);
+
+    // Check if we're returning from adding/editing a friend
     useEffect(() => {
         if (location.state?.newFriendId) {
             setSelectedFriendId(location.state.newFriendId);
-            if (location.state.toast) setToast(location.state.toast);
+            if (location.state.caught) {
+                setCatchInfo({
+                    id: location.state.newFriendId,
+                    count: location.state.caught,
+                });
+            } else if (location.state.toast) {
+                setToast(location.state.toast);
+            }
+            navigate(location.pathname, { replace: true });
+        } else if (location.state?.toast) {
+            setToast(location.state.toast);
             navigate(location.pathname, { replace: true });
         }
     }, [location, navigate]);
 
+    const dexNumbers = useMemo(() => getDexNumbers(friends), [friends]);
+
     // Apply filtering and sorting — computed before auth gate so the useEffect below
     // can also live before the gate (hooks must not be called after conditional returns)
-    const getFilteredAndSortedFriends = () => {
+    const filteredAndSortedFriends = useMemo(() => {
         if (!friends) return [];
 
         let filtered = [...friends];
 
         if (filterText.trim()) {
+            const searchText = filterText.toLowerCase();
             filtered = filtered.filter((friend) => {
-                const searchText = filterText.toLowerCase();
-
                 switch (filterField) {
                     case "name":
                         return friend.name?.toLowerCase().includes(searchText);
@@ -103,7 +160,10 @@ function FriendexApp() {
                             ?.toLowerCase()
                             .includes(searchText);
                     case "notes":
-                        return friend.notes?.toLowerCase().includes(searchText);
+                        return [].concat(friend.notes || [])
+                            .join(" ")
+                            .toLowerCase()
+                            .includes(searchText);
                     default:
                         return true;
                 }
@@ -116,14 +176,25 @@ function FriendexApp() {
                     (a, b) => a.name?.localeCompare(b.name || "") || 0
                 );
                 break;
+            case "dex":
+                filtered.sort(
+                    (a, b) => dexNumbers.get(a.id) - dexNumbers.get(b.id)
+                );
+                break;
+            case "hangout":
+                // Most recent first; never-hung-out friends go last
+                filtered.sort((a, b) =>
+                    (getLastHangout(b) || "").localeCompare(
+                        getLastHangout(a) || ""
+                    )
+                );
+                break;
             case "age":
                 filtered.sort((a, b) => {
-                    const dateA = a.keyInfo?.birthday
-                        ? new Date(a.keyInfo.birthday)
-                        : new Date();
-                    const dateB = b.keyInfo?.birthday
-                        ? new Date(b.keyInfo.birthday)
-                        : new Date();
+                    const dateA =
+                        parseBirthday(a.keyInfo?.birthday) || new Date();
+                    const dateB =
+                        parseBirthday(b.keyInfo?.birthday) || new Date();
                     return dateA - dateB;
                 });
                 break;
@@ -132,9 +203,7 @@ function FriendexApp() {
         }
 
         return filtered;
-    };
-
-    const filteredAndSortedFriends = getFilteredAndSortedFriends();
+    }, [friends, filterText, filterField, sortBy, dexNumbers]);
 
     // Auto-select first friend when list loads or selected friend is removed
     useEffect(() => {
@@ -162,10 +231,32 @@ function FriendexApp() {
     // Redirect to /add when there are genuinely no friends — must be a useEffect, not
     // inline render code, so it only fires after all state has settled.
     useEffect(() => {
-        if (friends !== undefined && friends.length === 0 && !isDemoMode && initialSyncDone) {
+        if (friends !== undefined && friends.length === 0 && !isDemoMode && initialSyncDone && !encounter) {
             navigate("/add");
         }
-    }, [friends, isDemoMode, initialSyncDone, navigate]);
+    }, [friends, isDemoMode, initialSyncDone, navigate, encounter]);
+
+    const handleCatchDone = useCallback(() => setCatchInfo(null), []);
+    // Stable so the toast's auto-dismiss timer isn't reset on every re-render
+    const clearToast = useCallback(() => setToast(null), []);
+
+    const handleScanned = useCallback((trainer) => {
+        setShowScanner(false);
+        setEncounter(trainer);
+    }, []);
+
+    const handleCaught = useCallback((newFriendId) => {
+        clearPendingCatch();
+        setEncounter(null);
+        setSelectedFriendId(newFriendId);
+        setCatchInfo({ id: newFriendId, count: 1 });
+        setView("dex");
+    }, []);
+
+    const handleRun = useCallback(() => {
+        clearPendingCatch();
+        setEncounter(null);
+    }, []);
 
     // Auth gate — only applies to non-demo routes (must be after all hooks above)
     if (!isDemoMode) {
@@ -194,6 +285,11 @@ function FriendexApp() {
     }
 
     const selectedFriend = friends?.find((f) => f.id === selectedFriendId);
+    const selectedTier = getFriendshipTier(selectedFriend);
+    const lastHangout = getLastHangout(selectedFriend);
+    const hungOutToday = lastHangout === todayKey();
+    const birthdayToday = isBirthdayToday(selectedFriend?.keyInfo?.birthday);
+    const caughtFriend = friends?.find((f) => f.id === catchInfo?.id);
 
     const handleProfilePictureClick = () => {
         if (selectedFriend && fileInputRef.current) {
@@ -203,18 +299,44 @@ function FriendexApp() {
 
     const handleFileChange = async (e) => {
         const file = e.target.files?.[0];
+        e.target.value = "";
         if (!file || !selectedFriend) return;
 
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const dataUrl = event.target.result;
+        try {
+            const dataUrl = await compressImage(file);
+            // Clearing photoId tells the cloud sync to upload this as a new photo
             await currentDb.friends.update(selectedFriend.id, {
                 profilePicture: dataUrl,
+                photoId: null,
             });
-        };
-        reader.readAsDataURL(file);
+        } catch (error) {
+            console.error("Photo error:", error);
+            setToast({ message: "Couldn't read that photo", type: "error" });
+        }
+    };
 
-        e.target.value = "";
+    const handleHangout = async () => {
+        if (!selectedFriend) return;
+        const today = todayKey();
+        const list = selectedFriend.hangouts || [];
+        if (list.includes(today)) {
+            await currentDb.friends.update(selectedFriend.id, {
+                hangouts: list.filter((d) => d !== today),
+            });
+            setToast({ message: "Un-logged today's hangout", type: "success" });
+        } else {
+            await currentDb.friends.update(selectedFriend.id, {
+                hangouts: [...list, today],
+            });
+            setStampKey(Date.now());
+            setHangoutBurstKey(Date.now());
+        }
+    };
+
+    const handleSelectFromGrid = (id) => {
+        setSelectedFriendId(id);
+        setView("dex");
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const handleExportFriends = async () => {
@@ -272,7 +394,8 @@ function FriendexApp() {
             )
         ) {
             await seedDemoDatabase();
-            alert("Demo database has been reset!");
+            setShowTrainerCard(false);
+            setToast({ message: "Demo friends reset", type: "success" });
         }
     };
 
@@ -280,288 +403,344 @@ function FriendexApp() {
         await currentDb.friends.delete(friendId);
     };
 
+    const trainerStats = {
+        friends: friends?.length ?? 0,
+        hangouts: (friends || []).reduce(
+            (sum, f) => sum + (f.hangouts?.length || 0),
+            0
+        ),
+        besties: (friends || []).filter(
+            (f) => (getFriendshipTier(f)?.level || 0) >= 4
+        ).length,
+    };
+
+    const accountInitial = isDemoMode
+        ? "D"
+        : (user?.displayName || user?.email || "?")[0].toUpperCase();
+
     return (
-        <div className="min-h-screen mx-auto md:p-8 flex flex-col">
-            <header
-                className="text-center mb-6 w-full  px-2 relative header-user-bg"
-                style={{
-                    paddingTop: "1rem",
-                    paddingBottom: "1rem",
-                }}
-            >
-                <div className="flex items-center justify-between gap-2 relative z-10 w-full">
-                    <h1
-                    onClick={() => navigate(`${basePath}/about`)}
-                    className="text-6xl font-bold relative z-10 cursor-pointer hover:opacity-80 transition-opacity"
-                    style={{
-                        color: "var(--color-title, var(--color-neutral-900))",
-                    }}
-                >
-                    Friendex
-                </h1>
-                <div className="flex items-center gap-2 relative z-10">
-                    
-                    
-                    {!isDemoMode && user && (
-                        <button
-                            onClick={signOut}
-                            title={`Signed in as ${user.displayName || user.email}\nClick to sign out`}
-                            className="flex-shrink-0 rounded-full overflow-hidden border-2 border-stone-800 hover:opacity-80 transition-opacity w-10 h-10"
+        <div className="min-h-screen flex flex-col pb-28">
+            {/* Pokédex shell */}
+            <header className="dex-shell px-4 pb-4 text-white relative z-10">
+                <div className="relative max-w-3xl mx-auto flex items-start gap-3">
+                    <div
+                        className="dex-lens w-14 h-14 rounded-full flex-shrink-0 mt-1"
+                        aria-hidden="true"
+                    />
+                    <div className="flex-1 min-w-0">
+                        <h1
+                            onClick={() => navigate(`${basePath}/about`)}
+                            className="text-4xl font-bold leading-none mt-2 cursor-pointer"
+                            style={{ textShadow: "2px 2px 0 #1c1917" }}
                         >
-                            {user.photoURL ? (
+                            Friendex
+                        </h1>
+                        <div className="font-pixel text-[10px] text-white/85 mt-1">
+                            {String(friends?.length ?? 0).padStart(3, "0")}{" "}
+                            REGISTERED
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                        <button
+                            onClick={() => setShowSearch((v) => !v)}
+                            className={shellButton}
+                            aria-label="Search friends"
+                            aria-pressed={showSearch}
+                        >
+                            <Search className="w-5 h-5" strokeWidth={2.5} />
+                        </button>
+                        <button
+                            onClick={() =>
+                                setView((v) => (v === "grid" ? "dex" : "grid"))
+                            }
+                            className={shellButton}
+                            aria-label={
+                                view === "grid"
+                                    ? "Show rolodex view"
+                                    : "Show grid view"
+                            }
+                        >
+                            {view === "grid" ? (
+                                <GalleryVerticalEnd className="w-5 h-5" strokeWidth={2.5} />
+                            ) : (
+                                <LayoutGrid className="w-5 h-5" strokeWidth={2.5} />
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setShowTrainerCard(true)}
+                            title="Trainer card"
+                            aria-label="Open trainer card"
+                            className={`${shellButton} overflow-hidden font-bold`}
+                        >
+                            {!isDemoMode && user?.photoURL ? (
                                 <img
                                     src={user.photoURL}
-                                    alt={user.displayName || "Account"}
+                                    alt=""
+                                    referrerPolicy="no-referrer"
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                <div className="w-full h-full bg-stone-200 flex items-center justify-center text-stone-600 text-sm font-bold">
-                                    {(user.displayName || user.email || "?")[0].toUpperCase()}
-                                </div>
+                                accountInitial
                             )}
                         </button>
-                    )}
+                    </div>
                 </div>
-                </div>
-                <div className="flex items-center justify-end gap-2 relative z-10 w-full">
-                    
-                    <button
-                        onClick={() => navigate(`${basePath}/add`)}
-                        className="btn-hand-drawn btn-primary h-10 px-4 transition-colors font-bold text-sm whitespace-nowrap border-2 border-stone-800"
-                    >
-                        New Friend
-                    </button>
-                    
-                </div>
-                
-                
             </header>
-            
-            <FilterAndSort
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                filterText={filterText}
-                setFilterText={setFilterText}
-                filterField={filterField}
-                setFilterField={setFilterField}
-                filteredCount={filteredAndSortedFriends.length}
-            />
-            {friendsForRolodex.length > 0 ? (
-                <>
-                    <section className="flex flex-row md:flex-row items-center gap-4 mb-6">
-                        <div className="w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 flex-shrink-0 card-hand-drawn flex items-center justify-center ml-4 relative group">
-                            {selectedFriend?.profilePicture ? (
-                                <>
-                                    <img
-                                        src={selectedFriend.profilePicture}
-                                        alt={`Avatar for ${selectedFriend.name}`}
-                                        className="w-full h-full object-cover cursor-pointer transition-opacity group-hover:opacity-75"
-                                        style={{
-                                            borderRadius:
-                                                "255px 15px 225px 15px/15px 225px 15px 255px",
-                                        }}
-                                        onClick={handleProfilePictureClick}
-                                    />
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                        <span className="bg-stone-900 text-white px-4 py-2 rounded-md text-sm font-medium">
-                                            Change Photo
-                                        </span>
-                                    </div>
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                    />
-                                </>
-                            ) : (
-                                <div className="text-stone-400 text-center">
-                                    No Friend Selected
-                                </div>
-                            )}
-                        </div>
-                        <RolodexList
-                            friends={friendsForRolodex || []}
-                            selectedId={selectedFriendId}
-                            onSelect={setSelectedFriendId}
-                        />
-                    </section>
 
-                    <section className="flex-grow px-2 pb-2">
-                        <FriendDetailView
-                            friend={selectedFriend}
-                            basePath={basePath}
-                            onDeleteFriend={handleDeleteFriend}
-                            currentDb={currentDb}
+            <div className="w-full max-w-3xl mx-auto flex-grow">
+                {showSearch && (
+                    <FilterAndSort
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        filterText={filterText}
+                        setFilterText={setFilterText}
+                        filterField={filterField}
+                        setFilterField={setFilterField}
+                        filteredCount={filteredAndSortedFriends.length}
+                        onClose={() => setShowSearch(false)}
+                    />
+                )}
+
+                {friendsForRolodex.length > 0 && view === "grid" ? (
+                    <section className="mt-5">
+                        <FriendGrid
+                            friends={filteredAndSortedFriends}
+                            dexNumbers={dexNumbers}
+                            selectedId={selectedFriendId}
+                            onSelect={handleSelectFromGrid}
                         />
                     </section>
-                </>
-            ) : (
-                <section className="flex-grow px-2 py-2 justify-center items-center">
-                    <div className="text-center text-stone-600">
-                        No friends to found with {filterField} "{filterText}".
+                ) : friendsForRolodex.length > 0 ? (
+                    <>
+                        <section className="flex items-center gap-3 px-3 mt-6">
+                            <DexScreen
+                                friend={selectedFriend}
+                                tier={selectedTier}
+                                lastHangout={lastHangout}
+                                stampKey={stampKey}
+                                birthdayToday={birthdayToday}
+                                onPhotoClick={handleProfilePictureClick}
+                            />
+                            <div className="flex-1 min-w-0">
+                                <RolodexList
+                                    friends={friendsForRolodex || []}
+                                    selectedId={selectedFriendId}
+                                    onSelect={setSelectedFriendId}
+                                    dexNumbers={dexNumbers}
+                                />
+                            </div>
+                        </section>
+
+                        {birthdayToday && (
+                            <div className="relative mx-3 mt-4 dex-card !py-2 flex items-center justify-center gap-2 bg-pink-100 text-pink-900 font-bold text-lg">
+                                <Cake className="w-5 h-5" />
+                                It's {selectedFriend.name}'s birthday today!
+                                <Burst
+                                    burstKey={`bday-${selectedFriend.id}`}
+                                    shape="confetti"
+                                    count={18}
+                                    distance={120}
+                                />
+                            </div>
+                        )}
+
+                        {selectedFriend && (
+                            <section className="px-3 mt-5">
+                                <button
+                                    onClick={handleHangout}
+                                    className="relative dex-btn w-full border-2 border-stone-800 flex items-center justify-center gap-2 text-xl py-3"
+                                    style={
+                                        hungOutToday
+                                            ? {
+                                                  background: "white",
+                                                  color: "#1c1917",
+                                              }
+                                            : {
+                                                  background: "var(--color-shell)",
+                                                  color: "white",
+                                                  boxShadow: "3px 3px 0 #1c1917",
+                                                  textShadow: "1px 1px 0 rgba(0,0,0,0.35)",
+                                              }
+                                    }
+                                >
+                                    {hungOutToday ? (
+                                        <>
+                                            <Undo2 className="w-5 h-5" />
+                                            Hung out today · tap to undo
+                                        </>
+                                    ) : (
+                                        <>
+                                            <PartyPopper className="w-6 h-6" />
+                                            We just hung out!
+                                        </>
+                                    )}
+                                    <Burst burstKey={hangoutBurstKey} />
+                                </button>
+                            </section>
+                        )}
+
+                        <section className="px-3 mt-5">
+                            <FriendDetailView
+                                friend={selectedFriend}
+                                dexNumber={dexNumbers.get(selectedFriendId)}
+                                basePath={basePath}
+                                onDeleteFriend={handleDeleteFriend}
+                                currentDb={currentDb}
+                            />
+                        </section>
+                    </>
+                ) : (
+                    <section className="px-3 py-10 text-center text-stone-600 text-lg">
+                        No friends found with {filterField} "{filterText}".
                         <div className="flex justify-center mt-4">
                             <button
                                 onClick={() => navigate(`${basePath}/add`)}
-                                className="btn-hand-drawn btn-primary p-4 transition-colors font-bold text-md flex items-center gap-2"
+                                className="dex-btn btn-primary border-2 border-stone-800"
                             >
-                                Create a New Friend
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={2}
-                                    stroke="currentColor"
-                                    className="w-5 h-5"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 4.5v15m7.5-7.5h-15"
-                                    />
-                                </svg>
+                                Register a new friend
                             </button>
                         </div>
-                    </div>
-                </section>
-            )}
+                    </section>
+                )}
+            </div>
 
-            {/* Export/Import Buttons */}
-            {!isDemoMode && (
-                <section className="px-2 pb-4 mt-6 flex justify-center gap-4">
-                    <button
-                        onClick={handleImportClick}
-                        className="btn-hand-drawn border-2 border-stone-700 text-black text-sm px-6 py-3 transition-colors font-medium flex items-center gap-2"
-                        style={{
-                            backgroundColor: "var(--color-primary-light)",
-                        }}
-                        onMouseEnter={(e) =>
-                            (e.target.style.backgroundColor =
-                                "var(--color-primary)")
-                        }
-                        onMouseLeave={(e) =>
-                            (e.target.style.backgroundColor =
-                                "var(--color-primary-light)")
-                        }
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            className="w-4 h-4"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-                            />
-                        </svg>
-                        Import Friends
-                    </button>
-                    <input
-                        ref={importFileInputRef}
-                        type="file"
-                        accept="application/json"
-                        onChange={handleImportFile}
-                        className="hidden"
-                    />
-                    <button
-                        onClick={handleExportFriends}
-                        className="btn-hand-drawn border-2 border-stone-700 text-sm text-black px-6 py-3 transition-colors font-medium flex items-center gap-2"
-                        style={{
-                            backgroundColor: "var(--color-primary-light)",
-                        }}
-                        onMouseEnter={(e) =>
-                            (e.target.style.backgroundColor =
-                                "var(--color-primary)")
-                        }
-                        onMouseLeave={(e) =>
-                            (e.target.style.backgroundColor =
-                                "var(--color-primary-light)")
-                        }
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            className="w-4 h-4"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                            />
-                        </svg>
-                        Export Friends
-                    </button>
-                    
-                </section>
-                
-            )}
-            <section className="px-2 pb-4 mt-2 flex justify-center gap-4">
-                <button
-                    onClick={() => navigate(`${basePath}/color-picker`)}
-                    className="card-hand-drawn border-2 border-stone-800 h-10 flex items-center justify-center transition-all bg-white hover:bg-stone-50 flex-shrink-0"
-                    title="Choose your color"
-                >
-                    <svg
-                        width="26"
-                        height="26"
-                        viewBox="0 0 100 100"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-6 h-6"
-                    >
-                        <defs>
-                            <radialGradient
-                                id={`paintGradient-${getUserColor().replace(
-                                    "#",
-                                    ""
-                                )}`}
-                                cx="40%"
-                                cy="35%"
-                                r="70%"
-                            >
-                                <stop
-                                    offset="0%"
-                                    stopColor="var(--color-primary-light)"
-                                />
-                                <stop
-                                    offset="40%"
-                                    stopColor="var(--color-primary)"
-                                />
-                                <stop
-                                    offset="70%"
-                                    stopColor="var(--color-complementary)"
-                                />
-                                <stop
-                                    offset="100%"
-                                    stopColor="var(--color-complementary-light)"
-                                />
-                            </radialGradient>
-                        </defs>
-                        <path
-                            d="M50 15 Q65 12, 75 25 Q80 40, 75 55 Q70 70, 55 75 Q40 78, 25 75 Q15 70, 12 55 Q10 40, 15 25 Q20 15, 35 12 Q42 10, 50 15 Z"
-                            fill={`url(#paintGradient-${getUserColor().replace(
-                                "#",
-                                ""
-                            )})`}
-                            stroke="none"
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+            />
+            <input
+                ref={importFileInputRef}
+                type="file"
+                accept="application/json"
+                onChange={handleImportFile}
+                className="hidden"
+            />
+
+            {/* Catch a new friend: scan their trainer card or register by hand */}
+            <AnimatePresence>
+                {showCatchMenu && (
+                    <>
+                        <motion.div
+                            className="fixed inset-0 z-40 bg-black/30"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowCatchMenu(false)}
                         />
-                    </svg>
-                    <div>Change theme</div>
-                </button>
-            </section>
+                        <motion.div
+                            className="fixed z-40 right-4 flex flex-col items-end gap-2"
+                            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 100px)" }}
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 16 }}
+                        >
+                            {[
+                                {
+                                    icon: ScanLine,
+                                    label: "Scan trainer card",
+                                    onClick: () => setShowScanner(true),
+                                },
+                                {
+                                    icon: UserPlus,
+                                    label: "Register manually",
+                                    onClick: () => navigate(`${basePath}/add`),
+                                },
+                            ].map(({ icon: Icon, label, onClick }) => (
+                                <button
+                                    key={label}
+                                    onClick={() => {
+                                        setShowCatchMenu(false);
+                                        onClick();
+                                    }}
+                                    className="dex-btn bg-white border-2 border-stone-800 text-stone-800 flex items-center gap-2 shadow-[3px_3px_0_#1c1917]"
+                                >
+                                    <Icon className="w-5 h-5" />
+                                    {label}
+                                </button>
+                            ))}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+            <motion.button
+                onClick={() => setShowCatchMenu((v) => !v)}
+                aria-label="Catch a new friend"
+                aria-expanded={showCatchMenu}
+                title="Catch a new friend"
+                className="fixed z-40 right-4 w-[72px] h-[72px] rounded-full"
+                style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
+                animate={{ rotate: showCatchMenu ? 180 : 0 }}
+                whileHover={{ rotate: [0, -14, 14, -8, 0] }}
+                whileTap={{ scale: 0.88 }}
+            >
+                <img
+                    src="/icons/android-chrome512x512.png?v=2"
+                    alt=""
+                    className="w-full h-full drop-shadow-[3px_3px_0_rgba(28,25,23,0.9)]"
+                />
+            </motion.button>
+
+            <AnimatePresence>
+                {showScanner && (
+                    <CatchScanner
+                        onCatch={handleScanned}
+                        onClose={() => setShowScanner(false)}
+                    />
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {encounter && (isDemoMode || initialSyncDone) && (
+                    <WildEncounter
+                        trainer={encounter}
+                        friends={friends}
+                        currentDb={currentDb}
+                        onCaught={handleCaught}
+                        onRun={handleRun}
+                    />
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {showTrainerCard && (
+                    <TrainerCard
+                        user={user}
+                        isDemoMode={isDemoMode}
+                        stats={trainerStats}
+                        onClose={() => setShowTrainerCard(false)}
+                        onChangeTheme={() => navigate(`${basePath}/color-picker`)}
+                        onImport={handleImportClick}
+                        onExport={handleExportFriends}
+                        onResetDemo={handleResetDemo}
+                        onAbout={() => navigate(`${basePath}/about`)}
+                        onSignOut={() => {
+                            setShowTrainerCard(false);
+                            signOut();
+                        }}
+                    />
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {catchInfo && (
+                    <CatchCelebration
+                        name={caughtFriend?.name}
+                        count={catchInfo.count}
+                        dexNumber={dexNumbers.get(catchInfo.id)}
+                        onDone={handleCatchDone}
+                    />
+                )}
+            </AnimatePresence>
+
             <PWAInstallPrompt />
             {toast && (
                 <Toast
                     message={toast.message}
                     type={toast.type}
-                    onDone={() => setToast(null)}
+                    onDone={clearToast}
                 />
             )}
         </div>

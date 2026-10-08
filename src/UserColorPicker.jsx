@@ -25,6 +25,7 @@ const COLORS_PER_PAGE = 4;
 const SCHEME_ORDER = [
     COLOR_SCHEMES.MONOCHROME,
     COLOR_SCHEMES.COMPLEMENTARY,
+    COLOR_SCHEMES.ANALOGOUS,
     COLOR_SCHEMES.TRIADIC,
     COLOR_SCHEMES.SPLIT_COMPLEMENTARY,
     COLOR_SCHEMES.SQUARE,
@@ -311,7 +312,7 @@ function UserColorPicker({ onCancel, basePath = "" }) {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="card-hand-drawn p-6">
+            <div className="dex-card p-6">
                 <label className="block mb-4 text-2xl font-bold">
                     Choose your color:
                 </label>
@@ -330,7 +331,7 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                             style={{
                                 backgroundColor: swatch.hex,
                                 borderRadius:
-                                    "255px 15px 225px 15px/15px 225px 15px 255px",
+                                    "var(--radius-dex)",
                             }}
                             title={`Hue: ${swatch.hue}°, Lightness: ${swatch.lightness}%, Saturation: ${swatch.saturation}%`}
                         />
@@ -409,7 +410,7 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                                                 }`}
                                                 style={{
                                                     borderRadius:
-                                                        "255px 15px 225px 15px/15px 225px 15px 255px",
+                                                        "var(--radius-dex)",
                                                 }}
                                             >
                                                 {schemeColors.length === 1 ? (
@@ -543,7 +544,7 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                                     }`}
                                     style={{
                                         borderRadius:
-                                            "255px 15px 225px 15px/15px 225px 15px 255px",
+                                            "var(--radius-dex)",
                                     }}
                                 >
                                     <div className="flex items-center gap-2 mb-1">
@@ -588,7 +589,7 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                 <div className="flex gap-3 mt-4">
                     <button
                         onClick={onCancel || (() => {})}
-                        className="btn-hand-drawn text-sm px-4 py-2 flex-1 transition-all border-2 border-stone-800 bg-white hover:bg-stone-50"
+                        className="dex-btn text-sm px-4 py-2 flex-1 transition-all border-2 border-stone-800 bg-white hover:bg-stone-50"
                     >
                         Cancel
                     </button>
@@ -599,7 +600,7 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                             !accessibilityCheck.meetsWCAGAA &&
                             !doItAnyway
                         }
-                        className={`btn-hand-drawn text-sm px-4 py-2 flex-1 transition-all ${
+                        className={`dex-btn text-sm px-4 py-2 flex-1 transition-all ${
                             accessibilityCheck &&
                             !accessibilityCheck.meetsWCAGAA &&
                             !doItAnyway

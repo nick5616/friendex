@@ -15,6 +15,7 @@ import NotesSelector from "./NotesSelector";
 import { seedTagsAndInterests } from "./seed";
 import useIsDemoMode from "./hooks/useIsDemoMode";
 import { generateAvatar } from "./utils";
+import { compressImage } from "./dex";
 
 function AddFriend(friend) {
     const navigate = useNavigate();
@@ -161,16 +162,17 @@ function AddFriend(friend) {
         }));
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files?.[0];
+        e.target.value = "";
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            setProfilePicture(event.target.result);
-        };
-        reader.readAsDataURL(file);
-        e.target.value = "";
+        try {
+            setProfilePicture(await compressImage(file));
+        } catch (error) {
+            console.error("Photo error:", error);
+            setToast({ message: "Couldn't read that photo", type: "error" });
+        }
     };
 
     const handleProfilePictureClick = () => {
@@ -264,7 +266,7 @@ function AddFriend(friend) {
         sessionStorage.removeItem("addFriendDraft");
 
         // Navigate back to main page with the new friend ID
-        navigate(basePath || "/", { state: { newFriendId } });
+        navigate(basePath || "/", { state: { newFriendId, caught: 1 } });
     };
 
     return (
@@ -286,7 +288,7 @@ function AddFriend(friend) {
                     )}
                 </h1>
                 {draftRestored && (
-                    <div className="muted-card-hand-drawn mt-4 p-3 bg-green-200 border border-green-600 transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-top-2 delay-500">
+                    <div className="dex-card-muted mt-4 p-3 bg-green-200 border border-green-600 transition-all duration-500 ease-in-out animate-in fade-in slide-in-from-top-2 delay-500">
                         <p className="text-green-800 text-sm">
                             📝 Draft restored from previous session
                         </p>
@@ -297,7 +299,7 @@ function AddFriend(friend) {
             {/* Import option — kept compact so the single-friend form stays in view on phones */}
             {!isDemoMode && (
                 <>
-                    <div className="card-hand-drawn border-2 border-stone-800 px-4 py-3 sm:px-6 sm:py-5 flex flex-row items-center gap-3 sm:gap-4">
+                    <div className="dex-card border-2 border-stone-800 px-4 py-3 sm:px-6 sm:py-5 flex flex-row items-center gap-3 sm:gap-4">
                         <div className="flex-1">
                             <p className="font-semibold text-stone-800">Import friends list</p>
                             <p className="text-sm text-stone-500 mt-0.5">Load a previously exported JSON file to add multiple friends at once.</p>
@@ -305,7 +307,7 @@ function AddFriend(friend) {
                         <button
                             type="button"
                             onClick={() => importFileInputRef.current?.click()}
-                            className="btn-hand-drawn border-2 border-stone-700 text-black text-sm px-4 py-2 sm:px-5 sm:py-2.5 font-medium flex items-center gap-2 whitespace-nowrap"
+                            className="dex-btn border-2 border-stone-700 text-black text-sm px-4 py-2 sm:px-5 sm:py-2.5 font-medium flex items-center gap-2 whitespace-nowrap"
                             style={{ backgroundColor: "var(--color-primary-light)" }}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -325,7 +327,7 @@ function AddFriend(friend) {
             )}
 
             {/* Bulk add option */}
-            <div className="card-hand-drawn border-2 border-stone-800 px-4 py-3 sm:px-6 sm:py-5 flex flex-row items-center gap-3 sm:gap-4">
+            <div className="dex-card border-2 border-stone-800 px-4 py-3 sm:px-6 sm:py-5 flex flex-row items-center gap-3 sm:gap-4">
                 <div className="flex-1">
                     <p className="font-semibold text-stone-800">Bulk add friends</p>
                     <p className="text-sm text-stone-500 mt-0.5">Just names and pronouns — fill in the details later.</p>
@@ -333,7 +335,7 @@ function AddFriend(friend) {
                 <button
                     type="button"
                     onClick={() => navigate(`${basePath}/add/bulk`)}
-                    className="btn-hand-drawn border-2 border-stone-700 text-black text-sm px-4 py-2 sm:px-5 sm:py-2.5 font-medium flex items-center gap-2 whitespace-nowrap"
+                    className="dex-btn border-2 border-stone-700 text-black text-sm px-4 py-2 sm:px-5 sm:py-2.5 font-medium flex items-center gap-2 whitespace-nowrap"
                     style={{ backgroundColor: "var(--color-primary-light)" }}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -351,7 +353,7 @@ function AddFriend(friend) {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Profile Picture Upload */}
-                <div className="card-hand-drawn px-4 py-6 space-y-4">
+                <div className="dex-card px-4 py-6 space-y-4">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Profile Picture
                     </h2>
@@ -359,20 +361,7 @@ function AddFriend(friend) {
                         <div
                             className="w-32 h-32 bg-stone-200 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-75 transition-opacity relative group"
                             onClick={handleProfilePictureClick}
-                            style={{
-                                borderRadius:
-                                    profilePicture ||
-                                    (debouncedName &&
-                                        generateAvatar(debouncedName))
-                                        ? "255px 15px 225px 15px/15px 225px 15px 255px"
-                                        : "60% 40% 30% 70% / 60% 30% 70% 40%",
-                                transform:
-                                    profilePicture ||
-                                    (debouncedName &&
-                                        generateAvatar(debouncedName))
-                                        ? "rotate(0deg)"
-                                        : "rotate(-2deg)",
-                            }}
+                            style={{ borderRadius: "var(--radius-dex)" }}
                         >
                             {profilePicture ||
                             (debouncedName && generateAvatar(debouncedName)) ? (
@@ -409,7 +398,7 @@ function AddFriend(friend) {
                 </div>
 
                 {/* Basic Info */}
-                <div className="card-hand-drawn px-4 py-6 space-y-6">
+                <div className="dex-card px-4 py-6 space-y-6">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Basic Info
                     </h2>
@@ -441,7 +430,7 @@ function AddFriend(friend) {
                 </div>
 
                 {/* About Section */}
-                <div className="card-hand-drawn px-4 py-6 space-y-6">
+                <div className="dex-card px-4 py-6 space-y-6">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         About
                     </h2>
@@ -463,7 +452,7 @@ function AddFriend(friend) {
                 </div>
 
                 {/* Key Info */}
-                <div className="card-hand-drawn px-4 py-6 space-y-6">
+                <div className="dex-card px-4 py-6 space-y-6">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Key Info
                     </h2>
@@ -491,7 +480,7 @@ function AddFriend(friend) {
                 </div>
 
                 {/* Notes */}
-                <div className="card-hand-drawn px-4 py-6 space-y-6">
+                <div className="dex-card px-4 py-6 space-y-6">
                     <h2 className="text-2xl font-bold text-stone-800 mb-4">
                         Notes
                     </h2>

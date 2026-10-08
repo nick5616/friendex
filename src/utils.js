@@ -121,6 +121,7 @@ export const DEFAULT_COLOR_HSL = { h: 45, s: 85, l: 50 };
 export const COLOR_SCHEMES = {
     MONOCHROME: "monochrome", // 1 color
     COMPLEMENTARY: "complementary", // 2 colors
+    ANALOGOUS: "analogous", // 3 colors
     TRIADIC: "triadic", // 3 colors
     SPLIT_COMPLEMENTARY: "split-complementary", // 3 colors
     SQUARE: "square", // 4 colors
@@ -134,6 +135,7 @@ export const getSchemeInfo = (schemeType) => {
     const schemes = {
         [COLOR_SCHEMES.MONOCHROME]: { name: "Monochrome", colors: 1 },
         [COLOR_SCHEMES.COMPLEMENTARY]: { name: "Complementary", colors: 2 },
+        [COLOR_SCHEMES.ANALOGOUS]: { name: "Analogous", colors: 3 },
         [COLOR_SCHEMES.TRIADIC]: { name: "Triadic", colors: 3 },
         [COLOR_SCHEMES.SPLIT_COMPLEMENTARY]: { name: "Split-Complementary", colors: 3 },
         [COLOR_SCHEMES.SQUARE]: { name: "Square", colors: 4 },
@@ -178,6 +180,14 @@ export const calculateColorHarmony = (baseColor, schemeType = COLOR_SCHEMES.MONO
                 hslToHex((hsl.h + 180) % 360, hsl.s, hsl.l)
             ];
             
+        case COLOR_SCHEMES.ANALOGOUS:
+            // Base + its neighbors 30° to either side
+            return [
+                baseColor,
+                hslToHex((hsl.h + 30) % 360, hsl.s, hsl.l),
+                hslToHex((hsl.h + 330) % 360, hsl.s, hsl.l)
+            ];
+
         case COLOR_SCHEMES.TRIADIC:
             // Base + two colors 120° apart
             return [
@@ -571,6 +581,20 @@ export const applyUserColor = (hexColor, useSameColorText = false, colorScheme =
     schemeColors.forEach((color, index) => {
         root.style.setProperty(`--color-theme-${index + 1}`, color);
     });
+
+    // Pokédex shell: the primary hue, clamped dark enough that the white iOS
+    // status bar text (black-translucent) and white shell text stay readable
+    const primaryHsl = hexToHsl(primaryColor);
+    const shellL = Math.min(primaryHsl.l, 50);
+    const shellS = Math.max(primaryHsl.s, 55);
+    const shellHex = hslToHex(primaryHsl.h, shellS, shellL);
+    root.style.setProperty("--color-shell", shellHex);
+    root.style.setProperty("--color-shell-light", hslToHex(primaryHsl.h, shellS, Math.min(shellL + 12, 62)));
+    root.style.setProperty("--color-shell-dark", hslToHex(primaryHsl.h, shellS, Math.max(shellL - 15, 18)));
+
+    // Keep the browser/PWA chrome in sync with the Pokédex shell color
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) themeMeta.setAttribute("content", shellHex);
 };
 
 /**

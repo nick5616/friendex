@@ -23,12 +23,18 @@ One-time setup to enable Google Auth + cloud sync.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
+    // The user doc (friends list) and its subcollections (photos)
+    match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
 ```
+
+Friend photos are stored one per document in `users/{uid}/photos/{photoId}`
+(compressed JPEGs, kept small to stay under Firestore's 1MB document limit),
+so the rule above must cover subcollections. If you set up the older rule that
+only matched `/users/{userId}`, update it — otherwise photos won't sync.
 
 ### 4. Get your web app config
 1. Project Overview → **Add app** → Web (</>) icon

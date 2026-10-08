@@ -91,6 +91,38 @@
     --color-info-text: hsl(0, 0%, 15%);
     --color-text-dark: hsl(0, 0%, 15%);
     --color-text-light: hsl(0, 0%, 95%);
+
+    /* Pokédex shell - set dynamically from the primary color */
+    --color-shell: hsl(45, 85%, 45%);
+    --color-shell-light: hsl(45, 85%, 57%);
+    --color-shell-dark: hsl(45, 85%, 30%);
+
+    /* One corner radius for panels, buttons and inputs */
+    --radius-dex: 12px;
+}
+
+@font-face {
+    font-family: "Silkscreen";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/fonts/silkscreen-regular.ttf") format("truetype");
+}
+
+@keyframes shimmer {
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .shimmer {
+        animation: none;
+    }
 }
 
 /* 1. Set the base font and background color for the whole app */
@@ -98,6 +130,23 @@ body {
     background-color: var(--color-bg-app, var(--color-primary-lighter));
     color: var(--color-neutral-800);
     @apply antialiased;
+    /* Installed PWA draws under the status bar (black-translucent); keep content clear of it */
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Shell-colored strip behind the iOS status bar so its white text is readable on every page */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background: var(--color-shell);
+    z-index: 100;
+    pointer-events: none;
 }
 
 /* Force Gaegu font on everything - this overrides Tailwind */
@@ -124,28 +173,27 @@ select {
     font-family: "Gaegu", cursive !important;
 }
 
-/* 2. Define our reusable hand-drawn components */
+/* 2. Reusable Pokédex-style components: crisp rounded shapes, ink outlines,
+   hard offset shadows (like the GBA-era menus) */
 @layer components {
-    /* A base style for our "sketchy" bordered boxes */
-    .card-hand-drawn {
-        @apply bg-white border-2 border-stone-800 p-4 transition-all;
-
-        /* This is the magic trick for a "lumpy" or organic border shape */
-        border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-
-        /* A slightly offset, sketchy box-shadow */
-        box-shadow: 4px 4px 0px #000;
+    /* Game-menu panel: ink outline, a white gap, then a thin theme-colored inner frame */
+    .dex-card {
+        @apply bg-white p-4 transition-all;
+        border: 2.5px solid #1c1917;
+        border-radius: var(--radius-dex);
+        box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px var(--color-primary-light),
+            4px 4px 0 #1c1917;
     }
 
-    .muted-card-hand-drawn {
-        @apply bg-stone-50 border border-stone-200 p-4 transition-all;
-        border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+    .dex-card-muted {
+        @apply bg-stone-50 border-2 border-stone-200 p-4 transition-all;
+        border-radius: var(--radius-dex);
     }
 
     /* Base button style */
-    .btn-hand-drawn {
+    .dex-btn {
         @apply font-bold py-2 px-5 border-stone-800 text-lg;
-        border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+        border-radius: var(--radius-dex);
 
         /* Add a nice "push down" effect on click */
         @apply transition-all active:translate-y-px active:shadow-none;
@@ -282,17 +330,22 @@ select {
         }
     }
 
-    .tag-hand-drawn {
+    .dex-tag {
         background-color: var(--color-tag-bg, var(--color-user-light));
         color: var(--color-tag-text, var(--color-user-text-light));
-        @apply text-sm font-bold px-3 py-1 border border-stone-400;
-        border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+        @apply inline-flex items-center text-sm font-bold px-3 py-0.5;
+        border: 2px solid rgba(28, 25, 23, 0.35);
+        border-radius: 8px;
     }
-    .pill-tag-hand-drawn {
+    /* Same capsule as .type-badge so pronouns and types sit together cleanly */
+    .dex-pill {
         background-color: var(--color-pill-bg, var(--color-user-dark));
         color: var(--color-pill-text, var(--color-user-text-dark));
-        @apply text-sm font-bold px-3 py-1 border border-stone-400;
-        border-radius: 50px 20px 50px 20px/20px 50px 20px 50px;
+        @apply inline-flex items-center gap-1.5 text-sm font-bold px-3 py-0.5;
+        border: 2px solid rgba(0, 0, 0, 0.55);
+        border-radius: 999px;
+        box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+            inset 0 2px 0 rgba(255, 255, 255, 0.25);
     }
 
     .anchor-top {
@@ -332,6 +385,108 @@ select {
     /* Header background with user color */
     .header-user-bg {
         position: relative;
+    }
+
+    /* ---------- Pokédex UI ---------- */
+
+    .font-pixel {
+        font-family: "Silkscreen", ui-monospace, monospace !important;
+        letter-spacing: 0.02em;
+    }
+
+    .dex-shell {
+        background: linear-gradient(
+            180deg,
+            var(--color-shell) 0%,
+            var(--color-shell) 45%,
+            var(--color-shell-dark) 100%
+        );
+        padding-top: 0.75rem;
+        border-bottom: 3px solid #1c1917;
+        border-radius: 0 0 28px 28px / 0 0 18px 18px;
+        box-shadow: 0 4px 0 #1c1917;
+        position: relative;
+    }
+
+    /* Glossy highlight across the top of the shell */
+    .dex-shell::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 40%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent);
+        pointer-events: none;
+    }
+
+    /* The big glossy lens */
+    .dex-lens {
+        background: radial-gradient(
+            circle at 35% 30%,
+            #e0f2fe 0%,
+            #7dd3fc 18%,
+            #0ea5e9 45%,
+            #0369a1 80%
+        );
+        border: 4px solid #fff;
+        box-shadow: 0 0 0 2.5px #1c1917, inset -3px -4px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Grey bezel around the photo "screen" */
+    .dex-bezel {
+        background: #e7e5e4;
+        border: 2.5px solid #1c1917;
+        border-radius: 14px 14px 14px 40px;
+        box-shadow: 4px 4px 0 #1c1917;
+    }
+
+    .dex-screen {
+        background: #a8b5a0;
+        border: 2px solid #1c1917;
+        border-radius: 8px;
+        box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.08),
+            inset 0 6px 14px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Faint scanlines over the screen */
+    .dex-screen::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.05) 0px,
+            rgba(0, 0, 0, 0.05) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+    }
+
+    .type-badge {
+        @apply inline-flex items-center gap-1.5 text-sm font-bold text-white pl-1 pr-3 py-0.5;
+        border: 2px solid rgba(0, 0, 0, 0.55);
+        border-radius: 999px;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+        box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+            inset 0 2px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .type-badge-icon {
+        @apply inline-flex items-center justify-center w-6 h-6 rounded-full;
+        background: rgba(255, 255, 255, 0.92);
+    }
+
+    .shimmer {
+        background-size: 200% 200%;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     .header-user-bg::before {
