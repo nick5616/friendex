@@ -252,8 +252,8 @@ export default function TrainerCard({
                                     )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <div className="flex items-start justify-between gap-2">
-                                        <div className="text-2xl font-bold leading-tight truncate">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="text-2xl font-bold leading-tight line-clamp-2 break-words min-w-0">
                                             {profile.name}
                                         </div>
                                         <button
