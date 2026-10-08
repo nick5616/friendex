@@ -13,6 +13,7 @@ import NotesSelector from "./NotesSelector";
 import NameSelector from "./NameSelector";
 import { compressImage } from "./dex";
 import { parsePronouns } from "./utils";
+import FriendAvatar from "./FriendAvatar";
 
 function ModifyFriend() {
     const navigate = useNavigate();
@@ -263,19 +264,13 @@ function ModifyFriend() {
                             onClick={handleProfilePictureClick}
                             style={{ borderRadius: "var(--radius-dex)" }}
                         >
-                            {profilePicture || originalProfilePicture ? (
-                                <img
-                                    src={
-                                        profilePicture || originalProfilePicture
-                                    }
-                                    alt="Profile preview"
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <span className="text-stone-400 text-4xl">
-                                    +
-                                </span>
-                            )}
+                            <FriendAvatar
+                                friend={{
+                                    name: formData.name,
+                                    profilePicture:
+                                        profilePicture || originalProfilePicture,
+                                }}
+                            />
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-50">
                                 <span className="text-white text-sm font-medium">
                                     Change Photo

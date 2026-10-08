@@ -14,7 +14,7 @@ import HowWeMetSelector from "./HowWeMetSelector";
 import NotesSelector from "./NotesSelector";
 import { seedTagsAndInterests } from "./seed";
 import useIsDemoMode from "./hooks/useIsDemoMode";
-import { generateAvatar } from "./utils";
+import { AvatarPlaceholder } from "./FriendAvatar";
 import { compressImage } from "./dex";
 
 function AddFriend(friend) {
@@ -186,7 +186,7 @@ function AddFriend(friend) {
         const newFriend = {
             name: formData.name,
             pronouns: formData.pronouns.join("/"),
-            profilePicture: profilePicture || generateAvatar(formData.name),
+            profilePicture,
             tags: formData.tags, // Already an array from handleTagChange
             about: {
                 description: formData.description,
@@ -363,15 +363,16 @@ function AddFriend(friend) {
                             onClick={handleProfilePictureClick}
                             style={{ borderRadius: "var(--radius-dex)" }}
                         >
-                            {profilePicture ||
-                            (debouncedName && generateAvatar(debouncedName)) ? (
+                            {profilePicture ? (
                                 <img
-                                    src={
-                                        profilePicture ||
-                                        generateAvatar(debouncedName)
-                                    }
+                                    src={profilePicture}
                                     alt="Profile preview"
                                     className="w-full h-full object-cover"
+                                />
+                            ) : debouncedName ? (
+                                <AvatarPlaceholder
+                                    name={debouncedName}
+                                    className="w-full h-full"
                                 />
                             ) : (
                                 <span className="text-stone-400 text-4xl">

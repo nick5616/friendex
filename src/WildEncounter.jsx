@@ -3,11 +3,11 @@
 // catch code. Throwing the ball registers them as a new friend.
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { generateAvatar } from "./utils";
 import { compressImage } from "./dex";
+import FriendAvatar from "./FriendAvatar";
 
 // Pull their account photo into a local data URL so it syncs like any other
-// photo. Remote hosts that block CORS just get the generated avatar instead.
+// photo. Remote hosts that block CORS just get the letter placeholder instead.
 const fetchPhoto = async (url) => {
     if (!url) return null;
     try {
@@ -34,8 +34,7 @@ export default function WildEncounter({ trainer, friends, currentDb, onCaught, o
             day: "numeric",
             year: "numeric",
         });
-        const profilePicture =
-            (await fetchPhoto(trainer.photoURL)) || generateAvatar(trainer.name);
+        const profilePicture = await fetchPhoto(trainer.photoURL);
         const newFriendId = await currentDb.friends.add({
             name: trainer.name,
             pronouns: trainer.pronouns,
@@ -97,12 +96,11 @@ export default function WildEncounter({ trainer, friends, currentDb, onCaught, o
                                 : { type: "spring", stiffness: 140, damping: 16 }
                         }
                     >
-                        <img
-                            src={showPhoto ? trainer.photoURL : generateAvatar(trainer.name)}
-                            alt=""
+                        <FriendAvatar
+                            name={trainer.name}
+                            src={showPhoto ? trainer.photoURL : null}
                             referrerPolicy="no-referrer"
                             onError={() => setPhotoFailed(true)}
-                            className="w-full h-full object-cover"
                         />
                     </motion.div>
                     {throwing && (

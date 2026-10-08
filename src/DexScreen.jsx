@@ -4,50 +4,7 @@
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Crown, Heart, Star, Cake, Camera } from "lucide-react";
 import { formatHangoutAgo } from "./dex";
-
-function WhosThatFriend() {
-    return (
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-            {/* Ray burst background */}
-            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <defs>
-                    <radialGradient id="wtf-bg" cx="50%" cy="45%" r="60%">
-                        <stop offset="0%" stopColor="#fef9c3" />
-                        <stop offset="100%" stopColor="#38bdf8" />
-                    </radialGradient>
-                </defs>
-                <rect width="100" height="100" fill="url(#wtf-bg)" />
-                {Array.from({ length: 12 }).map((_, i) => (
-                    <path
-                        key={i}
-                        d="M50 45 L46 -20 L54 -20 Z"
-                        fill="#fde047"
-                        opacity="0.55"
-                        transform={`rotate(${i * 30} 50 45)`}
-                    />
-                ))}
-                {/* Silhouette */}
-                <circle cx="50" cy="38" r="15" fill="#1e293b" />
-                <path d="M22 100 Q22 60 50 58 Q78 60 78 100 Z" fill="#1e293b" />
-                <text x="50" y="44" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#f8fafc" style={{ fontFamily: "Gaegu, cursive" }}>
-                    ?
-                </text>
-            </svg>
-            <span
-                className="relative mt-auto mb-1.5 px-2 text-center text-sm font-bold leading-tight text-white"
-                style={{
-                    WebkitTextStroke: "3px #1e3a8a",
-                    paintOrder: "stroke fill",
-                }}
-            >
-                Who's that friend?
-            </span>
-            <span className="relative mb-2 flex items-center gap-1 text-[11px] font-bold text-slate-800 bg-white/80 rounded-full px-2">
-                <Camera className="w-3 h-3" /> add photo
-            </span>
-        </div>
-    );
-}
+import FriendAvatar, { realPhoto } from "./FriendAvatar";
 
 function HangoutStamp({ lastHangout, stampKey }) {
     const reduceMotion = useReducedMotion();
@@ -86,7 +43,7 @@ export default function DexScreen({
     birthdayToday,
     onPhotoClick,
 }) {
-    const hasPhoto = Boolean(friend?.profilePicture);
+    const hasPhoto = Boolean(realPhoto(friend));
     const ring = tier?.ring;
 
     return (
@@ -116,14 +73,22 @@ export default function DexScreen({
                                 transition={{ duration: 0.15 }}
                                 className="absolute inset-0"
                             >
-                                {hasPhoto ? (
-                                    <img
-                                        src={friend.profilePicture}
-                                        alt=""
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <WhosThatFriend />
+                                <FriendAvatar friend={friend} />
+                                {!hasPhoto && (
+                                    <span
+                                        className="absolute top-1.5 inset-x-0 px-2 text-center text-sm font-bold leading-tight text-white"
+                                        style={{
+                                            WebkitTextStroke: "3px #1e3a8a",
+                                            paintOrder: "stroke fill",
+                                        }}
+                                    >
+                                        Who's that friend?
+                                    </span>
+                                )}
+                                {!hasPhoto && (
+                                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 whitespace-nowrap text-[11px] font-bold text-slate-800 bg-white/80 rounded-full px-2">
+                                        <Camera className="w-3 h-3" /> add photo
+                                    </span>
                                 )}
                             </motion.div>
                         </AnimatePresence>

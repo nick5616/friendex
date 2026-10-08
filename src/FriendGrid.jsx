@@ -1,6 +1,7 @@
 // src/FriendGrid.jsx
 // Dex-style grid of numbered tiles, an alternative to the rolodex wheel
 import { formatDexNumber, getFriendshipTier } from "./dex";
+import FriendAvatar from "./FriendAvatar";
 
 export default function FriendGrid({ friends, dexNumbers, selectedId, onSelect }) {
     return (
@@ -24,21 +25,7 @@ export default function FriendGrid({ friends, dexNumbers, selectedId, onSelect }
                                 className="dex-screen aspect-square !rounded-md"
                                 style={tier ? { boxShadow: `0 0 0 3px ${tier.ring}` } : undefined}
                             >
-                                {friend.profilePicture ? (
-                                    <img
-                                        src={friend.profilePicture}
-                                        alt=""
-                                        loading="lazy"
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-sky-300">
-                                        <svg viewBox="0 0 100 100" className="w-3/4 h-3/4" aria-hidden="true">
-                                            <circle cx="50" cy="38" r="17" fill="#1e293b" />
-                                            <path d="M18 100 Q18 62 50 60 Q82 62 82 100 Z" fill="#1e293b" />
-                                        </svg>
-                                    </div>
-                                )}
+                                <FriendAvatar friend={friend} loading="lazy" />
                             </div>
                             <div className="font-pixel text-[10px] text-stone-500 mt-1">
                                 {formatDexNumber(dexNumbers.get(friend.id))}

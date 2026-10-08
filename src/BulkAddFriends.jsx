@@ -4,7 +4,6 @@ import Toast from "./Toast";
 import { db } from "./db";
 import { demoDb } from "./demoDb";
 import useIsDemoMode from "./hooks/useIsDemoMode";
-import { generateAvatar } from "./utils";
 
 const PRONOUN_OPTIONS = ["he/him", "she/her", "they/them", "it/its"];
 const DRAFT_KEY = "bulkAddFriendsDraft";
@@ -109,7 +108,6 @@ function BulkAddFriends() {
                 return {
                     name,
                     pronouns: row.pronouns.join("/"),
-                    profilePicture: generateAvatar(name),
                     tags: [],
                     about: {
                         description: "",
