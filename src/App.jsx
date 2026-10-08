@@ -253,10 +253,7 @@ function FriendexApp() {
         setView("dex");
     }, []);
 
-    const handleRun = useCallback(() => {
-        clearPendingCatch();
-        setEncounter(null);
-    }, []);
+    
 
     // Auth gate — only applies to non-demo routes (must be after all hooks above)
     if (!isDemoMode) {
