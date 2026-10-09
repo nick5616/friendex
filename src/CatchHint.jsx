@@ -7,8 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 const SEEN_KEY = "catchHintDismissed";
 const EVERY_MS = 30_000;
 const VISIBLE_MS = 5_000;
-// 150° of a radius-50 circle: 8 o'clock round to 1 o'clock
-const ARC_LENGTH = 131;
+// 150° of a radius-42 circle (just outside the ball): 8 o'clock round to 1 o'clock
+const ARC_LENGTH = 110;
 
 const isDismissed = () => {
     try {
@@ -54,6 +54,9 @@ export default function CatchHint({ pressed }) {
         };
     }, [active]);
 
+    // Tapping the ball makes it vanish on the spot, skipping the slide-out
+    if (!active) return null;
+
     return (
         <AnimatePresence>
             {visible && (
@@ -67,7 +70,7 @@ export default function CatchHint({ pressed }) {
                             1 o'clock. Text off either end of the path isn't drawn, so
                             sliding the offset makes it emerge at one end and leave
                             at the other. */}
-                        <path id="catch-hint-arc" d="M 16.7,85 A 50,50 0 0,1 85,16.7" />
+                        <path id="catch-hint-arc" d="M 23.6,81 A 42,42 0 0,1 81,23.6" />
                     </defs>
                     <text
                         className="font-bold"
