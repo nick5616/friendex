@@ -7,8 +7,23 @@ import { AnimatePresence, motion } from "framer-motion";
 const SEEN_KEY = "catchHintDismissed";
 const EVERY_MS = 30_000;
 const VISIBLE_MS = 5_000;
-// 150° of a radius-42 circle (just outside the ball): 8 o'clock round to 1 o'clock
-const ARC_LENGTH = 110;
+
+// Geometry in CSS px (the svg is drawn 1:1). The ball is 76px with ~35px of
+// visible radius; the text baseline sits a few px outside it.
+const SIZE = 124;
+const RADIUS = 40;
+const FONT_SIZE = 12;
+const START_OFFSET = 3; // keeps the "C" fully on the path
+const TEXT_TRAVEL = 110; // roughly the text's length, so it starts fully hidden
+
+// Point on the circle, measured clockwise from 12 o'clock
+const at = (deg) => {
+    const rad = (deg * Math.PI) / 180;
+    const c = SIZE / 2;
+    return `${(c + RADIUS * Math.sin(rad)).toFixed(2)},${(c - RADIUS * Math.cos(rad)).toFixed(2)}`;
+};
+// 8 o'clock (240°) clockwise over the top to 2 o'clock (60°), slack past 1 o'clock
+const ARC = `M ${at(240)} A ${RADIUS},${RADIUS} 0 0,1 ${at(58)}`;
 
 const isDismissed = () => {
     try {
@@ -62,20 +77,31 @@ export default function CatchHint({ pressed }) {
             {visible && (
                 <motion.svg
                     aria-hidden="true"
-                    viewBox="0 0 120 120"
-                    className="absolute -inset-6 pointer-events-none overflow-visible"
+                    // Explicit size: Safari doesn't stretch an <svg> between inset
+                    // offsets, so `inset` alone left it at the wrong scale
+                    width={SIZE}
+                    height={SIZE}
+                    viewBox={`0 0 ${SIZE} ${SIZE}`}
+                    className="absolute pointer-events-none overflow-visible"
+                    exit={{ opacity: 0, transition: { duration: 0.4 } }}
+                    style={{
+                        left: "50%",
+                        top: "50%",
+                        marginLeft: -SIZE / 2,
+                        marginTop: -SIZE / 2,
+                    }}
                 >
                     <defs>
-                        {/* Arc over the top of the ball, from about 8 o'clock to
-                            1 o'clock. Text off either end of the path isn't drawn, so
-                            sliding the offset makes it emerge at one end and leave
-                            at the other. */}
-                        <path id="catch-hint-arc" d="M 23.6,81 A 42,42 0 0,1 81,23.6" />
+                        {/* Clockwise arc hugging the ball from 8 o'clock past
+                            1 o'clock. Letters before the start of the path aren't
+                            drawn, so sliding the offset up makes the text emerge
+                            from the 8 o'clock end. */}
+                        <path id="catch-hint-arc" d={ARC} />
                     </defs>
                     <text
                         className="font-bold"
-                        fontSize="15"
-                        letterSpacing="1"
+                        fontSize={FONT_SIZE}
+                        letterSpacing="1.5"
                         fill="#1c1917"
                         stroke="#fff"
                         strokeWidth="4"
@@ -84,11 +110,8 @@ export default function CatchHint({ pressed }) {
                     >
                         <motion.textPath
                             href="#catch-hint-arc"
-                            textLength={ARC_LENGTH}
-                            lengthAdjust="spacing"
-                            initial={{ startOffset: -ARC_LENGTH }}
-                            animate={{ startOffset: 0 }}
-                            exit={{ startOffset: ARC_LENGTH }}
+                            initial={{ startOffset: -TEXT_TRAVEL }}
+                            animate={{ startOffset: START_OFFSET }}
                             transition={{ duration: 0.9, ease: "easeOut" }}
                         >
                             Catch a Friend!
