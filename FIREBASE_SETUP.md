@@ -27,9 +27,21 @@ service cloud.firestore {
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    // Catch log: one doc per person who caught a trainer. The catcher writes
+    // their own entry; only the trainer can read (count) them.
+    match /catches/{trainerId}/by/{catcherId} {
+      allow create, update: if request.auth != null
+        && request.auth.uid == catcherId
+        && catcherId != trainerId
+        && request.resource.data.keys().hasOnly(['at']);
+      allow read: if request.auth != null && request.auth.uid == trainerId;
+    }
   }
 }
 ```
+
+The "Caught you" count on the trainer card reads `catches/{uid}/by`. Without
+the `catches` rule, catching still works but the count stays at "–".
 
 Friend photos are stored one per document in `users/{uid}/photos/{photoId}`
 (compressed JPEGs, kept small to stay under Firestore's 1MB document limit),

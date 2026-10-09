@@ -6,7 +6,7 @@ import {
     fromArrayToCommaString,
 } from "./utils";
 
-function InterestSelector({ value = [], onChange, pronouns }) {
+function InterestSelector({ value = [], onChange, pronouns, prompt }) {
     const input = fromCommaStringToArray(value);
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -129,11 +129,15 @@ function InterestSelector({ value = [], onChange, pronouns }) {
                     Interests
                 </label>
                 <label className="block text-sm font-medium text-stone-700 mb-1">
-                    What{" "}
-                    {nonpossessivePronoun.toLowerCase() === "they"
-                        ? "do"
-                        : "does"}{" "}
-                    {nonpossessivePronoun} like to do?
+                    {prompt ?? (
+                        <>
+                            What{" "}
+                            {nonpossessivePronoun.toLowerCase() === "they"
+                                ? "do"
+                                : "does"}{" "}
+                            {nonpossessivePronoun} like to do?
+                        </>
+                    )}
                 </label>
                 <input
                     ref={interestInputRef}

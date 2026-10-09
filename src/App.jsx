@@ -22,6 +22,7 @@ import CatchCelebration from "./CatchCelebration";
 import Burst from "./Burst";
 import CatchScanner from "./CatchScanner";
 import WildEncounter from "./WildEncounter";
+import CatchHint from "./CatchHint";
 import { getPendingCatch, clearPendingCatch } from "./trainer";
 import {
     applyUserColor,
@@ -69,8 +70,7 @@ function FriendexApp() {
     const [stampKey, setStampKey] = useState(null);
     const [hangoutBurstKey, setHangoutBurstKey] = useState(null);
     const [showCatchMenu, setShowCatchMenu] = useState(false);
-    const [showScanner, setShowScanner] = useState(false);
-    // A trainer from a scanned QR code or an opened catch link, waiting to be caught
+    const [showScanner, setShowScanner] = useState(false);    // A trainer from a scanned QR code or an opened catch link, waiting to be caught
     const [encounter, setEncounter] = useState(getPendingCatch);
     const [view, setView] = useState(() => {
         try {
@@ -677,14 +677,17 @@ function FriendexApp() {
                 aria-label="Catch a new friend"
                 aria-expanded={showCatchMenu}
                 title="Catch a new friend"
-                className="fixed z-40 right-4 w-[72px] h-[72px] rounded-full"
-                style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
+                className="fixed z-40 right-4 w-[76px] h-[76px] rounded-full"
+                style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 14px)" }}
                 animate={{ rotate: showCatchMenu ? 180 : 0 }}
                 whileHover={{ rotate: [0, -14, 14, -8, 0] }}
                 whileTap={{ scale: 0.88 }}
             >
+                <CatchHint pressed={showCatchMenu} />
+                {/* Padded copy of the app icon: the original's art touches the
+                    image edges, which iOS Safari clips */}
                 <img
-                    src="/icons/android-chrome512x512.png?v=2"
+                    src="/icons/catch-ball.png"
                     alt=""
                     className="w-full h-full drop-shadow-[3px_3px_0_rgba(28,25,23,0.9)]"
                 />
@@ -705,6 +708,8 @@ function FriendexApp() {
                         trainer={encounter}
                         friends={friends}
                         currentDb={currentDb}
+                        user={user}
+                        isDemoMode={isDemoMode}
                         onCaught={handleCaught}
                         onRun={handleRun}
                     />

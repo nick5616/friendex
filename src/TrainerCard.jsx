@@ -1,9 +1,10 @@
 // src/TrainerCard.jsx
 // Bottom sheet behind the avatar: who you are, your catch code, your theme,
 // and the admin-y stuff
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
+    Cake,
     Palette,
     Upload,
     Download,
@@ -17,8 +18,24 @@ import {
     Check,
 } from "lucide-react";
 import CatchCode from "./CatchCode";
-import { loadTrainerProfile, saveTrainerProfile, buildCatchUrl } from "./trainer";
+import PronounSelector from "./PronounSelector";
+import InterestSelector from "./InterestSelector";
+import BirthdaySelector from "./BirthdaySelector";
+import { seedTagsAndInterests } from "./seed";
+import {
+    loadTrainerProfile,
+    saveTrainerProfile,
+    buildCatchUrl,
+    countCatches,
+} from "./trainer";
 import { THEME_PRESETS, getCurrentTheme, setTheme } from "./theme";
+import { formatPronouns } from "./utils";
+
+const formatBirthday = (value) =>
+    new Date(`${value}T00:00`).toLocaleDateString(undefined, {
+        month: "long",
+        day: "numeric",
+    });
 
 function SheetButton({ icon: Icon, children, onClick, danger }) {
     return (
@@ -89,14 +106,18 @@ function ThemeVersions({ onCustomize }) {
     );
 }
 
+// Same building blocks as Add Friend, minus the relationship-y fields (tags,
+// relationships, how we met) since those describe a friendship, not you
 function ProfileEditor({ profile, onSave, onCancel }) {
     const [draft, setDraft] = useState(profile);
+    const set = (key, value) => setDraft((prev) => ({ ...prev, [key]: value }));
     const field =
-        "w-full px-3 py-2 border-2 border-stone-800 bg-white text-lg focus:outline-none focus:ring-2 focus:ring-stone-500";
+        "w-full px-3 py-2 border-2 border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-stone-600";
+    const label = "block text-md font-medium text-stone-700 mb-1";
 
     return (
         <form
-            className="flex flex-col gap-3"
+            className="flex flex-col gap-5"
             onSubmit={(e) => {
                 e.preventDefault();
                 if (!draft.name.trim()) return;
@@ -106,40 +127,50 @@ function ProfileEditor({ profile, onSave, onCancel }) {
             <p className="text-stone-600 leading-snug">
                 This is what friends get when they catch you.
             </p>
-            <label className="flex flex-col gap-1">
-                <span className="font-pixel text-xs text-stone-500">NAME</span>
+            <div>
+                <label htmlFor="trainer-name" className={label}>
+                    Name <span className="text-red-700">*</span>
+                </label>
                 <input
+                    id="trainer-name"
                     className={field}
                     style={{ borderRadius: "var(--radius-dex)" }}
                     value={draft.name}
                     maxLength={80}
-                    onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                    onChange={(e) => set("name", e.target.value)}
                     required
                 />
-            </label>
-            <label className="flex flex-col gap-1">
-                <span className="font-pixel text-xs text-stone-500">PRONOUNS</span>
-                <input
-                    className={field}
-                    style={{ borderRadius: "var(--radius-dex)" }}
-                    value={draft.pronouns}
-                    maxLength={40}
-                    placeholder="she/her, they/them…"
-                    onChange={(e) => setDraft({ ...draft, pronouns: e.target.value })}
-                />
-            </label>
-            <label className="flex flex-col gap-1">
-                <span className="font-pixel text-xs text-stone-500">ABOUT YOU</span>
+            </div>
+            <PronounSelector
+                value={draft.pronouns}
+                onChange={(pronouns) => set("pronouns", pronouns.join("/"))}
+            />
+            <div>
+                <label htmlFor="trainer-about" className={label}>
+                    About you
+                </label>
                 <textarea
+                    id="trainer-about"
                     className={field}
                     style={{ borderRadius: "var(--radius-dex)" }}
                     rows={2}
                     value={draft.about}
                     maxLength={140}
                     placeholder="Plays bass, loves a long walk, always down for tacos"
-                    onChange={(e) => setDraft({ ...draft, about: e.target.value })}
+                    onChange={(e) => set("about", e.target.value)}
                 />
-            </label>
+            </div>
+            <InterestSelector
+                value={draft.interests.join(", ")}
+                onChange={(interests) =>
+                    set("interests", interests ? interests.split(", ").filter(Boolean) : [])
+                }
+                prompt="What do you like to do? Your first 8 go in your catch code."
+            />
+            <BirthdaySelector
+                value={draft.birthday}
+                onChange={(e) => set("birthday", e.target.value)}
+            />
             <div className="grid grid-cols-2 gap-2">
                 <button
                     type="button"
@@ -174,6 +205,27 @@ export default function TrainerCard({
     const [profile, setProfile] = useState(() => loadTrainerProfile(user, isDemoMode));
     // "home" | "catch" | "edit"
     const [page, setPage] = useState("home");
+    // How many people have caught you; null until loaded (or when there's no account)
+    const [caughtBy, setCaughtBy] = useState(null);
+    const canCount = !isDemoMode && !!user;
+
+    useEffect(() => {
+        if (!canCount) return;
+        let cancelled = false;
+        countCatches(user.uid)
+            .then((count) => !cancelled && setCaughtBy(count))
+            .catch((err) => console.warn("Couldn't count catches:", err));
+        return () => {
+            cancelled = true;
+        };
+    }, [canCount, user?.uid]);
+
+    const openEditor = () => {
+        // The interest chips read from the local list, which starts empty on a fresh device
+        seedTagsAndInterests()
+            .catch(() => {})
+            .finally(() => setPage("edit"));
+    };
 
     const photo = !isDemoMode && user?.photoURL;
     const title = { home: "TRAINER CARD", catch: "CATCH ME", edit: "EDIT PROFILE" }[page];
@@ -257,17 +309,28 @@ export default function TrainerCard({
                                             {profile.name}
                                         </div>
                                         <button
-                                            onClick={() => setPage("edit")}
+                                            onClick={openEditor}
                                             aria-label="Edit your profile"
                                             className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full border-2 border-stone-800 bg-white"
                                         >
                                             <Pencil className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    {profile.pronouns && (
-                                        <span className="dex-pill !text-xs mt-1">
-                                            {profile.pronouns}
-                                        </span>
+                                    {(profile.pronouns || profile.birthday) && (
+                                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                            {profile.pronouns && (
+                                                <span className="dex-pill !text-xs">
+                                                    {formatPronouns(profile.pronouns) ||
+                                                        profile.pronouns}
+                                                </span>
+                                            )}
+                                            {profile.birthday && (
+                                                <span className="dex-pill !text-xs flex items-center gap-1">
+                                                    <Cake className="w-3.5 h-3.5" />
+                                                    {formatBirthday(profile.birthday)}
+                                                </span>
+                                            )}
+                                        </div>
                                     )}
                                     {profile.about && (
                                         <p className="text-base text-stone-600 leading-snug mt-1 line-clamp-2">
@@ -277,15 +340,33 @@ export default function TrainerCard({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-2 text-center">
+                            {profile.interests.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 -mt-2">
+                                    {profile.interests.map((interest) => (
+                                        <span
+                                            key={interest}
+                                            className="dex-tag bg-amber-300 text-stone-900 border-stone-800"
+                                        >
+                                            {interest}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div
+                                className={`grid ${canCount ? "grid-cols-4" : "grid-cols-3"} gap-2 text-center`}
+                            >
                                 {[
                                     ["Friends", stats.friends],
                                     ["Hangouts", stats.hangouts],
                                     ["Besties", stats.besties],
+                                    ...(canCount ? [["Caught you", caughtBy ?? "–"]] : []),
                                 ].map(([label, value]) => (
                                     <div key={label} className="dex-card-muted !p-2">
                                         <div className="font-pixel text-lg">{value}</div>
-                                        <div className="text-sm text-stone-600">{label}</div>
+                                        <div className="text-sm text-stone-600 leading-tight">
+                                            {label}
+                                        </div>
                                     </div>
                                 ))}
                             </div>

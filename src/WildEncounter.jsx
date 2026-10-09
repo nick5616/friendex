@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { compressImage } from "./dex";
 import FriendAvatar from "./FriendAvatar";
+import { recordCatch } from "./trainer";
 
 // Pull their account photo into a local data URL so it syncs like any other
 // photo. Remote hosts that block CORS just get the letter placeholder instead.
@@ -19,7 +20,15 @@ const fetchPhoto = async (url) => {
     }
 };
 
-export default function WildEncounter({ trainer, friends, currentDb, onCaught, onRun }) {
+export default function WildEncounter({
+    trainer,
+    friends,
+    currentDb,
+    user,
+    isDemoMode,
+    onCaught,
+    onRun,
+}) {
     const [throwing, setThrowing] = useState(false);
     const [photoFailed, setPhotoFailed] = useState(false);
 
@@ -40,15 +49,20 @@ export default function WildEncounter({ trainer, friends, currentDb, onCaught, o
             pronouns: trainer.pronouns,
             profilePicture,
             tags: [],
-            about: { description: trainer.about, interests: [], loveLanguages: [] },
+            about: {
+                description: trainer.about,
+                interests: trainer.interests ?? [],
+                loveLanguages: [],
+            },
             keyInfo: {
-                birthday: "",
+                birthday: trainer.birthday ?? "",
                 howWeMet: `Scanned their trainer card on ${today}`,
                 relationships: [],
             },
             notes: "",
             createdAt: new Date(),
         });
+        if (!isDemoMode) recordCatch(trainer.uid, user);
         onCaught(newFriendId);
     };
 
@@ -128,6 +142,15 @@ export default function WildEncounter({ trainer, friends, currentDb, onCaught, o
                             <p className="text-lg text-stone-700 mt-2 leading-snug">
                                 “{trainer.about}”
                             </p>
+                        )}
+                        {trainer.interests?.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                {trainer.interests.map((interest) => (
+                                    <span key={interest} className="dex-pill !text-xs">
+                                        {interest}
+                                    </span>
+                                ))}
+                            </div>
                         )}
                         {existing && (
                             <p className="text-base text-amber-800 mt-2">
