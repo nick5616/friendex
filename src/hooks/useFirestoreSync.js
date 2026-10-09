@@ -9,6 +9,16 @@ import { hasRealPhoto, makeSprite, newPhotoId } from "../dex";
 // which is intentional — we want to re-sync from Firestore after a reload.
 const syncedUsers = new Set();
 
+// Set while deleting the account so a pending push can't write the data back.
+// Cleared by the page reload that follows.
+let halted = false;
+export const haltCloudSync = () => {
+    halted = true;
+};
+export const resumeCloudSync = () => {
+    halted = false;
+};
+
 // Photos live in users/{uid}/photos/{photoId}, one small doc each, so the main
 // friends doc stays under Firestore's 1MB limit. Friends reference them by photoId.
 // A new/changed photo has photoId cleared; the push step assigns a fresh id and
@@ -110,7 +120,7 @@ export function useFirestoreSync(user, friends, isDemoMode) {
                 } else {
                     // Firestore is empty — seed it from whatever is local.
                     const localFriends = await db.friends.toArray();
-                    if (localFriends.length > 0) {
+                    if (localFriends.length > 0 && !halted) {
                         await setDoc(docRef, { friends: stripForCloud(localFriends) });
                     }
                 }
@@ -131,6 +141,7 @@ export function useFirestoreSync(user, friends, isDemoMode) {
 
         clearTimeout(saveTimerRef.current);
         saveTimerRef.current = setTimeout(async () => {
+            if (halted) return;
             // 1. Give new/changed photos an id. Updating Dexie re-triggers this
             //    effect, and the next run pushes everything with the ids in place.
             const needIds = friends.filter((f) => hasRealPhoto(f) && !f.photoId);
@@ -142,6 +153,7 @@ export function useFirestoreSync(user, friends, isDemoMode) {
             }
 
             // 2. Friend records (without photo data)
+            if (halted) return;
             try {
                 await setDoc(doc(firestoreDb, "users", user.uid), {
                     friends: stripForCloud(friends),
@@ -155,6 +167,7 @@ export function useFirestoreSync(user, friends, isDemoMode) {
             const uploaded = loadIds(uploadedKey(user.uid));
             const legacy = loadIds(legacyKey(user.uid));
             for (const f of friends) {
+                if (halted) return;
                 if (!hasRealPhoto(f) || !f.photoId || uploaded.has(f.photoId)) continue;
                 try {
                     await setDoc(photoRef(user.uid, f.photoId), {

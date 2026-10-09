@@ -18,6 +18,7 @@ import {
     Check,
     Lock,
     Medal,
+    Trash2,
 } from "lucide-react";
 import CatchCode from "./CatchCode";
 import PronounSelector from "./PronounSelector";
@@ -267,6 +268,7 @@ export default function TrainerCard({
     onResetDemo,
     onAbout,
     onSignOut,
+    onDeleteAccount,
 }) {
     const [profile, setProfile] = useState(() => loadTrainerProfile(user, isDemoMode));
     // "home" | "catch" | "edit"
@@ -496,6 +498,11 @@ export default function TrainerCard({
                                 {!isDemoMode && user && (
                                     <SheetButton icon={LogOut} onClick={onSignOut} danger>
                                         Sign out
+                                    </SheetButton>
+                                )}
+                                {!isDemoMode && user && (
+                                    <SheetButton icon={Trash2} onClick={onDeleteAccount} danger>
+                                        Delete account &amp; all data
                                     </SheetButton>
                                 )}
                             </div>

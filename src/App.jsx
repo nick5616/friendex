@@ -26,6 +26,7 @@ import CatchHint from "./CatchHint";
 import UnlockCelebration from "./UnlockCelebration";
 import { useUnlocks } from "./hooks/useUnlocks";
 import { getPendingCatch, clearPendingCatch } from "./trainer";
+import { deleteAccountAndData } from "./deleteAccount";
 import {
     applyUserColor,
     getUserColor,
@@ -417,6 +418,24 @@ function FriendexApp() {
         }
     };
 
+    // No awaits before deleteAccountAndData: its re-auth popup needs this click
+    const handleDeleteAccount = async () => {
+        const answer = prompt(
+            "This permanently deletes your Friendex account, every friend and photo " +
+                "in the cloud, and everything stored on this device. It can't be undone.\n\n" +
+                'Type DELETE to confirm.'
+        );
+        if (answer?.trim().toUpperCase() !== "DELETE") return;
+        try {
+            await deleteAccountAndData();
+            window.location.replace("/");
+        } catch (err) {
+            if (err?.code === "auth/popup-closed-by-user" || err?.code === "auth/cancelled-popup-request") return;
+            console.error("Account deletion failed:", err);
+            setToast({ message: "Couldn't delete your account — nothing was removed from this device", type: "error" });
+        }
+    };
+
     const handleDeleteFriend = async (friendId) => {
         await currentDb.friends.delete(friendId);
     };
@@ -741,6 +760,7 @@ function FriendexApp() {
                             setShowTrainerCard(false);
                             signOut();
                         }}
+                        onDeleteAccount={handleDeleteAccount}
                     />
                 )}
             </AnimatePresence>

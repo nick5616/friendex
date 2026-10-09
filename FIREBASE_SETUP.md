@@ -38,13 +38,14 @@ service cloud.firestore {
         && request.resource.data.data.size() <= 16000;
     }
     // Catch log: one doc per person who caught a trainer. The catcher writes
-    // their own entry; only the trainer can read (count) them.
+    // their own entry; only the trainer can read (count) them. The trainer can
+    // delete them when deleting their account.
     match /catches/{trainerId}/by/{catcherId} {
       allow create, update: if request.auth != null
         && request.auth.uid == catcherId
         && catcherId != trainerId
         && request.resource.data.keys().hasOnly(['at']);
-      allow read: if request.auth != null && request.auth.uid == trainerId;
+      allow read, delete: if request.auth != null && request.auth.uid == trainerId;
     }
   }
 }
