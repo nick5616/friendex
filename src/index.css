@@ -106,7 +106,7 @@
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url("/fonts/silkscreen-regular.ttf") format("truetype");
+    src: url("/fonts/silkscreen-regular.woff2") format("woff2");
 }
 
 @keyframes shimmer {
@@ -119,8 +119,23 @@
     }
 }
 
+/* Sinnoh Badge reward: holographic sheen on the trainer card's ID panel */
+.trainer-shiny {
+    background: linear-gradient(
+            120deg,
+            #fef9c3,
+            #fbcfe8 25%,
+            #bae6fd 50%,
+            #bbf7d0 75%,
+            #fef9c3
+        )
+        0% 50% / 300% 300%;
+    animation: shimmer 6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .shimmer {
+    .shimmer,
+    .trainer-shiny {
         animation: none;
     }
 }

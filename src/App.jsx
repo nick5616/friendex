@@ -23,6 +23,8 @@ import Burst from "./Burst";
 import CatchScanner from "./CatchScanner";
 import WildEncounter from "./WildEncounter";
 import CatchHint from "./CatchHint";
+import UnlockCelebration from "./UnlockCelebration";
+import { useUnlocks } from "./hooks/useUnlocks";
 import { getPendingCatch, clearPendingCatch } from "./trainer";
 import {
     applyUserColor,
@@ -84,6 +86,12 @@ function FriendexApp() {
     const { initialSyncDone } = useFirestoreSync(
         isDemoMode ? null : user,
         friends,
+        isDemoMode
+    );
+
+    const unlocks = useUnlocks(
+        friends?.length,
+        isDemoMode || (!!user && initialSyncDone),
         isDemoMode
     );
 
@@ -722,6 +730,7 @@ function FriendexApp() {
                         user={user}
                         isDemoMode={isDemoMode}
                         stats={trainerStats}
+                        best={unlocks.best}
                         onClose={() => setShowTrainerCard(false)}
                         onChangeTheme={() => navigate(`${basePath}/color-picker`)}
                         onImport={handleImportClick}
@@ -743,6 +752,17 @@ function FriendexApp() {
                         count={catchInfo.count}
                         dexNumber={dexNumbers.get(catchInfo.id)}
                         onDone={handleCatchDone}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* After the catch animation, so the two don't stack */}
+            <AnimatePresence>
+                {unlocks.fresh.length > 0 && !catchInfo && !encounter && (
+                    <UnlockCelebration
+                        unlocks={unlocks.fresh}
+                        best={unlocks.best}
+                        onDone={unlocks.clearFresh}
                     />
                 )}
             </AnimatePresence>

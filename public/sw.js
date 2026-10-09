@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v2026-10-06-1";
+const CACHE_VERSION = "v2026-10-08-1";
 const CACHE_NAME = `friendex-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `friendex-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `friendex-dynamic-${CACHE_VERSION}`;
@@ -21,9 +21,9 @@ const STATIC_ASSETS = [
 // Fonts to cache - local font files
 const FONT_ASSETS = [
     "/fonts/gaegu.css",
-    "/fonts/gaegu-regular.ttf",
-    "/fonts/gaegu-bold.ttf",
-    "/fonts/silkscreen-regular.ttf",
+    "/fonts/gaegu-regular.woff2",
+    "/fonts/gaegu-bold.woff2",
+    "/fonts/silkscreen-regular.woff2",
 ];
 
 // Install event - cache static assets

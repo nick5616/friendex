@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { firestoreDb } from "../firebase";
 import { db } from "../db";
-import { hasRealPhoto, compressImage, newPhotoId } from "../dex";
+import { hasRealPhoto, makeSprite, newPhotoId } from "../dex";
 
 // Module-level: persists across component unmount/remount within the same JS session
 // (navigation causes App to remount, but this Set survives). Resets on page reload,
@@ -12,26 +12,29 @@ const syncedUsers = new Set();
 // Photos live in users/{uid}/photos/{photoId}, one small doc each, so the main
 // friends doc stays under Firestore's 1MB limit. Friends reference them by photoId.
 // A new/changed photo has photoId cleared; the push step assigns a fresh id and
-// uploads it. We remember which ids this device has uploaded so we only send new
-// ones, and can clean up photos that are no longer referenced.
-const MAX_PHOTO_CHARS = 700_000;
-
+// uploads it. Only a 64px sprite goes to the cloud — the full photo stays on the
+// device that has it. We remember which ids this device has uploaded so we only
+// send new ones, and can clean up photos that are no longer referenced.
 const photoRef = (uid, photoId) =>
     doc(firestoreDb, "users", uid, "photos", photoId);
 
-const uploadedKey = (uid) => `friendex_uploadedPhotos_${uid}`;
+const uploadedKey = (uid) => `friendex_uploadedSprites_${uid}`;
+// Ids uploaded as full JPEGs before sprites existed. Re-uploaded as sprites
+// (same id, overwriting the big doc) and still cleaned up when unreferenced.
+const legacyKey = (uid) => `friendex_uploadedPhotos_${uid}`;
 
-const loadUploaded = (uid) => {
+const loadIds = (key) => {
     try {
-        return new Set(JSON.parse(localStorage.getItem(uploadedKey(uid)) || "[]"));
+        return new Set(JSON.parse(localStorage.getItem(key) || "[]"));
     } catch {
         return new Set();
     }
 };
 
-const saveUploaded = (uid, set) => {
+const saveIds = (key, set) => {
     try {
-        localStorage.setItem(uploadedKey(uid), JSON.stringify([...set]));
+        if (set.size === 0) localStorage.removeItem(key);
+        else localStorage.setItem(key, JSON.stringify([...set]));
     } catch {
         // Storage full/unavailable: worst case we re-upload a photo later
     }
@@ -77,7 +80,7 @@ export function useFirestoreSync(user, friends, isDemoMode) {
                         picsByName[f.name] ??= f.profilePicture;
                     }
 
-                    const uploaded = loadUploaded(user.uid);
+                    const uploaded = loadIds(uploadedKey(user.uid));
                     const toImport = await Promise.all(
                         cloudFriends.map(async ({ id: _id, profilePicture: _p, ...f }) => {
                             let pic = f.photoId ? picsById[f.photoId] : undefined;
@@ -86,6 +89,7 @@ export function useFirestoreSync(user, friends, isDemoMode) {
                                     const photoSnap = await getDoc(photoRef(user.uid, f.photoId));
                                     if (photoSnap.exists()) {
                                         pic = photoSnap.data().data;
+                                        // Already in the cloud; nothing for this device to send
                                         uploaded.add(f.photoId);
                                     }
                                 } catch (err) {
@@ -97,7 +101,7 @@ export function useFirestoreSync(user, friends, isDemoMode) {
                             return pic ? { ...f, profilePicture: pic } : f;
                         })
                     );
-                    saveUploaded(user.uid, uploaded);
+                    saveIds(uploadedKey(user.uid), uploaded);
 
                     await db.transaction("rw", db.friends, async () => {
                         await db.friends.clear();
@@ -147,18 +151,18 @@ export function useFirestoreSync(user, friends, isDemoMode) {
                 return;
             }
 
-            // 3. Upload photos this device hasn't sent yet
-            const uploaded = loadUploaded(user.uid);
+            // 3. Upload sprites for photos this device hasn't sent yet
+            const uploaded = loadIds(uploadedKey(user.uid));
+            const legacy = loadIds(legacyKey(user.uid));
             for (const f of friends) {
                 if (!hasRealPhoto(f) || !f.photoId || uploaded.has(f.photoId)) continue;
                 try {
-                    let data = f.profilePicture;
-                    if (data.length > MAX_PHOTO_CHARS) data = await compressImage(data);
                     await setDoc(photoRef(user.uid, f.photoId), {
-                        data,
+                        data: await makeSprite(f.profilePicture),
                         updatedAt: Date.now(),
                     });
                     uploaded.add(f.photoId);
+                    legacy.delete(f.photoId);
                 } catch (err) {
                     console.error(`Photo upload failed for ${f.name}:`, err);
                 }
@@ -166,17 +170,19 @@ export function useFirestoreSync(user, friends, isDemoMode) {
 
             // 4. Delete photos we uploaded that no friend points to anymore
             const referenced = new Set(friends.map((f) => f.photoId).filter(Boolean));
-            for (const photoId of [...uploaded]) {
+            for (const photoId of new Set([...uploaded, ...legacy])) {
                 if (referenced.has(photoId)) continue;
                 try {
                     await deleteDoc(photoRef(user.uid, photoId));
                     uploaded.delete(photoId);
+                    legacy.delete(photoId);
                 } catch (err) {
                     console.warn("Couldn't delete old photo:", err);
                 }
             }
 
-            saveUploaded(user.uid, uploaded);
+            saveIds(uploadedKey(user.uid), uploaded);
+            saveIds(legacyKey(user.uid), legacy);
         }, 800);
 
         return () => clearTimeout(saveTimerRef.current);

@@ -3,6 +3,7 @@
 // friend?" ray burst tinted from their name with their initial as the silhouette.
 // Drawn at render time (never stored) so it survives cloud sync and imports.
 import { useId } from "react";
+import { isSprite } from "./dex";
 
 // Older friends have a generated SVG letter avatar saved as their picture; treat
 // those as "no photo" so everyone gets the same placeholder
@@ -74,6 +75,7 @@ export default function FriendAvatar({ friend, name, src, className = "", ...img
                 src={photo}
                 alt=""
                 className={`w-full h-full object-cover ${className}`}
+                style={isSprite(photo) ? { imageRendering: "pixelated" } : undefined}
                 {...imgProps}
             />
         );

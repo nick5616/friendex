@@ -16,6 +16,8 @@ import {
     Pencil,
     ChevronLeft,
     Check,
+    Lock,
+    Medal,
 } from "lucide-react";
 import CatchCode from "./CatchCode";
 import PronounSelector from "./PronounSelector";
@@ -30,6 +32,13 @@ import {
 } from "./trainer";
 import { THEME_PRESETS, getCurrentTheme, setTheme } from "./theme";
 import { formatPronouns } from "./utils";
+import {
+    isUnlocked,
+    unlockAt,
+    nextMilestone,
+    earnedBadges,
+    getTrainerTitle,
+} from "./unlocks";
 
 const formatBirthday = (value) =>
     new Date(`${value}T00:00`).toLocaleDateString(undefined, {
@@ -51,8 +60,9 @@ function SheetButton({ icon: Icon, children, onClick, danger }) {
     );
 }
 
-function ThemeVersions({ onCustomize }) {
+function ThemeVersions({ best, onCustomize }) {
     const [current, setCurrent] = useState(getCurrentTheme);
+    const canCustomize = isUnlocked("customizer", best);
 
     const pick = (preset) => {
         setTheme(preset);
@@ -63,17 +73,43 @@ function ThemeVersions({ onCustomize }) {
         <section>
             <div className="flex items-baseline justify-between mb-2">
                 <h3 className="font-pixel text-xs text-stone-500">VERSION</h3>
-                <button
-                    onClick={onCustomize}
-                    className="text-sm font-bold text-stone-600 flex items-center gap-1 underline underline-offset-2"
-                >
-                    <Palette className="w-4 h-4" /> Customize
-                </button>
+                {canCustomize ? (
+                    <button
+                        onClick={onCustomize}
+                        className="text-sm font-bold text-stone-600 flex items-center gap-1 underline underline-offset-2"
+                    >
+                        <Palette className="w-4 h-4" /> Customize
+                    </button>
+                ) : (
+                    <span className="text-sm font-bold text-stone-400 flex items-center gap-1">
+                        <Lock className="w-4 h-4" /> Customize at {unlockAt("customizer")}
+                    </span>
+                )}
             </div>
             <div className="grid grid-cols-4 gap-2">
                 {THEME_PRESETS.map((preset) => {
                     const selected =
                         current.color === preset.color && current.scheme === preset.scheme;
+                    const key = `version:${preset.name}`;
+                    if (!isUnlocked(key, best)) {
+                        return (
+                            <div
+                                key={preset.name}
+                                className="flex flex-col items-center gap-1"
+                                aria-label={`Locked until ${unlockAt(key)} friends`}
+                            >
+                                <span
+                                    className="w-full h-10 border-2 border-dashed border-stone-400 bg-stone-100 flex items-center justify-center text-stone-400"
+                                    style={{ borderRadius: "var(--radius-dex)" }}
+                                >
+                                    <Lock className="w-4 h-4" />
+                                </span>
+                                <span className="text-sm font-bold leading-none text-stone-400">
+                                    {unlockAt(key)}
+                                </span>
+                            </div>
+                        );
+                    }
                     return (
                         <button
                             key={preset.name}
@@ -102,6 +138,35 @@ function ThemeVersions({ onCustomize }) {
                     );
                 })}
             </div>
+        </section>
+    );
+}
+
+// Progress toward the next unlock; past the last one, nothing to chase
+function NextUnlock({ best }) {
+    const next = nextMilestone(best);
+    if (!next) return null;
+    const left = next.at - best;
+    return (
+        <section>
+            <div className="flex items-baseline justify-between mb-1">
+                <h3 className="font-pixel text-xs text-stone-500">NEXT UNLOCK</h3>
+                <span className="font-pixel text-xs text-stone-500">
+                    {best}/{next.at}
+                </span>
+            </div>
+            <div className="h-3 border-2 border-stone-800 rounded-full overflow-hidden bg-stone-100">
+                <div
+                    className="h-full"
+                    style={{
+                        width: `${Math.min(100, (best / next.at) * 100)}%`,
+                        background: "var(--color-shell)",
+                    }}
+                />
+            </div>
+            <p className="text-base text-stone-600 mt-1">
+                {left} more friend{left === 1 ? "" : "s"} for <b>{next.name}</b>
+            </p>
         </section>
     );
 }
@@ -194,6 +259,7 @@ export default function TrainerCard({
     user,
     isDemoMode,
     stats,
+    best = 0,
     onClose,
     onChangeTheme,
     onImport,
@@ -228,6 +294,8 @@ export default function TrainerCard({
     };
 
     const photo = !isDemoMode && user?.photoURL;
+    const badges = earnedBadges(best);
+    const shiny = isUnlocked("badge:Sinnoh", best);
     const title = { home: "TRAINER CARD", catch: "CATCH ME", edit: "EDIT PROFILE" }[page];
 
     return (
@@ -290,7 +358,9 @@ export default function TrainerCard({
                     {page === "home" && (
                         <>
                             {/* ID panel */}
-                            <div className="dex-card !p-4 flex items-center gap-4">
+                            <div
+                                className={`dex-card !p-4 flex items-center gap-4 ${shiny ? "trainer-shiny" : ""}`}
+                            >
                                 <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-stone-800 bg-stone-200 flex items-center justify-center text-3xl font-bold text-stone-600 flex-shrink-0">
                                     {photo ? (
                                         <img
@@ -315,6 +385,9 @@ export default function TrainerCard({
                                         >
                                             <Pencil className="w-4 h-4" />
                                         </button>
+                                    </div>
+                                    <div className="font-pixel text-[10px] text-stone-500 mt-0.5">
+                                        {getTrainerTitle(best).toUpperCase()}
                                     </div>
                                     {(profile.pronouns || profile.birthday) && (
                                         <div className="flex flex-wrap items-center gap-1.5 mt-1">
@@ -383,7 +456,23 @@ export default function TrainerCard({
                                 Let a friend catch you
                             </button>
 
-                            <ThemeVersions onCustomize={onChangeTheme} />
+                            {badges.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 -mt-2">
+                                    {badges.map((region) => (
+                                        <span
+                                            key={region}
+                                            className="dex-tag bg-yellow-300 text-stone-900 border-stone-800 flex items-center gap-1"
+                                        >
+                                            <Medal className="w-3.5 h-3.5" />
+                                            {region}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
+                            <NextUnlock best={best} />
+
+                            <ThemeVersions best={best} onCustomize={onChangeTheme} />
 
                             <div className="flex flex-col gap-2">
                                 {!isDemoMode && (

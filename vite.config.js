@@ -23,4 +23,22 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(BUILD_ID),
   },
+  build: {
+    // Vendor chunks are big but long-lived in cache, which is the point
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        // Libraries change far less often than app code. Splitting them into
+        // their own chunks keeps their hashes stable across deploys, so returning
+        // users only re-download the (small) app chunk after an update.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (id.includes('firebase')) return 'vendor-firebase'
+          if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'vendor-motion'
+          if (id.includes('jsqr')) return
+          return 'vendor'
+        },
+      },
+    },
+  },
 })

@@ -11,6 +11,7 @@ import {
     calculateColorHarmony,
     calculateContrastRatio,
 } from "./utils";
+import { isUnlocked, unlockAt } from "./unlocks";
 
 const USER_COLOR_KEY = "userColor";
 const LAST_COLOR_KEY = "lastColor";
@@ -39,7 +40,9 @@ const LIGHTNESSES = [50, 70, 90];
 // Default saturation (will be controlled by slider)
 const DEFAULT_SATURATION = 85;
 
-function UserColorPicker({ onCancel, basePath = "" }) {
+function UserColorPicker({ onCancel, basePath = "", best = 0 }) {
+    const canMix = isUnlocked("mixItUp", best);
+    const canHarmonize = isUnlocked("schemes", best);
     const [savedColor, setSavedColor] = useState(DEFAULT_COLOR); // Currently applied color
     const [previewColor, setPreviewColor] = useState(DEFAULT_COLOR); // Preview color (not applied yet)
     const [saturation, setSaturation] = useState(DEFAULT_SATURATION);
@@ -504,6 +507,7 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                             <input
                                 type="checkbox"
                                 checked={mixItUp}
+                                disabled={!canMix}
                                 onChange={(e) =>
                                     handleMixItUpChange(e.target.checked)
                                 }
@@ -514,7 +518,9 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                             </span>
                         </label>
                         <div className="text-xs text-stone-600 ml-6">
-                            Use different hues for text colors
+                            {canMix
+                                ? "Use different hues for text colors"
+                                : `Unlocks at ${unlockAt("mixItUp")} friends`}
                         </div>
                     </div>
                 )}
@@ -532,13 +538,19 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                                 scheme
                             );
                             const isSelected = colorScheme === scheme;
+                            const locked =
+                                !canHarmonize &&
+                                scheme !== COLOR_SCHEMES.MONOCHROME;
 
                             return (
                                 <button
                                     key={scheme}
                                     onClick={() => handleSchemeChange(scheme)}
+                                    disabled={locked}
                                     className={`p-2 border-2 rounded transition-all ${
-                                        isSelected
+                                        locked
+                                            ? "border-dashed border-stone-300 opacity-50"
+                                            : isSelected
                                             ? "border-stone-900 bg-stone-100 scale-105 shadow-md"
                                             : "border-stone-400 hover:border-stone-600 hover:bg-stone-50"
                                     }`}
@@ -579,6 +591,8 @@ function UserColorPicker({ onCancel, basePath = "" }) {
                                         {schemeInfo.colors === 1
                                             ? "color"
                                             : "colors"}
+                                        {locked &&
+                                            ` · at ${unlockAt("schemes")} friends`}
                                     </div>
                                 </button>
                             );

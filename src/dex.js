@@ -196,6 +196,48 @@ export const compressImage = (source, maxDim = 512, quality = 0.82) =>
         img.src = url;
     });
 
+// The cloud copy of a photo: a tiny center-cropped square, drawn pixelated on
+// devices that don't have the full photo. Full photos never leave the device
+// that took them, which keeps cloud storage ~20x smaller than syncing JPEGs.
+export const SPRITE_SIZE = 64;
+
+export const makeSprite = (source, size = SPRITE_SIZE, quality = 0.8) =>
+    new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            const side = Math.min(img.width, img.height);
+            const canvas = document.createElement("canvas");
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, size, size);
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(
+                img,
+                (img.width - side) / 2,
+                (img.height - side) / 2,
+                side,
+                side,
+                0,
+                0,
+                size,
+                size
+            );
+            resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = reject;
+        img.src = source;
+    });
+
+// Sprites are a few KB; a full 512px photo is tens of KB. Anything this small is
+// low-res enough that crisp pixel scaling looks better than blurry smoothing.
+const SPRITE_MAX_CHARS = 12_000;
+export const isSprite = (dataUrl) =>
+    typeof dataUrl === "string" &&
+    dataUrl.startsWith("data:image/") &&
+    dataUrl.length <= SPRITE_MAX_CHARS;
+
 export const newPhotoId = () =>
     crypto.randomUUID?.() ??
     `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;

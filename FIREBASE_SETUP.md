@@ -23,9 +23,19 @@ One-time setup to enable Google Auth + cloud sync.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // The user doc (friends list) and its subcollections (photos)
-    match /users/{userId}/{document=**} {
+    // The user doc (friends list). Firestore's 1MB doc limit caps its size.
+    match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    // One 64px sprite per photo. The size cap keeps a modified client from
+    // filling storage with full-size images.
+    match /users/{userId}/photos/{photoId} {
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['data', 'updatedAt'])
+        && request.resource.data.data is string
+        && request.resource.data.data.size() <= 16000;
     }
     // Catch log: one doc per person who caught a trainer. The catcher writes
     // their own entry; only the trainer can read (count) them.
@@ -44,9 +54,11 @@ The "Caught you" count on the trainer card reads `catches/{uid}/by`. Without
 the `catches` rule, catching still works but the count stays at "–".
 
 Friend photos are stored one per document in `users/{uid}/photos/{photoId}`
-(compressed JPEGs, kept small to stay under Firestore's 1MB document limit),
-so the rule above must cover subcollections. If you set up the older rule that
-only matched `/users/{userId}`, update it — otherwise photos won't sync.
+as 64px JPEG sprites (a few KB each). Full photos stay on the device that
+added them; other devices show the sprite. Devices that still hold a full
+photo overwrite its old full-size cloud copy with a sprite on their next sync.
+If you set up an older rule, replace it with the one above — otherwise photos
+won't sync, or big uploads won't be blocked. See `SCALING.md` for why.
 
 ### 4. Get your web app config
 1. Project Overview → **Add app** → Web (</>) icon
